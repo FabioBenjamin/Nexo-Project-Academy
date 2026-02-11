@@ -46,7 +46,7 @@
   </td>
 
   <td align="center" style="padding: 20px; border: 2px solid #ccc; border-radius: 10px; margin: 10px;">
-      <a href="https://github.com/dspaia">
+      <a href="https://github.com/LLemosDev">
         <img src="https://avatars.githubusercontent.com/u/183765739?v=4" width="100px" alt="Foto do Lucas Lemos no GitHub"/><br>
         <sub><b>Lucas de Lemos Bovi Amate</b></sub>
       </a>
@@ -54,7 +54,7 @@
 
   
   <td align="center" style="padding: 20px; border: 2px solid #ccc; border-radius: 10px; margin: 10px;">
-      <a href="https://github.com/dspaia">
+      <a href="https://github.com/thiago-arine">
         <img src="https://avatars.githubusercontent.com/u/177758999?v=4" width="100px" alt="Foto do Thiago Arine no GitHub"/><br>
         <sub><b>Thiago Pereira Arine</b></sub>
       </a>
