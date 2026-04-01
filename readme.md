@@ -1,11 +1,21 @@
-><h1 align = "center"> NEXO - Projeto de Matematica computacional </h1>
+<h1 align = "center"> 🎒 NEXO - Computational Mathematics Project </h1>
+
+<br>
 
 ## 📝 Sobre o Projeto
-O NEXO é uma solução inteligente de gestão acadêmica desenvolvida para combater a desmotivação e a desorganização no cenário educacional contemporâneo. O projeto nasceu da percepção de que metodologias tradicionais de "tamanho único" falham ao ignorar o ritmo individual de cada aluno, resultando em procrastinação e abandono escolar.
+_O NEXO é uma solução inteligente de gestão acadêmica desenvolvida para combater a desmotivação e a desorganização no cenário educacional contemporâneo. O projeto nasceu da percepção de que metodologias tradicionais de "tamanho único" falham ao ignorar o ritmo individual de cada aluno, resultando em procrastinação e abandono escolar. <br>
+<br>Através da integração com a IA Gemini, a plataforma transforma conteúdos densos em trilhas de aprendizado personalizadas, oferecendo suporte contínuo, feedback imediato e uma gestão de tempo eficiente. O objetivo é resgatar a autonomia do estudante, transformando a sobrecarga de informações em um processo de evolução contínua e motivadora_
 
-Através da integração com a IA Gemini, a plataforma transforma conteúdos densos em trilhas de aprendizado personalizadas, oferecendo suporte contínuo, feedback imediato e uma gestão de tempo eficiente. O objetivo é resgatar a autonomia do estudante, transformando a sobrecarga de informações em um processo de evolução contínua e motivadora
+---
 
-## 📖 Funcionalidades da (nome do projeto)
+### 🧠 Significado de NEXO
+
+---
+
+## 📖 Funcionalidades da NEXO
+---
+
+<!--Pagina Home do projeto-->  
 
 ### 📱 Funcionalidades Gerais 
 - **Agenda Dinâmica**: Gestão centralizada de tarefas e cronogramas, conectando prazos e prioridades.
@@ -20,19 +30,33 @@ Através da integração com a IA Gemini, a plataforma transforma conteúdos den
 
 - **Experiência Responsiva**: Interface otimizada para uso fluido em dispositivos móveis e desktop.
 
-### 🖥️ Front- End
+## 🖥️ Front- End
 ---
 
-### 🔧 Back-End
+## 🔧 Back-End
 ---
 
-### 🗃️ Banco de dados
+## 🗃️ Banco de dados
 ---
 
-### 🔒 Segurança
+## 🔒 Segurança
+---
+
+## 📂 Estrutura de arquivos
+---
+
+## 🎨 Layout
+
+<!-- FOTOS DO APLICATIVO EM GERAL -->
+
 ---
 
 ## 🔧 Tecnologias utilizadas
+* **_Back End_** - Java e Python
+* **_Front End_** - React Native e Kotlin
+* **_Banco de dados_** - PostgreSQL
+* **_Framework_** - FastAPI e Flask
+* **_Design_** - Figma e Teoria das Cores
 ---
 
 ## 👥 Equipe de Desenvolvedores
@@ -79,13 +103,13 @@ Através da integração com a IA Gemini, a plataforma transforma conteúdos den
 
 <div align="center">
 
-**Almir César da Silva Filho** - <p>
-**Fabio Benjamin Oliveira** - <p>
-**Lucas de Lemos Bovi Amate** - <p>
-**Thiago Pereira Arine** - <p>
+**Almir César da Silva Filho** - Front End e Design <p>
+**Fabio Benjamin Oliveira** - Back End e Banco de dados <p>
+**Lucas de Lemos Bovi Amate** - Back End e Banco de dados <p>
+**Thiago Pereira Arine** - Front Back e Design <p>
 
 </div>
 
 ## :dart: Status do projeto
 
-* 🚧 Em Desenvolvimento 🚧
+<div align="center"> 🚧 Em Desenvolvimento 🚧 </div>
