@@ -9,11 +9,27 @@ _O NEXO é uma solução inteligente de gestão acadêmica desenvolvida para com
 ---
 
 ### 🧠 Significado de NEXO
+* NEXO - Representa a **_conexão inteligente entre conhecimento, tecnologia e evolução do estudante._**
+
+###  🔗 Simbologia:
+* 📚 **Conteúdo** - *(O que aprender)*
+* 🤖 **Inteligência Artificial** - *(Como aprender)*
+* 🎯 **Objetivos do aluno** - *(Por que aprender)*
+
+
+<p>
+Mais do que uma palavra, <b>NEXO</b> é a ideia de transformar informação em progresso , conectando dados, desempenho e personalização em uma única experiência educacional.
+</p>
+
+<div align="center">
+  
+### **_Menos sobrecarga. Mais evolução. 🚀_**
+
+</div>
 
 ---
 
 ## 📖 Funcionalidades da NEXO
----
 
 <!--Pagina Home do projeto-->  
 
@@ -31,15 +47,30 @@ _O NEXO é uma solução inteligente de gestão acadêmica desenvolvida para com
 - **Experiência Responsiva**: Interface otimizada para uso fluido em dispositivos móveis e desktop.
 
 ## 🖥️ Front- End
+<!-- ADICIONAR AS FUTURAS COISAS -->
 ---
 
 ## 🔧 Back-End
+<!-- ADICIONAR AS FUTURAS COISAS -->
 ---
 
 ## 🗃️ Banco de dados
+* 🐘 Utilização do **PostgreSQL**
+* 📊 Modelagem relacional estruturada
+* ⚡Otimização para consultas rápidas e eficientes 
+
+<!-- ADICIONAR AS FUTURAS COISAS -->
+
 ---
 
 ## 🔒 Segurança
+* 🔐 Criptografia de senhas
+* 🛡️ Autenticação e autorização de usuários
+* 🔑 Controle de acesso por níveis
+* ✅ Validação de dados no front-end e back-end
+* 🚫 Proteção contra acessos não autorizados
+* 📡 Comunicação segura entre cliente e servidor
+
 ---
 
 ## 📂 Estrutura de arquivos
@@ -103,10 +134,10 @@ _O NEXO é uma solução inteligente de gestão acadêmica desenvolvida para com
 
 <div align="center">
 
-**Almir César da Silva Filho** - Front End e Design <p>
-**Fabio Benjamin Oliveira** - Back End e Banco de dados <p>
-**Lucas de Lemos Bovi Amate** - Back End e Banco de dados <p>
-**Thiago Pereira Arine** - Front Back e Design <p>
+**Almir César da Silva Filho** - _Front End e Design_ <p>
+**Fabio Benjamin Oliveira** - _Back End e Banco de dados_ <p>
+**Lucas de Lemos Bovi Amate** - _Back End e Banco de dados_ <p>
+**Thiago Pereira Arine** - _Front Back e Design_ <p>
 
 </div>
 
