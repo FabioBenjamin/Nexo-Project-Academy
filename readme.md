@@ -1,9 +1,8 @@
 <h1 align="center"> 🎒 NEXO - Computational Mathematics Project </h1>
 
-<br>
 ## 📝 About the Project
 _NEXO is an intelligent academic management solution developed to combat demotivation and disorganization in the contemporary educational landscape. The project was born from the perception that traditional "one-size-fits-all" methodologies fail by ignoring each student's individual pace, resulting in procrastination and school dropout._  
-<br><br>
+<br>
 _Through integration with Gemini AI, the platform transforms dense content into personalized learning paths, offering continuous support, immediate feedback, and efficient time management. The goal is to restore student autonomy, turning information overload into a continuous and motivating evolution process._
 
 ---
