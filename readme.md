@@ -154,6 +154,8 @@ More than just a word, <b>NEXO</b> represents the idea of transforming informati
 <div>
   <sub>Chief Operations Officer (COO)</sub><br>
   <sub>Database Administrator</sub><br>
+  <sub>Backend Engineer</sub><br>
+  <sub>Software Development Analyst</sub><br>
   <sub>Information Security Analyst</sub>
 </div>
 </td>
