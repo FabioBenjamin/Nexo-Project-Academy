@@ -5,6 +5,7 @@ import com.nexus.nexus.exceptions.EmailAlreadyExistsException;
 import com.nexus.nexus.exceptions.UsernameAlreadyExistsException;
 import com.nexus.nexus.models.User;
 import com.nexus.nexus.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,9 +15,11 @@ public class AuthService {
     // that will be created once and cannot be modified
     // dependencies
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public AuthService(UserRepository userRepository){
         this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public void register(RegisterUserDTO dto){
@@ -31,14 +34,14 @@ public class AuthService {
             // Depois tem que fazer a validação de email usando EmailValidator
         }
 
-        // Pra fazer: Pegar senha, criptografar em hash e salvar em new_user
+        // Hash password
+        String hash_password = passwordEncoder.encode(dto.getPassword());
 
         User new_user = new User();
 
         new_user.setEmail(dto.getEmail());
         new_user.setUsername(dto.getUsername());
-        // Falta criptografar a senha para hash
-        new_user.setPassword(dto.getPassword());
+        new_user.setPassword(hash_password);
 
         userRepository.save(new_user);
     }
