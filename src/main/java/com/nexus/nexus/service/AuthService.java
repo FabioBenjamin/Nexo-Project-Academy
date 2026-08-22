@@ -1,12 +1,16 @@
 package com.nexus.nexus.service;
 
+import com.nexus.nexus.dto.LoginUserDTO;
 import com.nexus.nexus.dto.RegisterUserDTO;
 import com.nexus.nexus.exceptions.EmailAlreadyExistsException;
+import com.nexus.nexus.exceptions.InvalidCredentialsException;
 import com.nexus.nexus.exceptions.UsernameAlreadyExistsException;
 import com.nexus.nexus.models.User;
 import com.nexus.nexus.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -44,5 +48,20 @@ public class AuthService {
         new_user.setPassword(hash_password);
 
         userRepository.save(new_user);
+    }
+
+    public Long login(LoginUserDTO dto){
+
+        // find user by username if exists, else throw exception
+        User user = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid Credentials"));
+
+        // Verify password
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())){
+            throw new InvalidCredentialsException("Invalid Credentials");
+        }
+
+        return user.getUser_id();
+
     }
 }
