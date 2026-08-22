@@ -1,8 +1,8 @@
 package com.nexus.nexus.exceptions;
 
-public class InvalidCredentialException extends RuntimeException{
+public class InvalidCredentialsException extends RuntimeException{
 
-    public InvalidCredentialException(String message){
+    public InvalidCredentialsException(String message){
         super(message);
     }
 }
