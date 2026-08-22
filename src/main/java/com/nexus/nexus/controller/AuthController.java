@@ -68,4 +68,12 @@ public class AuthController {
                     .body(e.getMessage());
         }
     }
+
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpSession session){
+
+        // Clearing session
+        session.invalidate();
+        return ResponseEntity.status(200).body("Success");
+    }
 }
