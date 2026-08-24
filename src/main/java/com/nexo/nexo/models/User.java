@@ -1,4 +1,4 @@
-package com.nexus.nexus.models;
+package com.nexo.nexo.models;
 
 import jakarta.persistence.*;
 
@@ -8,7 +8,7 @@ public class User {
 
     @Id // tell: this attribute is the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
-    private Long user_id;
+    private Long id;
 
     @Column(nullable = false, length = 50)
     private String username;
@@ -20,8 +20,8 @@ public class User {
     private String password;
 
 
-    public Long getUser_id(){
-        return user_id;
+    public Long getId(){
+        return id;
     }
     public String getUsername() {
         return username;

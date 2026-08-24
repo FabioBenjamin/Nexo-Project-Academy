@@ -1,11 +1,11 @@
-package com.nexus.nexus.controller;
+package com.nexo.nexo.controller;
 
-import com.nexus.nexus.dto.LoginUserDTO;
-import com.nexus.nexus.dto.RegisterUserDTO;
-import com.nexus.nexus.exceptions.EmailAlreadyExistsException;
-import com.nexus.nexus.exceptions.InvalidCredentialsException;
-import com.nexus.nexus.exceptions.UsernameAlreadyExistsException;
-import com.nexus.nexus.service.AuthService;
+import com.nexo.nexo.dto.LoginUserDTO;
+import com.nexo.nexo.dto.RegisterUserDTO;
+import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
+import com.nexo.nexo.exceptions.InvalidCredentialsException;
+import com.nexo.nexo.exceptions.UsernameAlreadyExistsException;
+import com.nexo.nexo.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -68,7 +68,6 @@ public class AuthController {
                     .body(e.getMessage());
         }
     }
-
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpSession session){
 

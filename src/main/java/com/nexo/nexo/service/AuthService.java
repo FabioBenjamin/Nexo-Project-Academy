@@ -1,12 +1,12 @@
-package com.nexus.nexus.service;
+package com.nexo.nexo.service;
 
-import com.nexus.nexus.dto.LoginUserDTO;
-import com.nexus.nexus.dto.RegisterUserDTO;
-import com.nexus.nexus.exceptions.EmailAlreadyExistsException;
-import com.nexus.nexus.exceptions.InvalidCredentialsException;
-import com.nexus.nexus.exceptions.UsernameAlreadyExistsException;
-import com.nexus.nexus.models.User;
-import com.nexus.nexus.repository.UserRepository;
+import com.nexo.nexo.dto.LoginUserDTO;
+import com.nexo.nexo.dto.RegisterUserDTO;
+import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
+import com.nexo.nexo.exceptions.InvalidCredentialsException;
+import com.nexo.nexo.exceptions.UsernameAlreadyExistsException;
+import com.nexo.nexo.models.User;
+import com.nexo.nexo.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +61,7 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid Credentials");
         }
 
-        return user.getUser_id();
+        return user.getId();
 
     }
 }
