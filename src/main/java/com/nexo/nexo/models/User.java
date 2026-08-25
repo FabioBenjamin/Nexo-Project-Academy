@@ -3,11 +3,13 @@ package com.nexo.nexo.models;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
 
     @Id // tell: this attribute is the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
+    // every time attribute is different to tablename name, must specify tb_name in @Column
+    @Column(name = "user_id")
     private Long id;
 
     @Column(nullable = false, length = 50)
