@@ -1,26 +1,29 @@
 package com.nexo.nexo.models;
 
+import jakarta.persistence.*;
+
 @Entity
 @Table(name="settings")
-public class Setting {
+public class Settings {
 
     @Id // tell: this attribute is the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
     // every time attribute is different to tablename name, must specify tb_name in @Column
-    @Column(name = "topicprogress_id")
+    @Column(name = "settings_id")
     private Long id;
 
     @ManyToOne // N:1
-    @JoinColumn(name = "user_id") // Find FK
+    @JoinColumn(name = "user_id", unique = true) // Find FK
     private User user;
 
     @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean notifications;
 
-    @Column(columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
+    @Column(name = "lang", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
     private String language;
 
-    // TODO: modelar coluna theme
+    @Column(length = 10, columnDefinition = "DEFAULT 'light'", nullable = false)
+    private String theme;
 
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean studyWeekends;
@@ -45,6 +48,8 @@ public class Setting {
         return studyWeekends;
     }
 
+    public String getTheme() { return theme; }
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -60,4 +65,6 @@ public class Setting {
     public void setStudyWeekends(Boolean studyWeekends) {
         this.studyWeekends = studyWeekends;
     }
+
+    public void setTheme(String theme) { this.theme = theme; }
 }
