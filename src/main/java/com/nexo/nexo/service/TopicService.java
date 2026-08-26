@@ -1,6 +1,7 @@
 package com.nexo.nexo.service;
 
 import com.nexo.nexo.repository.TopicRepository;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TopicService {
