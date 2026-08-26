@@ -7,6 +7,7 @@ import com.nexo.nexo.exceptions.InvalidCredentialsException;
 import com.nexo.nexo.exceptions.UsernameAlreadyExistsException;
 import com.nexo.nexo.service.AuthService;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,54 +26,34 @@ public class AuthController {
 
     @PostMapping("/register")
     // Use response entity because it allows you to control
-    // and personalize HTTP response details
-    public ResponseEntity<String> register(@RequestBody RegisterUserDTO dto){
+    // and personalize HTTP response detail
+    public ResponseEntity<Void> register(@RequestBody RegisterUserDTO dto){
 
-        try {
-            authService.register(dto);
+        authService.register(dto);
 
-            // return a HTTP response
-            return ResponseEntity
-                    .status(201) // Status code 201: created
-                    .body("User registered successfully");
+        // return a HTTP response
+        // Status code 201: Created
+        // .build() build response entity without body
+        return ResponseEntity.status(HttpStatus.CREATED).build();
 
-        } catch (EmailAlreadyExistsException e) {
-            // return a HTTP response
-            return ResponseEntity
-                    .status(409) // Status code 409: Conflict
-                    .body(e.getMessage());
-
-        } catch (UsernameAlreadyExistsException e){
-            // return HHTP response
-            return ResponseEntity
-                    .status(409) // Status code 409: Conflict
-                    .body(e.getMessage());
-        }
     }
 
     @GetMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginUserDTO dto, HttpSession session){
+    public ResponseEntity<Void> login(@RequestBody LoginUserDTO dto, HttpSession session){
 
-        try{
-            Long user_id = authService.login(dto);
-            // Spring automatically generates and sends session cookie
-            session.setAttribute("user_id", user_id);
+        Long user_id = authService.login(dto);
+        // Spring automatically generates and sends session cookie
+        session.setAttribute("user_id", user_id);
 
-            // Status code 200: ok
-            return ResponseEntity.status(200).body("Login successfully");
-
-        } catch (InvalidCredentialsException e){
-            // Return HTTP response
-            return ResponseEntity
-                    .status(409) // Status code 409: Conflict
-                    .body(e.getMessage());
-        }
+        // Status code 200: ok
+        return ResponseEntity.ok().build();
     }
+
     @GetMapping("/logout")
-    public ResponseEntity<String> logout(HttpSession session){
+    public ResponseEntity<Void> logout(HttpSession session){
 
         // Clearing session
         session.invalidate();
-        return ResponseEntity.status(200).body("Success");
+        return ResponseEntity.ok().build(); // Status code 200: ok
     }
 }
