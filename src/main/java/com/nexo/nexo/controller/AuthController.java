@@ -37,7 +37,6 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
 
     }
-
     @GetMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginUserDTO dto, HttpSession session){
 
