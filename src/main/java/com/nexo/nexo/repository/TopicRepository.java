@@ -1,7 +1,6 @@
 package com.nexo.nexo.repository;
 
-import com.nexo.nexo.models.Topic;
-import com.nexo.nexo.models.User;
+import com.nexo.nexo.models.classes.Topic;
 
 public interface TopicRepository extends JpaRepository<Topic, Long>{
 

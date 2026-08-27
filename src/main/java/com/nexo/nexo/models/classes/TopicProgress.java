@@ -1,5 +1,6 @@
-package com.nexo.nexo.models;
+package com.nexo.nexo.models.classes;
 
+import com.nexo.nexo.models.enums.TopicProgressStatus;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 

@@ -5,12 +5,10 @@ import com.nexo.nexo.dto.RegisterUserDTO;
 import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
 import com.nexo.nexo.exceptions.InvalidCredentialsException;
 import com.nexo.nexo.exceptions.UsernameAlreadyExistsException;
-import com.nexo.nexo.models.User;
+import com.nexo.nexo.models.classes.User;
 import com.nexo.nexo.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class AuthService {

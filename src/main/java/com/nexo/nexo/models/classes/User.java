@@ -1,4 +1,4 @@
-package com.nexo.nexo.models;
+package com.nexo.nexo.models.classes;
 
 import jakarta.persistence.*;
 

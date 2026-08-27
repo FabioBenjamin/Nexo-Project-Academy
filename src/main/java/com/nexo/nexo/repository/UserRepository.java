@@ -1,6 +1,6 @@
 package com.nexo.nexo.repository;
 
-import com.nexo.nexo.models.User;
+import com.nexo.nexo.models.classes.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
