@@ -37,7 +37,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
 
     }
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginUserDTO dto, HttpSession session){
 
         Long user_id = authService.login(dto);

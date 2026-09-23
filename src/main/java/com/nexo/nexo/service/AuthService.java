@@ -4,11 +4,13 @@ import com.nexo.nexo.dto.LoginUserDTO;
 import com.nexo.nexo.dto.RegisterUserDTO;
 import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
 import com.nexo.nexo.exceptions.InvalidCredentialsException;
+import com.nexo.nexo.exceptions.InvalidEmailException;
 import com.nexo.nexo.exceptions.UsernameAlreadyExistsException;
 import com.nexo.nexo.models.classes.User;
 import com.nexo.nexo.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.apache.commons.validator.routines.EmailValidator;
 
 @Service
 public class AuthService {
@@ -18,10 +20,12 @@ public class AuthService {
     // dependencies
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final EmailValidator emailValidator;
 
     public AuthService(UserRepository userRepository){
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
+        this.emailValidator = EmailValidator.getInstance();
     }
 
     public void register(RegisterUserDTO dto){
@@ -31,9 +35,12 @@ public class AuthService {
             throw new UsernameAlreadyExistsException("Username is taken. Please choose another one");
         }
         // valid email
+        if(!emailValidator.isValid(dto.getEmail())){
+            throw new InvalidEmailException("Invalid Email!");
+        }
+        // email in use
         if (userRepository.existsByEmail(dto.getEmail())){
             throw new EmailAlreadyExistsException("Email is already in use");
-            // Depois tem que fazer a validação de email usando EmailValidator
         }
 
         // Hash password
