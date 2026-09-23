@@ -59,4 +59,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(error);
     }
+
+    @ExceptionHandler(InvalidEmailException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidEmailException(
+            InvalidEmailException e)
+    {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                "Conflict",
+                e.getMessage(),
+                409
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
 }
+
