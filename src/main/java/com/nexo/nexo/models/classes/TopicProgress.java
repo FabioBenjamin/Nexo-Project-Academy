@@ -12,7 +12,7 @@ public class TopicProgress {
     @Id // tell: this attribute is the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
     // every time attribute is different to tablename name, must specify tb_name in @Column
-    @Column(name = "topicprogress_id")
+    @Column(name = "progress_id")
     private Long id;
 
     @ManyToOne // N:1
@@ -22,7 +22,7 @@ public class TopicProgress {
     @Enumerated(EnumType.STRING)
     private TopicProgressStatus status;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "scheduled_date")
     private LocalDate targetDate;
 
     @Column(columnDefinition = "DATE DEFAULT CURRENT_DATE", insertable = false)

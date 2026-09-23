@@ -16,14 +16,14 @@ public class Topic {
     @JoinColumn(name = "studytrail_id") // Find FK
     private StudyTrail studyTrail;
 
-    @ManyToOne // N:1 -> in this case: auto relationship
-    @JoinColumn(name = "topic_id")
+    @ManyToOne(fetch = FetchType.LAZY) // N:1 -> in this case: auto relationship
+    @JoinColumn(name = "parent_id")
     private Topic parentTopic;
 
     @Column(length = 40, nullable = false)
     private String title;
 
-    @Column(name = "oreder_index", nullable = false)
+    @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
     public Long getId() {
