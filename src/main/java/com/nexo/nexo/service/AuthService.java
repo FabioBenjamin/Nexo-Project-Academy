@@ -1,5 +1,7 @@
 package com.nexo.nexo.service;
 
+import com.nexo.nexo.security.JwtService;
+import com.nexo.nexo.dto.LoginResponseDTO;
 import com.nexo.nexo.dto.LoginUserDTO;
 import com.nexo.nexo.dto.RegisterUserDTO;
 import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
@@ -21,11 +23,13 @@ public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailValidator emailValidator;
+    private final JwtService jwtService;
 
-    public AuthService(UserRepository userRepository){
+    public AuthService(UserRepository userRepository, JwtService jwtService){
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.emailValidator = EmailValidator.getInstance();
+        this.jwtService = jwtService;
     }
 
     public void register(RegisterUserDTO dto){
@@ -55,7 +59,7 @@ public class AuthService {
         userRepository.save(new_user);
     }
 
-    public Long login(LoginUserDTO dto){
+    public LoginResponseDTO login(LoginUserDTO dto){
 
         // find user by username if exists, else throw exception
         User user = userRepository.findByUsername(dto.getUsername())
@@ -66,7 +70,7 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid Credentials");
         }
 
-        return user.getId();
+        return new LoginResponseDTO(jwtService.generateToken(user.getId()));
 
     }
 }

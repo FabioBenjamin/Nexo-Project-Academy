@@ -1,10 +1,9 @@
 package com.nexo.nexo.controller;
 
+import com.nexo.nexo.security.JwtService;
+import com.nexo.nexo.dto.LoginResponseDTO;
 import com.nexo.nexo.dto.LoginUserDTO;
 import com.nexo.nexo.dto.RegisterUserDTO;
-import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
-import com.nexo.nexo.exceptions.InvalidCredentialsException;
-import com.nexo.nexo.exceptions.UsernameAlreadyExistsException;
 import com.nexo.nexo.service.AuthService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -18,10 +17,12 @@ public class AuthController {
 
     // dependencies
     private final AuthService authService;
+    private final JwtService jwtService;
 
     // Constructor
-    public AuthController(AuthService authService){
+    public AuthController(AuthService authService, JwtService jwtService){
         this.authService = authService;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/register")
@@ -38,14 +39,11 @@ public class AuthController {
 
     }
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody LoginUserDTO dto, HttpSession session){
-
-        Long user_id = authService.login(dto);
-        // Spring automatically generates and sends session cookie
-        session.setAttribute("user_id", user_id);
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginUserDTO dto){
 
         // Status code 200: ok
-        return ResponseEntity.ok().build();
+        // return JWT token
+        return ResponseEntity.ok(authService.login(dto));
     }
 
     @GetMapping("/logout")
@@ -54,5 +52,13 @@ public class AuthController {
         // Clearing session
         session.invalidate();
         return ResponseEntity.ok().build(); // Status code 200: ok
+    }
+
+    @GetMapping("/jwt/test")
+    public ResponseEntity<String> getJwt(){
+        long num = 1;
+        String token = jwtService.generateToken(num);
+
+        return ResponseEntity.ok(token);
     }
 }
