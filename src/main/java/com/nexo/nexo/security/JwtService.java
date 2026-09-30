@@ -20,6 +20,7 @@ public class JwtService {
         this.jwtDecoder = jwtDecoder;
     }
 
+    // Generate access token
     public String generateToken(Long user_id){
 
         // get the current time

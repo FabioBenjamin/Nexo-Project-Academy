@@ -1,10 +1,9 @@
 package com.nexo.nexo.controller;
 
+import com.nexo.nexo.dto.*;
 import com.nexo.nexo.security.JwtService;
-import com.nexo.nexo.dto.LoginResponseDTO;
-import com.nexo.nexo.dto.LoginUserDTO;
-import com.nexo.nexo.dto.RegisterUserDTO;
 import com.nexo.nexo.service.AuthService;
+import com.nexo.nexo.service.RefreshTokenService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +51,13 @@ public class AuthController {
         // Clearing session
         session.invalidate();
         return ResponseEntity.ok().build(); // Status code 200: ok
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AccessTokenResponse> refresh(@RequestBody RefreshTokenRequest dto){
+        return ResponseEntity.ok(
+                authService.refreshAccessToken(dto)
+        );
     }
 
     @GetMapping("/jwt/test")

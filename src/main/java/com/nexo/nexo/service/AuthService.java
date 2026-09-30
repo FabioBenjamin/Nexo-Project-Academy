@@ -1,9 +1,8 @@
 package com.nexo.nexo.service;
 
+import com.nexo.nexo.dto.*;
+import com.nexo.nexo.models.classes.RefreshToken;
 import com.nexo.nexo.security.JwtService;
-import com.nexo.nexo.dto.LoginResponseDTO;
-import com.nexo.nexo.dto.LoginUserDTO;
-import com.nexo.nexo.dto.RegisterUserDTO;
 import com.nexo.nexo.exceptions.EmailAlreadyExistsException;
 import com.nexo.nexo.exceptions.InvalidCredentialsException;
 import com.nexo.nexo.exceptions.InvalidEmailException;
@@ -24,12 +23,14 @@ public class AuthService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailValidator emailValidator;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthService(UserRepository userRepository, JwtService jwtService){
+    public AuthService(UserRepository userRepository, JwtService jwtService, RefreshTokenService refreshTokenService){
         this.userRepository = userRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
         this.emailValidator = EmailValidator.getInstance();
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     public void register(RegisterUserDTO dto){
@@ -70,7 +71,29 @@ public class AuthService {
             throw new InvalidCredentialsException("Invalid Credentials");
         }
 
-        return new LoginResponseDTO(jwtService.generateToken(user.getId()));
+        String accessToken = jwtService.generateToken(user.getId());
+
+        String refreshToken = refreshTokenService
+                .generateRefreshToken(user)
+                .getToken();
+
+        return new LoginResponseDTO(
+                accessToken,
+                refreshToken
+        );
+    }
+
+    public AccessTokenResponse refreshAccessToken(RefreshTokenRequest dto){
+
+        RefreshToken refreshToken = refreshTokenService
+                .validateRefreshToken(dto.refreshToken());
+
+        User user = refreshToken.getUser();
+
+        String accessToken = jwtService
+                .generateToken(user.getId());
+
+        return new AccessTokenResponse(accessToken);
 
     }
 }

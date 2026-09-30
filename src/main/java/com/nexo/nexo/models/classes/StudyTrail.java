@@ -29,7 +29,7 @@ public class StudyTrail {
     private LocalDate startDate;
 
     @Column(name="target_date", nullable = false)
-    private LocalDate tagetDate;
+    private LocalDate targetDate;
 
     @Enumerated(EnumType.STRING)
     private StudyTrailStatus status;
@@ -54,8 +54,8 @@ public class StudyTrail {
         return startDate;
     }
 
-    public LocalDate getTagetDate() {
-        return tagetDate;
+    public LocalDate getTargetDate() {
+        return targetDate;
     }
 
     public StudyTrailStatus getStatus() {
@@ -70,8 +70,8 @@ public class StudyTrail {
         this.description = description;
     }
 
-    public void setTagetDate(LocalDate tagetDate) {
-        this.tagetDate = tagetDate;
+    public void setTargetDate(LocalDate tagetDate) {
+        this.targetDate = tagetDate;
     }
 
     public void setStatus(StudyTrailStatus status) {
