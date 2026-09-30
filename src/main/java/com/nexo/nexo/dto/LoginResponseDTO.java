@@ -1,5 +1,6 @@
 package com.nexo.nexo.dto;
 
 public record LoginResponseDTO (
-    String token
+    String accessToken,
+    String refreshToken
 ){}
