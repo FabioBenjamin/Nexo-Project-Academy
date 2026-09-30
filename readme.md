@@ -80,10 +80,10 @@ More than just a word, <b>NEXO</b> represents the idea of transforming informati
 ---
 
 ## 🔧 Technologies Used
-* **Back End** – Java and Python  
-* **Front End** – React Native and Kotlin  
+* **Back End** – Java  
+* **Front End** – Studio Android
 * **Database** – PostgreSQL  
-* **Frameworks** – FastAPI and Flask  
+* **Frameworks** – FastAPI and API Gemini  
 * **Design** – Figma and Color Theory  
 
 ---
