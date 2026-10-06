@@ -94,6 +94,9 @@ public class AuthService {
                 .generateToken(user.getId());
 
         return new AccessTokenResponse(accessToken);
+    }
 
+    public void logout(RefreshTokenRequest dto){
+        refreshTokenService.revokeRefreshToken(dto.refreshToken());
     }
 }

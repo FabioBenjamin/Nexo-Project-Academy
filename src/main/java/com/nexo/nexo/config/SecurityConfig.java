@@ -21,10 +21,11 @@ public class SecurityConfig {
                         // Any other request that don't correspond to /auth, must be authenticated
                         .anyRequest().authenticated()
                 )
-                // Spring Security, minha aplicação recebe Bearer Tokens. Use JWT para autenticá-los
+                // Spring Security, my application receives Bearer Tokens. Use JWT to authenticate
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults())
                 )
+                // Do not create Http session, because we're using JWT which is stateless
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );

@@ -38,13 +38,29 @@ public class RefreshTokenService {
         // Get the refresh token
         RefreshToken refreshToken = refreshTokenRepository
                 .findByToken(token)
-                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid Refresh Token"));
 
         // Verify if it's not expired
         if(refreshToken.getExpires_at().isBefore(LocalDateTime.now())){
-            throw new InvalidRefreshTokenException("Refresh Token expired");
+            throw new InvalidRefreshTokenException("Refresh Token Expired");
+        }
+
+        // Verify If it's not revoked
+        if(refreshToken.isRevoked()){
+            throw new InvalidRefreshTokenException("Refresh Token Revoked");
         }
 
         return refreshToken;
+    }
+
+    public void revokeRefreshToken(String token){
+
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByToken(token)
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));
+
+        refreshToken.setRevoked(true);
+
+        refreshTokenRepository.save(refreshToken);
     }
 }

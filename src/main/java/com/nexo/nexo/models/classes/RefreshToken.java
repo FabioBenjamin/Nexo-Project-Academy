@@ -24,6 +24,9 @@ public class RefreshToken {
     @JoinColumn(name = "user_id") // Find FK
     private User user;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean revoked;
+
     public Long getId() {
         return id;
     }
@@ -40,6 +43,8 @@ public class RefreshToken {
         return user;
     }
 
+    public Boolean isRevoked(){ return revoked; }
+
     public void setUser(User user) {
         this.user = user;
     }
@@ -50,5 +55,9 @@ public class RefreshToken {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public void setRevoked(Boolean revoked){
+        this.revoked = revoked;
     }
 }

@@ -49,11 +49,12 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<Void> logout(HttpSession session){
+    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest dto){
 
-        // Clearing session
-        session.invalidate();
-        return ResponseEntity.ok().build(); // Status code 200: ok
+        authService.logout(dto);
+        // No content -> Status Code 204
+        // it means: the operation was successful and there is no content to return
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/refresh")
