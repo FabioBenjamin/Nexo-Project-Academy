@@ -13,7 +13,7 @@ public class GeminiConfig {
 
     // creates a Client instance when we need, and automatically inject where is necessary
     @Bean
-    public Client geminiapiClient(){
+    public Client geminiApiClient(){
         return Client.builder()
                 .apiKey(apiKey)
                 .build();

@@ -16,8 +16,8 @@ public class GeminiClient {
     public String test(){
         GenerateContentResponse response =
                 client.models.generateContent(
-                        "gemini-2.5-flash",
-                        "Responda apenas: OK",
+                        "gemini-3.5-flash-lite",
+                        "Responda o que é uma API",
                         null
                 );
 
