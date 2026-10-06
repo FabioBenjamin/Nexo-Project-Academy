@@ -1,5 +1,6 @@
 package com.nexo.nexo.service;
 
+import com.nexo.nexo.exceptions.InvalidRefreshTokenException;
 import com.nexo.nexo.models.classes.RefreshToken;
 import com.nexo.nexo.models.classes.User;
 import com.nexo.nexo.repository.RefreshTokenRepository;
@@ -37,11 +38,11 @@ public class RefreshTokenService {
         // Get the refresh token
         RefreshToken refreshToken = refreshTokenRepository
                 .findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));
 
         // Verify if it's not expired
         if(refreshToken.getExpires_at().isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Refresh Token expired");
+            throw new InvalidRefreshTokenException("Refresh Token expired");
         }
 
         return refreshToken;

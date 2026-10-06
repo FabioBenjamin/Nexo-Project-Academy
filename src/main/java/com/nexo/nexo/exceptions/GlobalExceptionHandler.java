@@ -74,5 +74,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(error);
     }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidRefreshToken(
+            InvalidRefreshTokenException e) {
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                "Unauthorized",
+                e.getMessage(),
+                401
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(error);
+    }
 }
 
