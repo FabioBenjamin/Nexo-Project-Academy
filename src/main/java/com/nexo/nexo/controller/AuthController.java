@@ -1,6 +1,7 @@
 package com.nexo.nexo.controller;
 
 import com.nexo.nexo.dto.*;
+import com.nexo.nexo.integration.gemini.GeminiClient;
 import com.nexo.nexo.security.JwtService;
 import com.nexo.nexo.service.AuthService;
 import com.nexo.nexo.service.RefreshTokenService;
@@ -17,11 +18,13 @@ public class AuthController {
     // dependencies
     private final AuthService authService;
     private final JwtService jwtService;
+    private final GeminiClient geminiClient;
 
     // Constructor
-    public AuthController(AuthService authService, JwtService jwtService){
+    public AuthController(AuthService authService, JwtService jwtService, GeminiClient geminiClient){
         this.authService = authService;
         this.jwtService = jwtService;
+        this.geminiClient = geminiClient;
     }
 
     @PostMapping("/register")
@@ -66,5 +69,10 @@ public class AuthController {
         String token = jwtService.generateToken(num);
 
         return ResponseEntity.ok(token);
+    }
+
+    @GetMapping("/gemini/test")
+    public ResponseEntity<String> test(){
+        return ResponseEntity.ok(geminiClient.test());
     }
 }
