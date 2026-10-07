@@ -18,13 +18,11 @@ public class AuthController {
     // dependencies
     private final AuthService authService;
     private final JwtService jwtService;
-    private final GeminiClient geminiClient;
 
     // Constructor
-    public AuthController(AuthService authService, JwtService jwtService, GeminiClient geminiClient){
+    public AuthController(AuthService authService, JwtService jwtService){
         this.authService = authService;
         this.jwtService = jwtService;
-        this.geminiClient = geminiClient;
     }
 
     @PostMapping("/register")
@@ -72,8 +70,4 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-    @GetMapping("/gemini/test")
-    public ResponseEntity<String> test(){
-        return ResponseEntity.ok(geminiClient.test());
-    }
 }

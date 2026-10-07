@@ -28,6 +28,7 @@ public class RefreshTokenService {
         refreshToken.setToken(UUID.randomUUID().toString());
         refreshToken.setUser(user);
         refreshToken.setExpires_at(LocalDateTime.now().plusDays(30));
+        refreshToken.setRevoked(false);
 
         // Save in db and return the Obj
         return refreshTokenRepository.save(refreshToken);
