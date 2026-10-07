@@ -1,7 +1,7 @@
 package com.nexo.integration.gemini;
 
 import com.google.genai.Client;
-import com.nexo.nexo.integration.dto.GeminiTrailResponse;
+import com.nexo.integration.dto.GeminiTrailResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,10 +1,10 @@
 package com.nexo.controller;
 
-import com.nexo.nexo.dto.*;
+import com.nexo.dto.*;
 import com.nexo.integration.gemini.GeminiClient;
-import com.nexo.nexo.security.JwtService;
-import com.nexo.nexo.service.AuthService;
-import com.nexo.nexo.service.RefreshTokenService;
+import com.nexo.security.JwtService;
+import com.nexo.service.AuthService;
+import com.nexo.service.RefreshTokenService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

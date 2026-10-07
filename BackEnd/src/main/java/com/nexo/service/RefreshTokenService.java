@@ -1,8 +1,8 @@
 package com.nexo.service;
 
 import com.nexo.exceptions.InvalidRefreshTokenException;
-import com.nexo.nexo.models.classes.RefreshToken;
-import com.nexo.nexo.models.classes.User;
+import com.nexo.models.classes.RefreshToken;
+import com.nexo.models.classes.User;
 import com.nexo.repository.RefreshTokenRepository;
 import com.nexo.repository.UserRepository;
 import org.springframework.stereotype.Service;

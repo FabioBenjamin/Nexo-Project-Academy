@@ -1,13 +1,13 @@
 package com.nexo.service;
 
-import com.nexo.nexo.dto.*;
-import com.nexo.nexo.models.classes.RefreshToken;
+import com.nexo.dto.*;
+import com.nexo.models.classes.RefreshToken;
 import com.nexo.security.JwtService;
 import com.nexo.exceptions.EmailAlreadyExistsException;
 import com.nexo.exceptions.InvalidCredentialsException;
 import com.nexo.exceptions.InvalidEmailException;
 import com.nexo.exceptions.UsernameAlreadyExistsException;
-import com.nexo.nexo.models.classes.User;
+import com.nexo.models.classes.User;
 import com.nexo.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.nexo.models.classes;
 
-import com.nexo.nexo.models.enums.AchievementRequirementType;
+import com.nexo.models.enums.AchievementRequirementType;
 import jakarta.persistence.*;
 
 @Entity

@@ -1,6 +1,6 @@
 package com.nexo.exceptions;
 
-import com.nexo.nexo.dto.ErrorResponseDTO;
+import com.nexo.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;

@@ -1,6 +1,6 @@
 package com.nexo.models.classes;
 
-import com.nexo.nexo.models.enums.StudyTrailStatus;
+import com.nexo.models.enums.StudyTrailStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;

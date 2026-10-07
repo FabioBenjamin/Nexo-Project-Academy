@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
-import com.nexo.nexo.integration.dto.GeminiTrailResponse;
+import com.nexo.integration.dto.GeminiTrailResponse;
 import com.nexo.integration.schemas.GeminiTrailSchema;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.DatabindException;

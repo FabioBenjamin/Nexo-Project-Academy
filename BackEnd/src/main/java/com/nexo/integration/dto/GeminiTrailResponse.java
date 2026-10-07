@@ -2,7 +2,6 @@ package com.nexo.integration.dto;
 
 import java.util.List;
 
-
 public record GeminiTrailResponse(
         String title,
         String description,
