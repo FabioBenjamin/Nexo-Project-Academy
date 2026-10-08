@@ -32,7 +32,7 @@ public class GeminiClient {
         return response.text();
     }
 
-    public GeminiTrailResponse generateTrail(String prompt){
+    public GeminiTrailResponse generateTrail(String userRequest){
         // define the configs
         GenerateContentConfig config = GenerateContentConfig.builder()
                 .responseMimeType("application/json")  //return a json
@@ -42,7 +42,7 @@ public class GeminiClient {
         GenerateContentResponse response =
                 client.models.generateContent(
                         "gemini-3.5-flash-lite",
-                        prompt,
+                        GeminiTrailPrompt.build(userRequest),
                         config
                 );
 

@@ -15,17 +15,8 @@ public class GeminiControllerTest {
     public GeminiControllerTest(GeminiClient geminiClient){ this.geminiClient = geminiClient; }
 
     @GetMapping("/gemini/test")
-    public ResponseEntity<GeminiTrailResponse> genTrail(){
-        String prompt = """
-                     Crie uma trilha de estudos para aprender
-                     programação competitiva.
-                
-                     O estudante é iniciante e possui 5 horas
-                     disponíveis por semana.
-                
-                     Organize os assuntos em uma ordem progressiva.
-                """;
+    public ResponseEntity<GeminiTrailResponse> genTrail(@RequestBody String request){
 
-        return ResponseEntity.ok(geminiClient.generateTrail(prompt));
+        return ResponseEntity.ok(geminiClient.generateTrail(request));
     }
 }
