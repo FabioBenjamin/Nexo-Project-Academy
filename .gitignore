@@ -4,6 +4,7 @@ BackEnd/target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 .idea
+target
 
 ### STS ###
 .apt_generated
