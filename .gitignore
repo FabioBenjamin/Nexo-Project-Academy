@@ -36,7 +36,7 @@ build/
 
 BackEnd/.gitattributes
 *.log
-BackEnd/.env
+BackEnd/.env.example
 .DS_Store
 Thumbs.db
 .gitignore

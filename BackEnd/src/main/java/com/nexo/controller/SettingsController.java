@@ -4,9 +4,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-//
-@RequestMapping("/")
+//Like a prefix, all routes will start with /auth
+@RequestMapping("/auth")
 public class SettingsController {
 
     // Depedencies
+
 }

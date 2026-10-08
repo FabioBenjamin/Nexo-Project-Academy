@@ -19,10 +19,10 @@ public class Settings {
     @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean notifications;
 
-    @Column(name = "lang", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
+    @Column(name = "lang", columnDefinition = "VARCHAR(20) DEFAULT 'pt-BR'")
     private String language;
 
-    @Column(length = 10, columnDefinition = "DEFAULT 'light'", nullable = false)
+    @Column(length = 10, columnDefinition = "VARCHAR(20) DEFAULT 'light'", nullable = false)
     private String theme;
 
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
@@ -66,5 +66,7 @@ public class Settings {
         this.studyWeekends = studyWeekends;
     }
 
-    public void setTheme(String theme) { this.theme = theme; }
+    public void setTheme(String theme) {
+        this.theme = theme;
+    }
 }
