@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GeminiConfig {
 
-    @Value("${GEMINI_API_KEY}")
+    @Value("${gemini.api.key}")
     private String apiKey;
 
     // creates a Client instance when we need, and automatically inject where is necessary

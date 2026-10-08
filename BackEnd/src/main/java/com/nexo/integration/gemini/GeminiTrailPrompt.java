@@ -1,4 +1,4 @@
-package com.nexo.nexo.integration.gemini;
+package com.nexo.integration.gemini;
 
 public class GeminiTrailPrompt {
 
