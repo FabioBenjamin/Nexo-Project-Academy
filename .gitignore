@@ -1,5 +1,5 @@
-HELP.md
-target/
+BackEnd/HELP.md
+BackEnd/target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -14,7 +14,7 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+BackEnd/.idea
 *.iws
 *.iml
 *.ipr
@@ -32,9 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-.gitattributes
+BackEnd/.gitattributes
 *.log
-.env
+BackEnd/.env
 .DS_Store
 Thumbs.db
 .gitignore
