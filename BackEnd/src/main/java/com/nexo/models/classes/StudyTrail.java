@@ -2,8 +2,12 @@ package com.nexo.models.classes;
 
 import com.nexo.models.enums.StudyTrailStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "studytrail")
@@ -19,6 +23,11 @@ public class StudyTrail {
     @JoinColumn(name = "user_id") // Find FK
     private User user;
 
+    // references the attribute name in Topic class
+    // mappedBy allows both ways navigation
+    @OneToMany(mappedBy = "studyTrail", cascade = CascadeType.PERSIST)
+    private List<Topic> topics = new ArrayList<>();
+
     @Column(nullable = false, length = 80)
     private String title;
 
@@ -32,6 +41,8 @@ public class StudyTrail {
     private LocalDate targetDate;
 
     @Enumerated(EnumType.STRING)
+    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTrailStatus status;
 
     public Long getId() {
@@ -77,4 +88,8 @@ public class StudyTrail {
     public void setStatus(StudyTrailStatus status) {
         this.status = status;
     }
+
+    public void setUser(User user) { this.user = user; }
+
+    public List<Topic> getTopics() { return topics; }
 }

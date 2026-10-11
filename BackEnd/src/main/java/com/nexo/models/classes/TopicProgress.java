@@ -2,6 +2,9 @@ package com.nexo.models.classes;
 
 import com.nexo.models.enums.TopicProgressStatus;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.time.LocalDate;
 
 @Entity
@@ -15,19 +18,20 @@ public class TopicProgress {
     @Column(name = "progress_id")
     private Long id;
 
-    @ManyToOne // N:1
-    @JoinColumn(name = "topic_id") // Find FK
+    @OneToOne // 1:1
+    @JoinColumn(name = "topic_id", unique = true) // Find FK
     private Topic topic;
 
     @Enumerated(EnumType.STRING)
+    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private TopicProgressStatus status;
 
     @Column(nullable = false, name = "scheduled_date")
     private LocalDate targetDate;
 
-    @Column(columnDefinition = "DATE DEFAULT CURRENT_DATE", insertable = false)
+    @Column(name = "completed_at")
     private LocalDate completedAt;
-
 
     public Long getId() {
         return id;
@@ -49,9 +53,7 @@ public class TopicProgress {
         return completedAt;
     }
 
-    public void setTopic(Topic topic) {
-        this.topic = topic;
-    }
+    public void setTopic(Topic topic) { this.topic = topic; }
 
     public void setStatus(TopicProgressStatus status) {
         this.status = status;

@@ -12,7 +12,7 @@ public class Settings {
     @Column(name = "settings_id")
     private Long id;
 
-    @ManyToOne // N:1
+    @OneToOne // 1:1
     @JoinColumn(name = "user_id", unique = true) // Find FK
     private User user;
 
