@@ -1,5 +1,10 @@
 package com.nexo.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class SettingsDTO {
     private Boolean notifications;
     private String language;
@@ -15,35 +20,4 @@ public class SettingsDTO {
         this.studyWeekends = studyWeekends;
     }
 
-    public Boolean getNotifications() {
-        return notifications;
-    }
-
-    public void setNotifications(Boolean notifications) {
-        this.notifications = notifications;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public String getTheme() {
-        return theme;
-    }
-
-    public void setTheme(String theme) {
-        this.theme = theme;
-    }
-
-    public Boolean getStudyWeekends() {
-        return studyWeekends;
-    }
-
-    public void setStudyWeekends(Boolean studyWeekends) {
-        this.studyWeekends = studyWeekends;
-    }
 }

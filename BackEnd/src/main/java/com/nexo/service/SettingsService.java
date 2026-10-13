@@ -18,17 +18,18 @@ public class SettingsService {
     private UserRepository userRepository;
 
     public SettingsDTO getByUserId(Long userId) {
-        Settings settings = (Settings) settingsRepository.findByUserId(userId).orElseGet(() -> (Settings) createDefaultSettings(userId));
+        // Retrieves the settings
+        // if they do not exist, creates and saves them to the database.
+        Settings settings = settingsRepository.findByUserId(userId)
+                .orElseGet(() -> createDefaultSettings(userId));
         return mapToDTO(settings);
-
     }
 
     public SettingsDTO update(Long userId, SettingsDTO dto) {
-        Settings settings = (Settings) settingsRepository.findByUserId(userId)
-                .orElseGet(() -> (Settings) createDefaultSettings(userId));
+        Settings settings = settingsRepository.findByUserId(userId)
+                .orElseGet(() -> createDefaultSettings(userId));
 
-        // User choicces in the Settings
-
+        // User choices in the Settings
         if (dto.getNotifications() != null) {
             settings.setNotifications(dto.getNotifications());
         }
@@ -50,7 +51,7 @@ public class SettingsService {
         return mapToDTO(update);
     }
 
-    private UserRepository createDefaultSettings(Long userId) {
+    private Settings createDefaultSettings(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
 
@@ -60,15 +61,17 @@ public class SettingsService {
         settings.setLanguage("pt-BR");
         settings.setTheme("light");
         settings.setStudyWeekends(true);
-        return null;
+
+        // Saves and returns the created Settings object
+        return settingsRepository.save(settings);
     }
 
     private SettingsDTO mapToDTO(Settings settings) {
         return new SettingsDTO(
-                settings.getNotifications(),
-                settings.getLanguage(),
-                settings.getTheme(),
-                settings.getStudyWeekends()
+                settings.getNotifications() != null ? settings.getNotifications() : false,
+                settings.getLanguage() != null ? settings.getLanguage() : "pt-BR",
+                settings.getTheme() != null ? settings.getTheme() : "light",
+                settings.getStudyWeekends() != null ? settings.getStudyWeekends() : true
         );
     }
 }

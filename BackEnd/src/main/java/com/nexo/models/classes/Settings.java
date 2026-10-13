@@ -1,72 +1,38 @@
 package com.nexo.models.classes;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
-@Table(name="settings")
+@Table(name = "settings")
 public class Settings {
 
-    @Id // tell: this attribute is the primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
-    // every time attribute is different to tablename name, must specify tb_name in @Column
-    @Column(name = "settings_id")
+    // Getters and Setters
+    @Id // Specifies that this attribute is the primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Automatically generates the ID value
+    @Column(name = "settings_id") // Maps to the database column name
     private Long id;
 
-    @ManyToOne // N:1
-    @JoinColumn(name = "user_id", unique = true) // Find FK
+    @ManyToOne // N:1 relationship with User
+    @JoinColumn(name = "user_id", unique = true, nullable = false) // Maps the Foreign Key column
     private User user;
 
-    @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean notifications;
+    @Column(name = "notifications")
+    private Boolean notifications = false; // Default value initialized in Java
 
-    @Column(name = "lang", columnDefinition = "VARCHAR(20) DEFAULT 'pt-BR'")
-    private String language;
+    @Column(name = "lang", length = 5, nullable = false)
+    private String language = "pt-BR"; // Maps Java 'language' to SQL column 'lang'
 
-    @Column(length = 10, columnDefinition = "VARCHAR(20) DEFAULT 'light'", nullable = false)
-    private String theme;
+    @Column(length = 10, nullable = false)
+    private String theme = "light";
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean studyWeekends;
+    @Column(name = "study_weekends")
+    private Boolean studyWeekends = true; // Maps camelCase to SQL column 'study_weekends'
 
-    public Long getId() {
-        return id;
-    }
+    // Default constructor required by JPA
+    public Settings() {}
 
-    public User getUser() {
-        return user;
-    }
-
-    public Boolean getNotifications() {
-        return notifications;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public Boolean getStudyWeekends() {
-        return studyWeekends;
-    }
-
-    public String getTheme() { return theme; }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setNotifications(Boolean notifications) {
-        this.notifications = notifications;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    public void setStudyWeekends(Boolean studyWeekends) {
-        this.studyWeekends = studyWeekends;
-    }
-
-    public void setTheme(String theme) {
-        this.theme = theme;
-    }
 }

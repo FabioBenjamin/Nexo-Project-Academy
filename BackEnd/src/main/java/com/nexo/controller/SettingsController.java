@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/setrtings")
+@RequestMapping("/api/settings")
 @CrossOrigin(origins = "*") // Enable access for frontend/mobile (CORS)
 public class SettingsController {
 
