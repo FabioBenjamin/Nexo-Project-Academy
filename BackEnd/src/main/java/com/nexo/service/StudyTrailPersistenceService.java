@@ -32,10 +32,10 @@ public class StudyTrailPersistenceService {
     public StudyTrail saveStudyTrail(
             GeminiTrailResponse trailResponse,
             StudyTrailRequestDTO dto,
-            Long user_id){
+            Long userId){
 
         // find user
-        User user = userRepository.findById(user_id)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // create StudyTrail Object and set attributes
