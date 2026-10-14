@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AchievementDTO {
-    private Integer id;
+    private Long id;
     private String title;
     private String description;
     private Integer xpReward;
