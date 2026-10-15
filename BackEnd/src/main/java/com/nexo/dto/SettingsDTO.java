@@ -22,7 +22,4 @@ public class SettingsDTO {
         this.studyWeekends = studyWeekends;
         this.email = email;
     }
-
-    // Construtor legade
-
 }
