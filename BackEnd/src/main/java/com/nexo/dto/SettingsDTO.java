@@ -10,14 +10,19 @@ public class SettingsDTO {
     private String language;
     private String theme;
     private Boolean studyWeekends;
+    private String email;
 
     public SettingsDTO() {}
 
-    public SettingsDTO(Boolean notifications, String language, String theme, Boolean studyWeekends) {
+    // Construtor complete
+    public SettingsDTO(Boolean notifications, String language, String theme, Boolean studyWeekends, String email) {
         this.notifications = notifications;
         this.language = language;
         this.theme = theme;
         this.studyWeekends = studyWeekends;
+        this.email = email;
     }
+
+    // Construtor legade
 
 }

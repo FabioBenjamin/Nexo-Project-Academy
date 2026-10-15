@@ -1,12 +1,14 @@
 package com.nexo.service;
 
 import com.nexo.dto.SettingsDTO;
+import com.nexo.exceptions.EmailAlreadyExistsException;
 import com.nexo.models.classes.Settings;
 import com.nexo.models.classes.User;
 import com.nexo.repository.SettingsRepository;
 import com.nexo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SettingsService {
@@ -25,9 +27,13 @@ public class SettingsService {
         return mapToDTO(settings);
     }
 
+    @Transactional
     public SettingsDTO update(Long userId, SettingsDTO dto) {
         Settings settings = settingsRepository.findByUserId(userId)
                 .orElseGet(() -> createDefaultSettings(userId));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found!"));
 
         // User choices in the Settings
         if (dto.getNotifications() != null) {
@@ -44,6 +50,19 @@ public class SettingsService {
 
         if (dto.getStudyWeekends() != null) {
             settings.setStudyWeekends(dto.getStudyWeekends());
+        }
+
+        // In case the user wants to change the registered email
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            String newEmail = dto.getEmail().trim();
+
+            if (!newEmail.equalsIgnoreCase(user.getEmail())) {
+                if (userRepository.existsByEmail(newEmail)) {
+                    throw new EmailAlreadyExistsException("The provided email is already in use by another account."); // Message if Email is already in use
+                }
+                user.setEmail(newEmail);
+                userRepository.save(user);
+            }
         }
 
         // Save user changes
@@ -67,11 +86,16 @@ public class SettingsService {
     }
 
     private SettingsDTO mapToDTO(Settings settings) {
+        User user = settings.getUser();
+        String email = (user != null && user.getEmail() != null) ? user.getEmail() : "";
+
         return new SettingsDTO(
                 settings.getNotifications() != null ? settings.getNotifications() : false,
                 settings.getLanguage() != null ? settings.getLanguage() : "pt-BR",
                 settings.getTheme() != null ? settings.getTheme() : "light",
-                settings.getStudyWeekends() != null ? settings.getStudyWeekends() : true
+                settings.getStudyWeekends() != null ? settings.getStudyWeekends() : true,
+                email
         );
     }
+
 }
