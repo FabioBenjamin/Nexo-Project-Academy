@@ -1,12 +1,18 @@
 package com.nexo.models.classes;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "users")
 public class User {
 
+    // Getters and Setters
     @Id // tell: this attribute is the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
     // every time attribute is different to tablename name, must specify tb_name in @Column
@@ -38,64 +44,14 @@ public class User {
     @Column(name = "max_streak", nullable = false)
     private Integer maxStreak = 0;
 
+    @Column(name = "completed_activities_count", nullable = false)
+    private Integer completedActivitiesCount = 0;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Settings settings;
 
     // Default Constructor
     public User() {}
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Integer getXp() {
-        return xp;
-    }
-
-    public void setXp(Integer xp) {
-        this.xp = xp;
-    }
-
-    public Integer getCurrentStreak() {
-        return currentStreak;
-    }
-
-    public void setCurrentStreak(Integer currentStreak) {
-        this.currentStreak = currentStreak;
-    }
-
-    public LocalDate getLastActiveDate() {
-        return lastActiveDate;
-    }
-
-    public void setLastActiveDate(LocalDate lastActiveDate) {
-        this.lastActiveDate = lastActiveDate;
-    }
-
-    public Integer getMaxStreak() {
-        return maxStreak;
-    }
-
-    public void setMaxStreak(Integer maxStreak) {
-        this.maxStreak = maxStreak;
-    }
 
     // LEAGUE SYSTEM
     // Helper method to calculate the League dynamically based on the streak days
