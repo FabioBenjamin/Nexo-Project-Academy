@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/settings")
+@RequestMapping("/api/settings") // Alterar nome da rota 
 @CrossOrigin(origins = "*") // Enable access for frontend/mobile (CORS)
 public class SettingsController {
 
