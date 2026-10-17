@@ -27,11 +27,11 @@ public class StudyTrailController {
             // principal Object which is a Jwt
             @AuthenticationPrincipal Jwt jwt){
 
-        Long user_id = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(jwt.getSubject());
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(studyTrailService.createStudyTrail(dto, user_id));
+                .body(studyTrailService.createStudyTrail(dto, userId));
     }
 
     @GetMapping("/trail/{id}")
@@ -39,9 +39,9 @@ public class StudyTrailController {
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable("id") Long studyTrailId
     ){
-        Long user_id = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(jwt.getSubject());
 
         return ResponseEntity
-                .ok(studyTrailService.getStudyTrail())
+                .ok(studyTrailService.getStudyTrail(studyTrailId, userId));
     }
 }
