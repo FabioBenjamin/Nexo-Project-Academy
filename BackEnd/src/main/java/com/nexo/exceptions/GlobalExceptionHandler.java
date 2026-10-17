@@ -89,5 +89,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(error);
     }
+
+    @ExceptionHandler(StudyTrailNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleStudyTrailNotFoundException(
+            StudyTrailNotFoundException e){
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                "Not Found",
+                e.getMessage(),
+                404
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
+    }
 }
 
