@@ -24,8 +24,9 @@ public class StudyTrail {
     private User user;
 
     // references the attribute name in Topic class
-    // mappedBy allows both ways navigation
+    // mappedBy allows bidirectional navigation
     @OneToMany(mappedBy = "studyTrail", cascade = CascadeType.PERSIST)
+    @OrderBy("orderIndex ASC") // the item name is the attribute name of Java class
     private List<Topic> topics = new ArrayList<>();
 
     @Column(nullable = false, length = 80)

@@ -24,6 +24,7 @@ public class Topic {
     private Topic parentTopic;
 
     @OneToMany(mappedBy = "parentTopic", cascade = CascadeType.PERSIST)
+    @OrderBy("orderIndex ASC") // the item name is the attribute name of Java class
     private List<Topic> subTopics = new ArrayList<>();
 
     @OneToOne(mappedBy = "topic", cascade = CascadeType.PERSIST)
