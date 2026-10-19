@@ -2,7 +2,9 @@ package com.nexo.service;
 
 import com.nexo.dto.StudyTrailRequestDTO;
 import com.nexo.dto.StudyTrailResponse;
+import com.nexo.dto.StudyTrailSummaryResponse;
 import com.nexo.dto.TopicResponse;
+import com.nexo.exceptions.InvalidPageNumberException;
 import com.nexo.exceptions.StudyTrailNotFoundException;
 import com.nexo.integration.dto.GeminiTopicResponse;
 import com.nexo.integration.dto.GeminiTrailResponse;
@@ -14,6 +16,9 @@ import com.nexo.models.classes.User;
 import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.repository.StudyTrailRepository;
 import com.nexo.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -90,5 +95,22 @@ public class StudyTrailService {
                 progress.getCompletedAt(),
                 subTopics
         );
+    }
+
+    public Page<StudyTrailSummaryResponse> getUserTrails(Long userId, int page, int size){
+
+        if(page < 0){
+            throw new InvalidPageNumberException("Page number can't be negative");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return studyTrailRepository.findByUser_Id(userId, pageable)
+                .map(trail -> new StudyTrailSummaryResponse(
+                        trail.getId(),
+                        trail.getTitle(),
+                        trail.getDescription(),
+                        trail.getStatus()
+                ));
     }
 }

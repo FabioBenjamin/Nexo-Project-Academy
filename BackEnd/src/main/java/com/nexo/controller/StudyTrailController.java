@@ -2,8 +2,10 @@ package com.nexo.controller;
 
 import com.nexo.dto.StudyTrailRequestDTO;
 import com.nexo.dto.StudyTrailResponse;
+import com.nexo.dto.StudyTrailSummaryResponse;
 import com.nexo.service.StudyTrailService;
 import jakarta.websocket.server.PathParam;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticatedPrincipal;
@@ -43,5 +45,16 @@ public class StudyTrailController {
 
         return ResponseEntity
                 .ok(studyTrailService.getStudyTrail(studyTrailId, userId));
+    }
+
+    @GetMapping("/trails")
+    public ResponseEntity<Page<StudyTrailSummaryResponse>> getUserTrails(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(defaultValue = "0") int page){
+
+        Long userId = Long.valueOf(jwt.getSubject());
+
+        return ResponseEntity
+                .ok(studyTrailService.getUserTrails(userId, page, 10));
     }
 }
