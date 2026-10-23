@@ -2,11 +2,16 @@ package com.nexo.models.classes;
 
 import com.nexo.models.enums.AchievementRequirementType;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "achievementrequirement")
 public class AchievementRequirement {
 
+    // Getters and Setters
     @Id // tell: this attribute is the primary key
     @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
     // every time attribute is different to tablename name, must specify tb_name in @Column
@@ -23,31 +28,12 @@ public class AchievementRequirement {
     @Column(nullable = false)
     private Integer target;
 
-    public Long getId() {
-        return id;
-    }
+    public AchievementRequirement() {}
 
-    public Achievement getAchievement() {
-        return achievement;
-    }
-
-    public AchievementRequirementType getType() {
-        return type;
-    }
-
-    public Integer getTarget() {
-        return target;
-    }
-
-    public void setAchievement(Achievement achievement) {
+    public AchievementRequirement(Achievement achievement, AchievementRequirementType type, Integer target) {
         this.achievement = achievement;
-    }
-
-    public void setType(AchievementRequirementType type) {
         this.type = type;
-    }
-
-    public void setTarget(Integer target) {
         this.target = target;
     }
+
 }
