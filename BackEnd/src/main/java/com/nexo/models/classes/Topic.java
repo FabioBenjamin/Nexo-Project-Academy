@@ -2,6 +2,9 @@ package com.nexo.models.classes;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "topic")
 public class Topic {
@@ -20,8 +23,18 @@ public class Topic {
     @JoinColumn(name = "parent_id")
     private Topic parentTopic;
 
-    @Column(length = 40, nullable = false)
+    @OneToMany(mappedBy = "parentTopic", cascade = CascadeType.PERSIST)
+    @OrderBy("orderIndex ASC") // the item name is the attribute name of Java class
+    private List<Topic> subTopics = new ArrayList<>();
+
+    @OneToOne(mappedBy = "topic", cascade = CascadeType.PERSIST)
+    private TopicProgress progress;
+
+    @Column(length = 80, nullable = false)
     private String title;
+
+    @Column(length = 200)
+    private String description;
 
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
@@ -60,5 +73,29 @@ public class Topic {
 
     public void setOrderIndex(Integer orderIndex) {
         this.orderIndex = orderIndex;
+    }
+
+    public TopicProgress getProgress() {
+        return progress;
+    }
+
+    public List<Topic> getSubTopics() {
+        return subTopics;
+    }
+
+    public void setProgress(TopicProgress progress) {
+        this.progress = progress;
+
+        if(progress != null){
+            progress.setTopic(this);
+        }
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -1,38 +1,70 @@
 package com.nexo.models.classes;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
-@Setter
-@Getter
 @Entity
-@Table(name = "settings")
+@Table(name="settings")
 public class Settings {
 
-    // Getters and Setters
-    @Id // Specifies that this attribute is the primary key
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Automatically generates the ID value
-    @Column(name = "settings_id") // Maps to the database column name
+    @Id // tell: this attribute is the primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // This attribute is generate automatically
+    // every time attribute is different to tablename name, must specify tb_name in @Column
+    @Column(name = "settings_id")
     private Long id;
 
-    @ManyToOne // N:1 relationship with User
-    @JoinColumn(name = "user_id", unique = true, nullable = false) // Maps the Foreign Key column
+    @ManyToOne // N:1
+    @JoinColumn(name = "user_id", unique = true) // Find FK
     private User user;
 
-    @Column(name = "notifications")
-    private Boolean notifications = false; // Default value initialized in Java
+    @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean notifications;
 
-    @Column(name = "lang", length = 5, nullable = false)
-    private String language = "pt-BR"; // Maps Java 'language' to SQL column 'lang'
+    @Column(name = "lang", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
+    private String language;
 
-    @Column(length = 10, nullable = false)
-    private String theme = "light";
+    @Column(length = 10, columnDefinition = "DEFAULT 'light'", nullable = false)
+    private String theme;
 
-    @Column(name = "study_weekends")
-    private Boolean studyWeekends = true; // Maps camelCase to SQL column 'study_weekends'
+    @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean studyWeekends;
 
-    // Default constructor required by JPA
-    public Settings() {}
+    public Long getId() {
+        return id;
+    }
 
+    public User getUser() {
+        return user;
+    }
+
+    public Boolean getNotifications() {
+        return notifications;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public Boolean getStudyWeekends() {
+        return studyWeekends;
+    }
+
+    public String getTheme() { return theme; }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setNotifications(Boolean notifications) {
+        this.notifications = notifications;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public void setStudyWeekends(Boolean studyWeekends) {
+        this.studyWeekends = studyWeekends;
+    }
+
+    public void setTheme(String theme) { this.theme = theme; }
 }

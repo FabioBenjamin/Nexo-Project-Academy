@@ -89,5 +89,36 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(error);
     }
+
+    @ExceptionHandler(StudyTrailNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleStudyTrailNotFoundException(
+            StudyTrailNotFoundException e){
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                "Not Found",
+                e.getMessage(),
+                404
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(error);
+    }
+
+    @ExceptionHandler(InvalidPageNumberException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidPageException(
+            InvalidPageNumberException e){
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                // Resource exists, but the request contain invalid parameters
+                "Bad Request",
+                e.getMessage(),
+                400
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
 }
 
