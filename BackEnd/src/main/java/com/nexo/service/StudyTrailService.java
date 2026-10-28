@@ -1,9 +1,6 @@
 package com.nexo.service;
 
-import com.nexo.dto.StudyTrailRequestDTO;
-import com.nexo.dto.StudyTrailResponse;
-import com.nexo.dto.StudyTrailSummaryResponse;
-import com.nexo.dto.TopicResponse;
+import com.nexo.dto.*;
 import com.nexo.exceptions.InvalidPageNumberException;
 import com.nexo.exceptions.StudyTrailNotFoundException;
 import com.nexo.integration.dto.GeminiTopicResponse;
@@ -112,5 +109,41 @@ public class StudyTrailService {
                         trail.getDescription(),
                         trail.getStatus()
                 ));
+    }
+
+    @Transactional
+    public void deleteStudyTrail(Long studyTrailId, Long userId){
+
+        StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
+                .orElseThrow(() -> new StudyTrailNotFoundException("Study trail not found"));
+
+        studyTrailRepository.delete(studyTrail);
+    }
+
+    @Transactional
+    public void updateStudyTrail(Long studyTrailId, Long userId, UpdateStudyTrailRequest request){
+
+        StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
+                .orElseThrow(() -> new StudyTrailNotFoundException("Study trail not found"));
+
+        if(request.getTitle() != null){
+            // Validate blank titles like: "    ", ""
+            if(request.getTitle().isBlank()){
+                throw new IllegalArgumentException("Title can't be null");
+            }
+            // assign new value
+            studyTrail.setTitle(request.getTitle());
+        }
+
+        if(request.getDescription() != null){
+            // Validate blank descriptions like: "    ", ""
+            if(request.getDescription().isBlank()){
+                throw new IllegalArgumentException("Description can't be null");
+            }
+            // assign new value
+            studyTrail.setDescription(request.getDescription());
+        }
+
+        studyTrailRepository.save(studyTrail);
     }
 }
