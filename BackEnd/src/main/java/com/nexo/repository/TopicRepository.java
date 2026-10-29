@@ -11,8 +11,8 @@ public interface TopicRepository extends JpaRepository<Topic, Long> {
 
     // Retrieves all topics belonging to a specific study track,
     // ordered by their sequence index
-    List<Topic> findByStudyTrailIdOrderByOrderIndexAsc(Long studyTraildId);
+    List<Topic> findByStudyTrailIdOrderByOrderIndexAsc(Long trailId);
 
     // Search for subtopics that have a link to a main topic
-    List<Topic> findByParentId(Long parentId);
+    List<Topic> findByParentTopic_Id(Long parentId);
 }

@@ -1,14 +1,15 @@
 package com.nexo.repository;
 
 import com.nexo.models.classes.TopicProgress;
-import com.nexo.models.classes.TopicProgress;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface TopicProgressRepository {
+public interface TopicProgressRepository extends JpaRepository<TopicProgress, Long> {
 
     // Seeks progress linked to a specific topic
-    List<TopicProgress> findByTopicId(Long TopicId);
+    Optional<TopicProgress> findByTopic_Id(Long topicId);
+
 }
