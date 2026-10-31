@@ -121,6 +121,10 @@ public class StudyTrailService {
         StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Study trail not found"));
 
+        if(request.getTitle() == null && request.getDescription() == null){
+            throw new IllegalArgumentException("Must provide a value to update information");
+        }
+
         if(request.getTitle() != null){
             // Validate blank titles like: "    ", ""
             if(request.getTitle().isBlank()){
