@@ -2,7 +2,6 @@ package com.nexo.exceptions;
 
 import com.nexo.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -90,9 +89,9 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    @ExceptionHandler(StudyTrailNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleStudyTrailNotFoundException(
-            StudyTrailNotFoundException e){
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityNotFoundException(
+            EntityNotFoundException e){
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Not Found",

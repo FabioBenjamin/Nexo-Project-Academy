@@ -2,17 +2,13 @@ package com.nexo.service;
 
 import com.nexo.dto.*;
 import com.nexo.exceptions.InvalidPageNumberException;
-import com.nexo.exceptions.StudyTrailNotFoundException;
-import com.nexo.integration.dto.GeminiTopicResponse;
+import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.integration.dto.GeminiTrailResponse;
 import com.nexo.integration.gemini.GeminiClient;
 import com.nexo.models.classes.StudyTrail;
 import com.nexo.models.classes.Topic;
 import com.nexo.models.classes.TopicProgress;
-import com.nexo.models.classes.User;
-import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.repository.StudyTrailRepository;
-import com.nexo.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class StudyTrailService {
@@ -54,7 +49,7 @@ public class StudyTrailService {
     public StudyTrailResponse getStudyTrail(Long studyTrailId, Long userId){
 
         StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
-                .orElseThrow(() -> new StudyTrailNotFoundException("Study trail not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Study trail not found"));
 
         List<TopicResponse> topics = studyTrail.getTopics()
                 .stream() // iterates over each topic into list
@@ -115,7 +110,7 @@ public class StudyTrailService {
     public void deleteStudyTrail(Long studyTrailId, Long userId){
 
         StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
-                .orElseThrow(() -> new StudyTrailNotFoundException("Study trail not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Study trail not found"));
 
         studyTrailRepository.delete(studyTrail);
     }
@@ -124,7 +119,7 @@ public class StudyTrailService {
     public void updateStudyTrail(Long studyTrailId, Long userId, UpdateStudyTrailRequest request){
 
         StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
-                .orElseThrow(() -> new StudyTrailNotFoundException("Study trail not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Study trail not found"));
 
         if(request.getTitle() != null){
             // Validate blank titles like: "    ", ""
