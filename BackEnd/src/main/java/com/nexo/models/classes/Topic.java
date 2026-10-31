@@ -1,6 +1,8 @@
 package com.nexo.models.classes;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +26,12 @@ public class Topic {
     private Topic parentTopic;
 
     @OneToMany(mappedBy = "parentTopic", cascade = CascadeType.PERSIST)
-    @OrderBy("orderIndex ASC") // the item name is the attribute name of Java class
+    @OrderBy("orderIndex ASC") // the item name(orderIndex) is the attribute name of Java class
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Topic> subTopics = new ArrayList<>();
 
     @OneToOne(mappedBy = "topic", cascade = CascadeType.PERSIST)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private TopicProgress progress;
 
     @Column(length = 80, nullable = false)

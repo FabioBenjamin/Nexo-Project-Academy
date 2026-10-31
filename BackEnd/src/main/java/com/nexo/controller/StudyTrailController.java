@@ -59,7 +59,7 @@ public class StudyTrailController {
                 .ok(studyTrailService.getUserTrails(userId, page, 10));
     }
 
-    @DeleteMapping("/trails/{id}")
+    @DeleteMapping("/trail/{id}")
     public ResponseEntity<Void> deleteStudyTrail(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable("id") Long studyTrailId
@@ -71,7 +71,7 @@ public class StudyTrailController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/trails/{id}")
+    @PatchMapping("/trail/{id}")
     public ResponseEntity<Void> updateStudyTrail(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable("id") Long studyTrailId,

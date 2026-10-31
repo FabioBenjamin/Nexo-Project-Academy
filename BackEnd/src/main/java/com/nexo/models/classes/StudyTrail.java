@@ -3,6 +3,8 @@ package com.nexo.models.classes;
 import com.nexo.models.enums.StudyTrailStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
@@ -27,6 +29,7 @@ public class StudyTrail {
     // mappedBy allows bidirectional navigation
     @OneToMany(mappedBy = "studyTrail", cascade = CascadeType.PERSIST)
     @OrderBy("orderIndex ASC") // the item name is the attribute name of Java class
+    @OnDelete(action = OnDeleteAction.CASCADE) // delegate the delegate responsibility to data bank
     private List<Topic> topics = new ArrayList<>();
 
     @Column(nullable = false, length = 80)
