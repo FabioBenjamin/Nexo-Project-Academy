@@ -1,6 +1,7 @@
 package com.nexo.integration.gemini;
 
 import com.nexo.dto.StudyTrailRequestDTO;
+import com.nexo.integration.dto.GeminiResponse;
 import com.nexo.integration.dto.GeminiTrailResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class GeminiControllerTest {
     public GeminiControllerTest(GeminiClient geminiClient){ this.geminiClient = geminiClient; }
 
     @GetMapping("/gemini/test")
-    public ResponseEntity<GeminiTrailResponse> genTrail(@RequestBody StudyTrailRequestDTO dto){
+    public ResponseEntity<GeminiResponse> genTrail(@RequestBody StudyTrailRequestDTO dto){
 
         return ResponseEntity.ok(geminiClient.generateTrail(dto, LocalDate.now()));
     }

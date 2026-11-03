@@ -4,9 +4,9 @@ import com.nexo.dto.StudyTrailRequestDTO;
 
 import java.time.LocalDate;
 
-public class GeminiTrailPrompt {
+public class GeminiPrompt {
 
-    public static String build(StudyTrailRequestDTO dto, LocalDate startDate){
+    public static String trailPrompt(StudyTrailRequestDTO dto, LocalDate startDate){
         return """
                 Você é o Nexo, responsável por criar trilhas de aprendizagem personalizadas
                 de acordo com as necessidades e tipo de cada usuário.
@@ -50,4 +50,78 @@ public class GeminiTrailPrompt {
              
                 """.formatted(startDate, dto.targetDate(), dto.content());
     }
+    public static final String TEST_PROMPT = """
+        
+        Você é um especialista em elaboração de avaliações educacionais.
+        Sua tarefa é criar uma prova de múltipla escolha com base exclusivamente na trilha de estudos gerada anteriormente nesta mesma requisição.
+
+        REGRAS OBRIGATÓRIAS:
+
+        1. ESTRUTURA DA PROVA
+        - Gere obrigatoriamente 10 questões.
+        - Cada questão deve possuir exatamente 5 alternativas.
+        - Cada questão deve possuir exatamente uma alternativa correta.
+        - Não gere questões discursivas ou de verdadeiro ou falso.
+        - Todas as questões devem possuir enunciados claros, objetivos e compreensíveis.
+
+        2. ABRANGÊNCIA DOS CONTEÚDOS
+        - As questões devem abordar os conteúdos de todos os tópicos e subtópicos presentes na trilha.
+        - Distribua as questões de maneira equilibrada, considerando a relevância e a quantidade de conteúdo de cada tópico.
+        - Não concentre todas as questões em apenas um tópico ou em uma pequena parte da trilha.
+        - Priorize a avaliação dos conceitos e conhecimentos fundamentais de cada conteúdo.
+        - Se houver muitos tópicos, combine conteúdos relacionados em questões que avaliem a compreensão de mais de um conceito, sem prejudicar a clareza do enunciado.
+
+        3. RESTRIÇÃO DE CONTEÚDO
+        - Utilize exclusivamente conhecimentos relacionados aos tópicos e subtópicos da trilha.
+        - Não aborde conceitos, ferramentas, tecnologias ou assuntos externos à trilha.
+        - Não exija conhecimentos prévios que não estejam contemplados ou pressupostos pelo conteúdo da trilha.
+        - Todas as respostas corretas devem poder ser justificadas com base nos conteúdos abordados na trilha.
+
+        4. NÍVEIS DE DIFICULDADE
+        Distribua obrigatoriamente as 10 questões da seguinte maneira:
+        - 3 questões fáceis: avaliam reconhecimento de conceitos fundamentais e compreensão básica.
+        - 4 questões médias: avaliam interpretação, aplicação de conceitos e relações entre conteúdos.
+        - 3 questões difíceis: avaliam análise, raciocínio e aplicação integrada de diferentes conceitos da trilha.
+
+        A dificuldade deve estar relacionada à complexidade do raciocínio exigido, e não à utilização de conteúdos avançados que não foram apresentados na trilha.
+
+        5. QUALIDADE DAS ALTERNATIVAS
+        - Cada questão deve possuir uma única alternativa inequivocamente correta.
+        - As quatro alternativas incorretas devem ser plausíveis, mas claramente incorretas para quem domina o conteúdo.
+        - Evite alternativas absurdas, ambíguas ou que possam ser interpretadas como parcialmente corretas.
+        - Evite alternativas que entreguem a resposta por diferenças evidentes de tamanho, linguagem ou detalhamento.
+        - Não utilize expressões como "todas as alternativas estão corretas" ou "nenhuma das alternativas".
+        - Não repita alternativas dentro da mesma questão.
+        - Não faça com que a posição da alternativa correta siga um padrão previsível.
+
+        6. EXPLICAÇÕES DAS ALTERNATIVAS
+        - Toda alternativa deve possuir uma explicação individual.
+        - Para a alternativa correta, explique por que ela representa a resposta adequada à questão, relacionando-a aos conceitos da trilha.
+        - Para cada alternativa incorreta, explique especificamente qual é o erro conceitual ou a interpretação equivocada presente nela.
+        - As explicações das alternativas incorretas devem ajudar o estudante a compreender por que aquela resposta está errada e qual conceito foi confundido.
+        - Quando possível, relacione o erro a outro conceito da própria trilha, esclarecendo a diferença entre eles.
+        - Não utilize explicações genéricas como "alternativa incorreta", "essa resposta está errada" ou "não corresponde ao conteúdo".
+        - As explicações devem ser claras, didáticas e suficientemente completas para ensinar o conceito, sem se tornarem excessivamente longas.
+        - Não introduza conhecimentos externos à trilha nas explicações.
+
+        7. QUALIDADE PEDAGÓGICA
+        - Priorize questões que avaliem compreensão e aplicação do conhecimento, em vez de simples memorização.
+        - Evite enunciados excessivamente longos ou desnecessariamente complexos.
+        - Não utilize pegadinhas ou ambiguidades para aumentar artificialmente a dificuldade.
+        - Cada questão deve avaliar um conhecimento relevante da trilha.
+
+        8. CONSISTÊNCIA DA RESPOSTA
+        Antes de finalizar, revise internamente a prova e verifique:
+        - Se existem exatamente 10 questões.
+        - Se todas possuem exatamente 5 alternativas.
+        - Se cada questão possui exatamente uma alternativa correta.
+        - Se todas as alternativas possuem explicações individuais.
+        - Se as explicações das alternativas incorretas identificam erros conceituais específicos.
+        - Se os três níveis de dificuldade respeitam as quantidades estabelecidas.
+        - Se todos os tópicos e subtópicos foram contemplados.
+        - Se nenhuma questão ou explicação exige conhecimentos externos à trilha.
+
+        Retorne exclusivamente os dados da prova no formato definido pelo schema fornecido.
+        Não inclua explicações, comentários ou textos fora da estrutura JSON.
+        """;
 }
