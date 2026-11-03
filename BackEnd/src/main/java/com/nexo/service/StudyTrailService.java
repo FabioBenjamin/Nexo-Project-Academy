@@ -13,8 +13,6 @@ import com.nexo.models.classes.StudyTrail;
 import com.nexo.models.classes.Topic;
 import com.nexo.models.classes.TopicProgress;
 import com.nexo.models.classes.User;
-import com.nexo.models.enums.OrderStatus;
-import com.nexo.service.AchievementService;
 import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.repository.StudyTrailRepository;
 import com.nexo.repository.UserRepository;
@@ -35,19 +33,16 @@ public class StudyTrailService {
     private final GeminiClient geminiClient;
     private final StudyTrailPersistenceService studyTrailPersistenceService;
     private final StudyTrailRepository studyTrailRepository;
-    private final AchievementService achievementService;
 
     // constructor
     public StudyTrailService(
             GeminiClient geminiClient,
             StudyTrailPersistenceService studyTrailPersistenceService,
-            StudyTrailRepository studyTrailRepository,
-            AchievementService achievementService){
+            StudyTrailRepository studyTrailRepository){
 
         this.geminiClient = geminiClient;
         this.studyTrailPersistenceService = studyTrailPersistenceService;
         this.studyTrailRepository = studyTrailRepository;
-        this.achievementService = achievementService;
     }
 
     public Long createStudyTrail(StudyTrailRequestDTO dto, Long userId){
@@ -117,18 +112,5 @@ public class StudyTrailService {
                         trail.getDescription(),
                         trail.getStatus()
                 ));
-    }
-
-    // Completes the entire track and triggers the gaminification achievement
-    @Transactional
-    public void completeTrail(Long studyTrailId, Long userId) {
-        StudyTrail studyTrail = studyTrailRepository.findByIdAndUser_Id(studyTrailId, userId)
-                .orElseThrow(() -> new StudyTrailNotFoundException("Study trail not found"));
-
-        studyTrail.setStatus(StudyTrailStatus.COMPLETED);
-        studyTrailRepository.save(studyTrail);
-
-        // Notify the gamification module to unlock the achievement
-        achievementService.processTrailCompletion(userId);
     }
 }
