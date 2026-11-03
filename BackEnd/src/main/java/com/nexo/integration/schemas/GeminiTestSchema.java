@@ -18,11 +18,16 @@ public class GeminiTestSchema {
                             "isCorrect",
                             Schema.builder()
                                     .type(Type.Known.BOOLEAN)
+                                    .build(),
+
+                            "explanation",
+                            Schema.builder()
+                                    .type(Type.Known.STRING)
                                     .build()
 
                     )
             )
-            .required("description", "isCorrect")
+            .required("description", "isCorrect", "explanation")
             .build();
 
     public static final Schema ALTERNATIVES_SCHEMA = Schema.builder()

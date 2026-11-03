@@ -20,6 +20,9 @@ public class Alternative {
     @Column(name = "is_correct", nullable = false)
     private Boolean correct;
 
+    @Column(nullable = false)
+    private String explanation;
+
     public Long getId() {
         return id;
     }
@@ -46,5 +49,13 @@ public class Alternative {
 
     public void setCorrect(Boolean correct) {
         this.correct = correct;
+    }
+
+    public String getExplanation() {
+        return explanation;
+    }
+
+    public void setExplanation(String explanation) {
+        this.explanation = explanation;
     }
 }
