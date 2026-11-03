@@ -20,7 +20,7 @@ public class StudyTest {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "studytrail")
+    @JoinColumn(name = "studytrail_id")
     private StudyTrail studyTrail;
 
     @Enumerated(EnumType.STRING)
