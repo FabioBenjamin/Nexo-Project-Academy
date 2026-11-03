@@ -6,16 +6,12 @@ import com.nexo.dto.StudyTrailSummaryResponse;
 import com.nexo.dto.TopicResponse;
 import com.nexo.exceptions.InvalidPageNumberException;
 import com.nexo.exceptions.StudyTrailNotFoundException;
-import com.nexo.integration.dto.GeminiTopicResponse;
 import com.nexo.integration.dto.GeminiTrailResponse;
 import com.nexo.integration.gemini.GeminiClient;
 import com.nexo.models.classes.StudyTrail;
 import com.nexo.models.classes.Topic;
 import com.nexo.models.classes.TopicProgress;
-import com.nexo.models.classes.User;
-import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.repository.StudyTrailRepository;
-import com.nexo.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class StudyTrailService {

@@ -4,11 +4,9 @@ import com.nexo.exceptions.InvalidRefreshTokenException;
 import com.nexo.models.classes.RefreshToken;
 import com.nexo.models.classes.User;
 import com.nexo.repository.RefreshTokenRepository;
-import com.nexo.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service

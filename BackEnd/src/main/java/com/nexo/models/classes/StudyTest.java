@@ -1,6 +1,5 @@
 package com.nexo.models.classes;
 import com.nexo.models.enums.StudyTestStatus;
-import com.nexo.models.enums.StudyTrailStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;

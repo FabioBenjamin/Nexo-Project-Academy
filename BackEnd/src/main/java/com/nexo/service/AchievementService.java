@@ -2,10 +2,8 @@ package com.nexo.service;
 
 import com.nexo.dto.AchievementDTO;
 import com.nexo.models.classes.Achievement;
-import com.nexo.models.classes.TopicProgress;
 import com.nexo.models.classes.User;
 import com.nexo.repository.AchievementRepository;
-import com.nexo.repository.TopicRepository;
 import com.nexo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
