@@ -1,6 +1,7 @@
 package com.nexo.service;
 
 import com.nexo.dto.AchievementDTO;
+import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.models.classes.Achievement;
 import com.nexo.models.classes.User;
 import com.nexo.repository.AchievementRepository;
@@ -27,10 +28,13 @@ public class AchievementService {
     @Transactional
     public void processActivityCompletion(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
+
+        // Saves the last active date before updating the streak
+        LocalDate previousActiveDate = user.getLastActiveDate();
 
         // 1. Updates streak and checks streak/league achievements
         updateStreak(user, today);
@@ -54,7 +58,7 @@ public class AchievementService {
         checkActivityMilestones(user);
 
         // 6. Weekend streak check (Saturday and Sunday)
-        checkWeekendStreak(user, today);
+        checkWeekendStreak(user, today, previousActiveDate);
 
         // Saves user updates
         userRepository.save(user);
@@ -63,22 +67,23 @@ public class AchievementService {
     @Transactional
     public void addXpCheckAchievement(Long userId, Integer xp) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
-        user.setXp(user.getXp() + xp);
+        int currentXp = user.getXp() != null ? user.getXp() : 0;
+        int addedXp = xp != null ? xp : 0;
+        user.setXp(currentXp + addedXp);
 
         // Checks accumulated XP milestones (1, 500, 1000, 5000, 10000, 25000, 50000, 100000)
         checkXpMilestones(user);
 
         // Saves
         userRepository.save(user);
-
     }
 
     @Transactional
     public void processTrailCompletion(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
         // Achievement for completing a trail
         unlockAchievementIfNotPresent(user, 13L);
@@ -88,7 +93,7 @@ public class AchievementService {
 
     public List<AchievementDTO> getUserAchievements(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
         List<Achievement> allAchievements = achievementRepository.findAll();
         List<Achievement> unlockedAchievements = achievementRepository.findUnlockedByUserId(userId);
@@ -115,15 +120,18 @@ public class AchievementService {
     }
 
     private void updateStreak(User user, LocalDate today) {
+        int currentStreak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+        int maxStreak = user.getMaxStreak() != null ? user.getMaxStreak() : 0;
+
         if (user.getLastActiveDate() == null) {
             user.setCurrentStreak(1);
         } else if (user.getLastActiveDate().equals(today.minusDays(1))) {
-            user.setCurrentStreak(user.getCurrentStreak() + 1);
+            user.setCurrentStreak(currentStreak + 1);
         } else if (!user.getLastActiveDate().equals(today)) {
             user.setCurrentStreak(1);
         }
 
-        if (user.getCurrentStreak() > user.getMaxStreak()) {
+        if (user.getCurrentStreak() > maxStreak) {
             user.setMaxStreak(user.getCurrentStreak());
         }
 
@@ -141,7 +149,7 @@ public class AchievementService {
 
     // Checks the activities completed by the user
     private void checkActivityMilestones(User user) {
-        int count = user.getCompletedActivitiesCount();
+        int count = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
         if (count >= 25) unlockAchievementIfNotPresent(user, 2L);
         if (count >= 50) unlockAchievementIfNotPresent(user, 3L);
         if (count >= 100) unlockAchievementIfNotPresent(user, 4L);
@@ -149,7 +157,7 @@ public class AchievementService {
 
     // Checks the XP accumulated by the user
     private void checkXpMilestones(User user) {
-        int xp = user.getXp();
+        int xp = user.getXp() != null ? user.getXp() : 0;
         if (xp >= 500) unlockAchievementIfNotPresent(user, 15L);
         if (xp >= 1000) unlockAchievementIfNotPresent(user, 16L);
         if (xp >= 5000) unlockAchievementIfNotPresent(user, 17L);
@@ -159,10 +167,10 @@ public class AchievementService {
         if (xp >= 100000) unlockAchievementIfNotPresent(user, 21L);
     }
 
-    private void checkWeekendStreak(User user, LocalDate today) {
+    private void checkWeekendStreak(User user, LocalDate today, LocalDate previousActiveDate) {
         // If the activity takes place on Sunday and the user was also active on Saturday
         if (today.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            if (user.getLastActiveDate() != null && user.getLastActiveDate().equals(today.minusDays(1))) {
+            if (previousActiveDate != null && previousActiveDate.equals(today.minusDays(1))) {
                 unlockAchievementIfNotPresent(user, 11L); // ID 11: Weekend Warrior
             }
         }
@@ -174,7 +182,8 @@ public class AchievementService {
         if (!alreadyUnlocked) {
             Achievement achievement = achievementRepository.findById(achievementId).orElse(null);
             if (achievement != null) {
-                user.setXp(user.getXp() + achievement.getXpReward());
+                int currentXp = user.getXp() != null ? user.getXp() : 0;
+                user.setXp(currentXp + achievement.getXpReward());
                 userRepository.insertUserAchievement(user.getId(), achievement.getId());
 
                 // First Achievement: unlock the user's first achievement

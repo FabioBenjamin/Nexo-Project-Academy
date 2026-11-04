@@ -18,7 +18,7 @@ public interface AchievementRepository extends JpaRepository<Achievement, Long> 
     List<Achievement> findUnlockedByUserId(@Param("userId") Long userId);
 
     // Checks if the user has a specific achievement (prevents duplicates)
-    @Query(value = "SELECT COUNT(*) > 0 FROM userachievement " +
-            "WHERE user_id = :userId AND achievement_id = :achievementId", nativeQuery = true)
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM userachievement " +
+            "WHERE user_id = :userId AND achievement_id = :achievementId)", nativeQuery = true)
     boolean existsByUserIdAndAchievementId(@Param("userId") Long userId, @Param("achievementId") Long achievementId);
 }

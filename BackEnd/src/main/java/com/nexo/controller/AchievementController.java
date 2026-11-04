@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/achievements")
+@RequestMapping("/api/achievements") // Alterar caso for preciso
 @CrossOrigin(origins = "*")
 public class AchievementController {
 
@@ -35,6 +35,13 @@ public class AchievementController {
     @PostMapping("/add-xp/{userId}")
     public ResponseEntity<Void> addXp(@PathVariable Long userId, @RequestBody Integer xp) {
         achievementService.addXpCheckAchievement(userId, xp);
+        return ResponseEntity.ok().build();
+    }
+
+    // Processes a trail completion for a specific user and unlocks trail achievements
+    @PostMapping("/complete-trail/{userId}")
+    public ResponseEntity<Void> completeTrail(@PathVariable Long userId) {
+        achievementService.processTrailCompletion(userId);
         return ResponseEntity.ok().build();
     }
 }

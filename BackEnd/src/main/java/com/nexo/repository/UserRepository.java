@@ -18,12 +18,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     Optional<User> findByUsername(String username);
-    boolean existsByUsername(String email);
+    boolean existsByUsername(String username);
 
     // Persists the relationship between User and Achievement in the join table
     @Modifying
     @Transactional
-    @Query(value = "INSERT INTO userachievement (user_id, achievement_id) VALUES (:userId, :achievementId)", nativeQuery = true)
+    @Query(value = "INSERT INTO userachievement (user_id, achievement_id, achievement_date) " +
+            "VALUES (:userId, :achievementId, CURRENT_DATE) ON CONFLICT DO NOTHING", nativeQuery = true)
     void insertUserAchievement(@Param("userId") Long userId, @Param("achievementId") Long achievementId);
 
 }
