@@ -1,6 +1,5 @@
 package com.nexo.repository;
 
-import com.nexo.dto.StudyTrailSummaryResponse;
 import com.nexo.models.classes.StudyTrail;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

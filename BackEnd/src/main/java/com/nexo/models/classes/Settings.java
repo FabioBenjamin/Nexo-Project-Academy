@@ -12,18 +12,18 @@ public class Settings {
     @Column(name = "settings_id")
     private Long id;
 
-    @OneToOne // 1:1
+    @ManyToOne // N:1
     @JoinColumn(name = "user_id", unique = true) // Find FK
     private User user;
 
     @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean notifications;
 
-    @Column(name = "lang", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
-    private String language;
+    @Column(name = "language", columnDefinition = "VARCHAR(10)")
+    private String language = "pt-BR";
 
     @Column(length = 10, columnDefinition = "DEFAULT 'light'", nullable = false)
-    private String theme;
+    private String theme = "light";
 
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean studyWeekends;
