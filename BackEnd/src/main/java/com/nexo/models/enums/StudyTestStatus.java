@@ -1,7 +1,7 @@
 package com.nexo.models.enums;
 
 public enum StudyTestStatus {
-    IN_PROGRESS,
+    BLOCKED,
     COMPLETED,
-    PENDING
+    OPEN
 }

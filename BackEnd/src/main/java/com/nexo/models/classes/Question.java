@@ -19,7 +19,7 @@ public class Question {
     @JoinColumn(name = "studytest_id")
     private StudyTest studyTest;
 
-    @OneToMany(mappedBy = "question")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Alternative> alternatives = new ArrayList<>();
 

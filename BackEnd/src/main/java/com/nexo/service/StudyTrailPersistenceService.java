@@ -28,7 +28,6 @@ public class StudyTrailPersistenceService {
         this.studyTrailRepository = studyTrailRepository;
     }
 
-    @Transactional
     public StudyTrail saveStudyTrail(
             GeminiTrailResponse trailResponse,
             StudyTrailRequestDTO dto,

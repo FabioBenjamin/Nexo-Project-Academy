@@ -13,6 +13,7 @@ public class GeminiTestSchema {
                             "description",
                             Schema.builder()
                                     .type(Type.Known.STRING)
+                                    .maxLength(255L)
                                     .build(),
 
                             "isCorrect",
@@ -23,6 +24,7 @@ public class GeminiTestSchema {
                             "explanation",
                             Schema.builder()
                                     .type(Type.Known.STRING)
+                                    .maxLength(255L)
                                     .build()
 
                     )
@@ -44,6 +46,7 @@ public class GeminiTestSchema {
                             "statement",
                             Schema.builder()
                                     .type(Type.Known.STRING)
+                                    .maxLength(250L)
                                     .build(),
 
                             "alternatives",

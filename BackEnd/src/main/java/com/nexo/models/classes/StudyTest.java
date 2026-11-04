@@ -30,7 +30,7 @@ public class StudyTest {
 
     // references the attribute name in Question class
     // mappedBy allows bidirectional navigation
-    @OneToMany(mappedBy = "studyTest")
+    @OneToMany(mappedBy = "studyTest", cascade = CascadeType.PERSIST)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Question> questions = new ArrayList<>();
 

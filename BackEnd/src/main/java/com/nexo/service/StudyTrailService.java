@@ -3,6 +3,7 @@ package com.nexo.service;
 import com.nexo.dto.*;
 import com.nexo.exceptions.InvalidPageNumberException;
 import com.nexo.exceptions.EntityNotFoundException;
+import com.nexo.integration.dto.GeminiResponse;
 import com.nexo.integration.dto.GeminiTrailResponse;
 import com.nexo.integration.gemini.GeminiClient;
 import com.nexo.models.classes.StudyTrail;
@@ -23,26 +24,26 @@ public class StudyTrailService {
 
     // dependencies
     private final GeminiClient geminiClient;
-    private final StudyTrailPersistenceService studyTrailPersistenceService;
+    private final StudyTrailCreationService studyTrailCreationService;
     private final StudyTrailRepository studyTrailRepository;
 
     // constructor
     public StudyTrailService(
             GeminiClient geminiClient,
-            StudyTrailPersistenceService studyTrailPersistenceService,
-            StudyTrailRepository studyTrailRepository){
+            StudyTrailRepository studyTrailRepository,
+            StudyTrailCreationService studyTrailCreationService){
 
         this.geminiClient = geminiClient;
-        this.studyTrailPersistenceService = studyTrailPersistenceService;
         this.studyTrailRepository = studyTrailRepository;
+        this.studyTrailCreationService = studyTrailCreationService;
     }
 
     public Long createStudyTrail(StudyTrailRequestDTO dto, Long userId){
 
         // Gemini response converted into Java Class
-        GeminiTrailResponse trailResponse = geminiClient.generateTrail(dto, LocalDate.now());
+        GeminiResponse geminiResponse = geminiClient.generateTrail(dto, LocalDate.now());
 
-        return studyTrailPersistenceService.saveStudyTrail(trailResponse, dto, userId).getId();
+        return studyTrailCreationService.persistStudyTrail(geminiResponse, dto, userId);
     }
 
     @Transactional(readOnly = true)
