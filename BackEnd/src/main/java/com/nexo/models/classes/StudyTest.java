@@ -23,7 +23,7 @@ public class StudyTest {
     private StudyTrail studyTrail;
 
     @Enumerated(EnumType.STRING)
-    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    // tells Hibernate that the field is an enum named in databank instead just a simple varchar
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTestStatus status;
 
