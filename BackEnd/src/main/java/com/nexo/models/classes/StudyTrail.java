@@ -45,7 +45,7 @@ public class StudyTrail {
     private LocalDate targetDate;
 
     @Enumerated(EnumType.STRING)
-    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    // tells Hibernate that the field is enum named in databank instead just a simple varchar
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTrailStatus status;
 

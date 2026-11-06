@@ -12,7 +12,7 @@ public class Achievement {
     @Column(name = "achievement_id")
     private Long id;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "title",length = 100)
     private String title;
 
     @Column(length = 50)

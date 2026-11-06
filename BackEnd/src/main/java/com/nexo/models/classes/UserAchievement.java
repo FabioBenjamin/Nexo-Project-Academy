@@ -1,9 +1,13 @@
 package com.nexo.models.classes;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "userachievement")
 public class UserAchievement {
@@ -32,35 +36,19 @@ public class UserAchievement {
     @Column(name = "achievement_date", columnDefinition = "DATE DEFAULT CURRENT_DATE")
     private LocalDate completedAt;
 
-    public UserAchievementID getId() {
-        return id;
-    }
+    // Default Construtor
+    public UserAchievement() {}
 
-    public User getUser() {
-        return user;
-    }
+    // Convienience Construtor
 
-    public Achievement getAchievement() {
-        return achievement;
-    }
-
-    public LocalDate getCompletedAt() {
-        return completedAt;
-    }
-
-    public void setId(UserAchievementID id) {
-        this.id = id;
-    }
-
-    public void setUser(User user) {
+    public UserAchievement(User user, Achievement achievement) {
         this.user = user;
-    }
-
-    public void setAchievement(Achievement achievement) {
         this.achievement = achievement;
+        this.id = new UserAchievementID();
+        this.completedAt = LocalDate.now();
+
+        if(user != null) this.id.setUserId(user.getId());
+        if(achievement !=  null) this.id.setAchievementId(achievement.getId());
     }
 
-    public void setCompletedAt(LocalDate completedAt) {
-        this.completedAt = completedAt;
-    }
 }

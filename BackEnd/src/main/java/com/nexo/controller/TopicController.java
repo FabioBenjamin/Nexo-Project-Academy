@@ -1,12 +1,33 @@
 package com.nexo.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.nexo.models.classes.Topic;
+import com.nexo.service.TopicService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-// Like a prefix, all routes will start with /auth
-@RequestMapping("/topic")
+@RequestMapping("api/topic") // Sujeito a alterações
 public class TopicController {
 
-    // dependencies
+    private final TopicService topicService;
+
+    public TopicController(TopicService topicService) {
+        this.topicService = topicService;
+    }
+
+    @PostMapping("/{topicId}/complete")
+    public ResponseEntity<List<Topic>> getTopicsByTrail(@PathVariable Long trailId) {
+        return ResponseEntity.ok(topicService.getTopicsByTrailId(trailId));
+    }
+
+    // Mark the topic as completed
+    // Update the user's achievements
+    @PostMapping("/{topicId}/completed")
+    public ResponseEntity<Void> completeTopic(@RequestParam Long trailId, @PathVariable Long topicId) {
+        topicService.completeTopic(trailId, topicId);
+
+        return ResponseEntity.ok().build();
+    }
 }

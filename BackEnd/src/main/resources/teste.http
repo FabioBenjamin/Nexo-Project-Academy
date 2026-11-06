@@ -1,0 +1,76 @@
+Variables Definition
+
+@baseUrl = http://localhost:8080/api/achievements
+@userId = 1
+
+###############################################################################
+
+1. GET ALL ACHIEVEMENTS FOR A USER
+
+Retorna a lista completa de conquistas com o progresso e estado de desbloqueio
+
+###############################################################################
+GET {{baseUrl}}/user/{{userId}}
+Accept: application/json
+
+###############################################################################
+
+2. PROCESS ACTIVITY COMPLETION
+
+Registra a conclusão de uma atividade.
+
+Triggers:
+
+- Incrementa o contador de atividades
+
+- Atualiza a sequência (streak) de dias
+
+- Desbloqueia 'Primeiros Passos' (ID 1), marcos de atividades,
+
+'Coruja Noturna' (ID 5 se for madrugada) e 'Guerreiro de Fim de Semana' (ID 11 se for Domingo)
+
+###############################################################################
+POST {{baseUrl}}/complete-activity/{{userId}}
+Content-Type: application/json
+
+###############################################################################
+
+3. ADD XP TO USER
+
+Incrementa a pontuação de XP do utilizador.
+
+Triggers:
+
+- Avalia marcos acumulados de XP (500, 1000, 5000, etc.)
+
+###############################################################################
+POST {{baseUrl}}/add-xp/{{userId}}
+Content-Type: application/json
+
+500
+
+###############################################################################
+
+4. PROCESS TRAIL COMPLETION
+
+Registra a conclusão de uma trilha completa pelo utilizador.
+
+Triggers:
+
+- Desbloqueia a conquista 'Concluidor de Trilhas' (ID 13)
+
+###############################################################################
+POST {{baseUrl}}/complete-trail/{{userId}}
+Content-Type: application/json
+
+###############################################################################
+
+5. TEST USER NOT FOUND EXCEPTION (EDGE CASE)
+
+Testa a resposta da API ao consultar um utilizador inexistente.
+
+Esperado: HTTP 404 (Not Found) tratado pelo GlobalExceptionHandler
+
+###############################################################################
+GET {{baseUrl}}/user/999999
+Accept: application/json
