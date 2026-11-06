@@ -2,7 +2,6 @@ package com.nexo.exceptions;
 
 import com.nexo.dto.ErrorResponseDTO;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -90,9 +89,9 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    @ExceptionHandler(StudyTrailNotFoundException.class)
-    public ResponseEntity<ErrorResponseDTO> handleStudyTrailNotFoundException(
-            StudyTrailNotFoundException e){
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityNotFoundException(
+            EntityNotFoundException e){
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 "Not Found",
@@ -111,6 +110,21 @@ public class GlobalExceptionHandler {
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 // Resource exists, but the request contain invalid parameters
+                "Bad Request",
+                e.getMessage(),
+                400
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(
+            IllegalArgumentException e){
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
                 "Bad Request",
                 e.getMessage(),
                 400

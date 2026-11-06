@@ -1,26 +1,30 @@
-<h1 align="center"> 🎒 NEXO - Computational Mathematics Project </h1>
+<h1 align="center"> 🎒 NEXO - Academic Management Platform </h1>
+
+<p align="center">
+  <b>Intelligent learning, personalized study paths, and continuous student evolution.</b>
+</p>
 
 ## 📝 About the Project
-_NEXO is an intelligent academic management solution developed to combat demotivation and disorganization in the contemporary educational landscape. The project was born from the perception that traditional "one-size-fits-all" methodologies fail by ignoring each student's individual pace, resulting in procrastination and school dropout._  
+*NEXO is an intelligent academic management solution developed to combat demotivation and disorganization in the contemporary educational landscape. The project was born from the perception that traditional "one-size-fits-all" methodologies fail by ignoring each student's individual pace, resulting in procrastination and school dropout.*  
 <br>
-_Through integration with Gemini AI, the platform transforms dense content into personalized learning paths, offering continuous support, immediate feedback, and efficient time management. The goal is to restore student autonomy, turning information overload into a continuous and motivating evolution process._
+*Through integration with Gemini AI, the platform transforms dense content into personalized learning paths, offering continuous support, immediate feedback, and efficient time management. The goal is to restore student autonomy, turning information overload into a continuous and motivating evolution process.*
 
 ---
 
 ### 🧠 Meaning of NEXO
-* **NEXO** – Represents the *intelligent connection between knowledge, technology, and student evolution.*
+- **NEXO** – Represents the *intelligent connection between knowledge, technology, and student evolution.*
 
 ### 🔗 Symbolism:
-* 📚 **Content** – *(What to learn)*  
-* 🤖 **Artificial Intelligence** – *(How to learn)*  
-* 🎯 **Student Goals** – *(Why to learn)*  
+- 📚 **Content** – *(What to learn)*  
+- 🤖 **Artificial Intelligence** – *(How to learn)*  
+- 🎯 **Student Goals** – *(Why to learn)*  
 
-<p>
+<p align="center">
 More than just a word, <b>NEXO</b> represents the idea of transforming information into progress, connecting data, performance, and personalization into a single educational experience.
 </p>
 
 <div align="center">
-  
+
 ### **_Less overload. More evolution. 🚀_**
 
 </div>
@@ -31,62 +35,81 @@ More than just a word, <b>NEXO</b> represents the idea of transforming informati
 
 ### 📱 General Features 
 - **Dynamic Agenda**: Centralized management of tasks and schedules, connecting deadlines and priorities.  
-
 - **Adaptive Learning Paths (Gemini AI)**: Personalized study plans that identify weaknesses and create tailored learning roadmaps.  
-
 - **Performance Dashboards**: Real-time progress monitoring with clear daily goals.  
-
-- **Gamification**: Achievement system and smart notifications to increase engagement and motivation.  
-
+- **Gamification**: Achievement system, XP rewards, streaks, and smart notifications to increase engagement.  
 - **Simulations with Feedback**: Integrated tests with instant AI-generated feedback.  
-
-- **Responsive Experience**: Interface optimized for smooth use on mobile and desktop devices.  
+- **Responsive Experience**: Interface optimized for smooth mobile user experience.  
 
 ---
 
 ## 🖥️ Front-End
-<!-- ADD FUTURE FEATURES -->
+- **Android Studio**: Native Android mobile application development.
+- **Dynamic Dashboards**: Real-time visualization of streaks, XP progression, and pending study topics.
+- **Interactive Roadmaps**: Visual step-by-step rendering of AI-generated study paths.
 
 ---
 
 ## 🔧 Back-End
-<!-- ADD FUTURE FEATURES -->
+- **Spring Boot 4.x (Java)**: Robust REST API core handling authentication, domain logic, and JPA mappings.
+- **Spring Security & OAuth2 / JWT**: Stateless JWT token authentication with BCrypt password hashing.
 
 ---
 
 ## 🗃️ Database
-* 🐘 Use of **PostgreSQL**  
-* 📊 Structured relational modeling  
-* ⚡ Optimized for fast and efficient queries  
+- 🐘 **PostgreSQL**: Relational database storing users, achievements, settings, and study trails.  
+- 📊 **Structured Relational Schema**: Optimized foreign key constraints (`ON DELETE CASCADE`) and custom ENUM types (`order_status`, `test_status`, `requirement_type`).  
+- ⚡ **Performance Indexes**: Strategic indexes on foreign keys (`user_id`, `achievement_id`) for ultra-fast query execution.  
 
 ---
 
 ## 🔒 Security
-* 🔐 Password encryption  
-* 🛡️ User authentication and authorization  
-* 🔑 Role-based access control  
-* ✅ Data validation on front-end and back-end  
-* 🚫 Protection against unauthorized access  
-* 📡 Secure communication between client and server  
+- 🔐 BCrypt password hashing  
+- 🛡️ Stateless JWT authentication & Refresh Tokens  
+- 🔑 Role-based authorization  
+- ✅ Strict JPA and Bean Validation (`jakarta.validation`)  
+- 🚫 Protection against unauthorized resource access  
+- 📡 Secure HTTPS/TLS communication  
 
 ---
 
 ## 📂 File Structure
----
 
-## 🎨 Layout
-<!-- APPLICATION SCREENSHOTS -->
-
----
-
-## 🔧 Technologies Used
-* **Back End** – Java  
-* **Front End** – Studio Android
-* **Database** – PostgreSQL  
-* **Frameworks** – FastAPI and API Gemini  
-* **Design** – Figma and Color Theory  
-
----
+```
+Nexo-Project-Academy/
+├── BackEnd/
+│   ├── .mvn/
+│   │   └── wrapper/
+│   │       └── maven-wrapper.properties
+│   ├── src/
+│   │   └── main/
+│   │       ├── java/
+│   │       │   └── com/
+│   │       │       └── nexo/
+│   │       │           ├── config/
+│   │       │           ├── controller/
+│   │       │           ├── dto/
+│   │       │           ├── exceptions/
+│   │       │           ├── integration/
+│   │       │           │   ├── dto/
+│   │       │           │   ├── gemini/
+│   │       │           │   └── schemas/
+│   │       │           ├── models/
+│   │       │           │   ├── classes/
+│   │       │           │   └── enums/
+│   │       │           ├── repository/
+│   │       │           ├── security/
+│   │       │           ├── service/
+│   │       │           └── NexoApplication.java   # Main application entry point
+│   │       └── resources/
+│   │           └── application.properties
+│   ├── .env                                       # Environment variables (DB, JWT, Gemini API)
+│   ├── .env.example
+│   ├── mvnw
+│   ├── mvnw.cmd
+│   └── pom.xml
+└── README.md
+```
 
 ## 👥 Development Team
 

@@ -3,6 +3,7 @@ package com.nexo.controller;
 import com.nexo.dto.StudyTrailRequestDTO;
 import com.nexo.dto.StudyTrailResponse;
 import com.nexo.dto.StudyTrailSummaryResponse;
+import com.nexo.dto.UpdateStudyTrailRequest;
 import com.nexo.service.StudyTrailService;
 import jakarta.websocket.server.PathParam;
 import org.springframework.data.domain.Page;
@@ -56,5 +57,31 @@ public class StudyTrailController {
 
         return ResponseEntity
                 .ok(studyTrailService.getUserTrails(userId, page, 10));
+    }
+
+    @DeleteMapping("/trail/{id}")
+    public ResponseEntity<Void> deleteStudyTrail(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("id") Long studyTrailId
+    ){
+        Long userId = Long.valueOf(jwt.getSubject());
+
+        studyTrailService.deleteStudyTrail(studyTrailId, userId);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/trail/{id}")
+    public ResponseEntity<Void> updateStudyTrail(
+            @AuthenticationPrincipal Jwt jwt,
+            @PathVariable("id") Long studyTrailId,
+            @RequestBody UpdateStudyTrailRequest request
+            ){
+
+        Long userId = Long.valueOf(jwt.getSubject());
+
+        studyTrailService.updateStudyTrail(studyTrailId, userId, request);
+
+        return ResponseEntity.noContent().build();
     }
 }
