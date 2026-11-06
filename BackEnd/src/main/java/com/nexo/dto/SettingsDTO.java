@@ -1,9 +1,5 @@
 package com.nexo.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-
-
 public class SettingsDTO {
     private Boolean notifications;
     private String language;

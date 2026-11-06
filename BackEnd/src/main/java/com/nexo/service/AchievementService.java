@@ -3,8 +3,10 @@ package com.nexo.service;
 import com.nexo.dto.AchievementDTO;
 import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.models.classes.Achievement;
+import com.nexo.models.classes.AchievementRequirement;
 import com.nexo.models.classes.User;
 import com.nexo.repository.AchievementRepository;
+import com.nexo.repository.AchievementRequirementRepository;
 import com.nexo.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class AchievementService {
 
     @Autowired
     private AchievementRepository achievementRepository;
+
+    @Autowired
+    private AchievementRequirementRepository achievementRequirementRepository;
 
     @Autowired
     private UserRepository userRepository;
@@ -49,16 +54,11 @@ public class AchievementService {
             unlockAchievementIfNotPresent(user, 5L); // ID 5: Night Owl
         }
 
-        // 4. First Steps: complete the 1st activity
-        if (user.getCompletedActivitiesCount() >= 1) {
-            unlockAchievementIfNotPresent(user, 1L); // ID 1: First Steps
-        }
-
-        // 5. Total activity count milestones (25, 50, 100...)
-        checkActivityMilestones(user);
-
-        // 6. Weekend streak check (Saturday and Sunday)
+        // 4. Weekend streak check (Saturday and Sunday)
         checkWeekendStreak(user, today, previousActiveDate);
+
+        // 5. Evaluates database-driven achievement requirements
+        checkDatabaseRequirements(user);
 
         // Saves user updates
         userRepository.save(user);
@@ -73,11 +73,56 @@ public class AchievementService {
         int addedXp = xp != null ? xp : 0;
         user.setXp(currentXp + addedXp);
 
-        // Checks accumulated XP milestones (1, 500, 1000, 5000, 10000, 25000, 50000, 100000)
-        checkXpMilestones(user);
+        // Evaluates accumulated XP milestones dynamically the database
+        checkDatabaseRequirements(user);
 
         // Saves
         userRepository.save(user);
+    }
+
+    // Evaluates dynamic achievement requirements fetched from the achievementRequrement table
+    private void checkDatabaseRequirements(User user) {
+        List<AchievementRequirement> requirements = achievementRequirementRepository.findAll();
+
+        for (AchievementRequirement requirement : requirements) {
+            Long achievementId = requirement.getAchievement().getId();
+
+            int target = requirement.getTarget();
+            if (requirement.getType() == null) continue;
+
+            switch (requirement.getType()) {
+                case TOTAL_XP:
+
+                    int userXp = user.getXp() != null ? user.getXp() : 0;
+                    if (userXp >= target) {
+                        unlockAchievementIfNotPresent(user, achievementId);
+                    }
+                    break;
+
+                case COMPLETED_ACTIVITIES:
+                case FIRST_STEPS:
+                case COMPLETE_TRAIL:
+
+                    // Checks completed activity count against requirement target
+                    int completed = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
+                    if (completed >= target){
+                        unlockAchievementIfNotPresent(user, achievementId);
+                    }
+                    break;
+
+                case STREAK_DAYS:
+
+                    // Evaluates current active streak days count
+                    int streak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+                    if (streak >= target) {
+                        unlockAchievementIfNotPresent(user, achievementId);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
     }
 
     @Transactional
@@ -136,35 +181,6 @@ public class AchievementService {
         }
 
         user.setLastActiveDate(today);
-
-        // Leagues and streak achievement checks (Days)
-        // Rock: 0 days | Bronze: 3 | Silver: 7 | Gold: 30 | Diamond: 100 | Legendary: 365
-        int streak = user.getCurrentStreak();
-        if (streak >= 3) unlockAchievementIfNotPresent(user, 6L);   // Bronze - 3 days
-        if (streak >= 7) unlockAchievementIfNotPresent(user, 7L);   // Silver - 7 days
-        if (streak >= 30) unlockAchievementIfNotPresent(user, 8L);  // Gold - 30 days
-        if (streak >= 100) unlockAchievementIfNotPresent(user, 9L); // Diamond - 100 days
-        if (streak >= 365) unlockAchievementIfNotPresent(user, 10L);// Legendary - 365 days
-    }
-
-    // Checks the activities completed by the user
-    private void checkActivityMilestones(User user) {
-        int count = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
-        if (count >= 25) unlockAchievementIfNotPresent(user, 2L);
-        if (count >= 50) unlockAchievementIfNotPresent(user, 3L);
-        if (count >= 100) unlockAchievementIfNotPresent(user, 4L);
-    }
-
-    // Checks the XP accumulated by the user
-    private void checkXpMilestones(User user) {
-        int xp = user.getXp() != null ? user.getXp() : 0;
-        if (xp >= 500) unlockAchievementIfNotPresent(user, 15L);
-        if (xp >= 1000) unlockAchievementIfNotPresent(user, 16L);
-        if (xp >= 5000) unlockAchievementIfNotPresent(user, 17L);
-        if (xp >= 10000) unlockAchievementIfNotPresent(user, 18L);
-        if (xp >= 25000) unlockAchievementIfNotPresent(user, 19L);
-        if (xp >= 50000) unlockAchievementIfNotPresent(user, 20L);
-        if (xp >= 100000) unlockAchievementIfNotPresent(user, 21L);
     }
 
     private void checkWeekendStreak(User user, LocalDate today, LocalDate previousActiveDate) {
@@ -195,37 +211,33 @@ public class AchievementService {
     }
 
     // Returns the goal the user needs to reach to unlock the achievement
-    private int getTargetForAchievement(Long id) {
-        if (id.equals(1L)) return 1;
-        if (id.equals(2L)) return 25;
-        if (id.equals(3L)) return 50;
-        if (id.equals(4L)) return 100;
-        if (id.equals(6L)) return 3;
-        if (id.equals(7L)) return 7;
-        if (id.equals(8L)) return 30;
-        if (id.equals(9L)) return 100;
-        if (id.equals(10L)) return 365;
-        if (id.equals(15L)) return 500;
-        if (id.equals(16L)) return 1000;
-        if (id.equals(17L)) return 5000;
-        if (id.equals(18L)) return 10000;
-        if (id.equals(19L)) return 25000;
-        if (id.equals(20L)) return 50000;
-        if (id.equals(21L)) return 100000;
+    private int getTargetForAchievement(Long achievementid) {
+        List<AchievementRequirement> reqs = achievementRequirementRepository.findByAchievementId(achievementid);
+        if (!reqs.isEmpty()) {
+            return reqs.getFirst().getTarget();
+        }
         return 1;
     }
 
     // Returns the user's current progress based on the achievement type
-    private int getCurrentProgressForAchievement(User user, Long id) {
-        if (id >= 1L && id <= 4L) {
-            return user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
+    private int getCurrentProgressForAchievement(User user, Long achievementId) {
+        List<AchievementRequirement> requirements = achievementRequirementRepository.findByAchievementId(achievementId);
+        if (requirements.isEmpty()) {
+            return 0;
         }
-        if (id >= 6L && id <= 10L) {
-            return user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
-        }
-        if (id >= 15L && id <= 21L) {
-            return user.getXp() != null ? user.getXp() : 0;
-        }
-        return 0;
+
+        // Retrieves the primary requirement associated with the achievemet
+        AchievementRequirement requirement = requirements.getFirst();
+        if (requirement.getType() == null) return 0;
+
+        // Maps requirement category to corresponding user model field for progress computation
+        return switch (requirement.getType()) {
+            case TOTAL_XP -> user.getXp() != null ? user.getXp() : 0;
+            case COMPLETED_ACTIVITIES, FIRST_STEPS, COMPLETE_TRAIL ->
+                    user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
+
+            case STREAK_DAYS -> user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+            default -> 0;
+        };
     }
 }
