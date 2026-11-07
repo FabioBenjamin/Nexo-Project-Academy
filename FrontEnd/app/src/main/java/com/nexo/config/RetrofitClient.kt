@@ -54,6 +54,5 @@ object RetrofitClient {
     fun getTrailApiService(context: Context): TrailApiService = getClient(context).create(
         TrailApiService::class.java)
 
-
     fun getUserApiService(context: Context): UserApiService = getClient(context).create(
         UserApiService::class.java)}

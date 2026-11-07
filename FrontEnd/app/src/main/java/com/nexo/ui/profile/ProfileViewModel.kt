@@ -3,17 +3,11 @@ package com.nexo.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.UserApiService
-import com.nexo.dto.UserProfileResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-sealed interface ProfileUiState {
-    object Loading : ProfileUiState
-    data class Success(val profile: UserProfileResponse) : ProfileUiState
-    data class Error(val message: String) : ProfileUiState
-}
 
 class ProfileViewModel(
     private val userApiService: UserApiService

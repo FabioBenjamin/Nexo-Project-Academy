@@ -9,7 +9,7 @@ data class UserProfileResponse(
     val currentXp: Int,
     val maxXp: Int,
     val completedTrailsCount: Int,
-    val achievements: List<String>
+    val achievements: List<AchievementDTO>
 )
 
 // DTO representing an individual achievement badge
