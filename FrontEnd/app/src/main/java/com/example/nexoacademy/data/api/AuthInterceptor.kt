@@ -7,7 +7,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 
 class AuthInterceptor(
-    private val tokenManager: TokenManager
+    private val tokenManager: com.example.nexoacademy.data.local.TokenManager
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {

@@ -18,7 +18,7 @@ interface AuthApiService {
      */
     @POST("auth/register")
     suspend fun register(
-        @Body dto: RegisterUserDTO
+        @Body dto: com.example.nexoacademy.data.dto.RegisterUserDTO
     ): Response<Unit>
 
     /**
@@ -28,8 +28,8 @@ interface AuthApiService {
      */
     @POST("auth/login")
     suspend fun login(
-        @Body dto: LoginUserDTO
-    ): Response<LoginResponseDTO>
+        @Body dto: com.example.nexoacademy.data.dto.LoginUserDTO
+    ): Response<com.example.nexoacademy.data.dto.LoginResponseDTO>
 
     /**
      * Atualizar Token de Acesso (Refresh Token)
@@ -38,8 +38,8 @@ interface AuthApiService {
      */
     @POST("auth/refresh")
     suspend fun refreshToken(
-        @Body request: RefreshTokenRequest
-    ): Response<AccessTokenResponse>
+        @Body request: com.example.nexoacademy.data.dto.RefreshTokenRequest
+    ): Response<com.example.nexoacademy.data.dto.AccessTokenResponse>
 
     /**
      * Logout do utilizador (Invalida o Refresh Token no backend)
@@ -47,6 +47,6 @@ interface AuthApiService {
      */
     @POST("auth/logout")
     suspend fun logout(
-        @Body request: RefreshTokenRequest
+        @Body request: com.example.nexoacademy.data.dto.RefreshTokenRequest
     ): Response<Unit>
 }
