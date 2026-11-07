@@ -28,6 +28,8 @@ public class StudyTestService {
         studyTest.setStatus(StudyTestStatus.BLOCKED);
         studyTest.setStudyTrail(studyTrail);
 
+        studyTrail.setStudyTest(studyTest);
+
         for(GeminiQuestionResponse questionResponse : testResponse.questions()){
 
             Question question = new Question();
