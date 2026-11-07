@@ -1,7 +1,6 @@
 package com.example.nexoacademy.ui.trail
 
 import android.app.DatePickerDialog
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.nexoacademy.ui.theme.*
-import java.time.LocalDate
 import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,17 +28,22 @@ fun CreateTrailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // DatePickerDialog Nativo do Android
     val calendar = Calendar.getInstance()
+
+    // Processa a data armazenada no ViewModel para abrir o calendário na data correta
+    val dateParts = targetDate.split("-")
+    val year = dateParts.getOrNull(0)?.toIntOrNull() ?: calendar.get(Calendar.YEAR)
+    val month = (dateParts.getOrNull(1)?.toIntOrNull()?.minus(1)) ?: calendar.get(Calendar.MONTH)
+    val day = dateParts.getOrNull(2)?.toIntOrNull() ?: calendar.get(Calendar.DAY_OF_MONTH)
+
     val datePickerDialog = DatePickerDialog(
         context,
-        { _, year, month, dayOfMonth ->
-            val selectedDate = LocalDate.of(year, month + 1, dayOfMonth)
-            viewModel.targetDate.value = selectedDate.toString()
+        { _, selectedYear, selectedMonth, selectedDayOfMonth ->
+            val formattedMonth = (selectedMonth + 1).toString().padStart(2, '0')
+            val formattedDay = selectedDayOfMonth.toString().padStart(2, '0')
+            viewModel.updateTargetDate("$selectedYear-$formattedMonth-$formattedDay")
         },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
+        year, month, day
     )
 
     LaunchedEffect(uiState) {
@@ -53,20 +56,10 @@ fun CreateTrailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Nova Trilha com IA",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = TextoPrincipal
-                    )
-                },
+                title = { Text("Nova Trilha com IA", style = MaterialTheme.typography.titleLarge, color = TextoPrincipal) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = TextoPrincipal
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = TextoPrincipal)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
@@ -74,55 +67,23 @@ fun CreateTrailScreen(
         },
         containerColor = CremeSuave
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(24.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = "O que você gostaria de aprender?",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = TextoPrincipal,
-                    textAlign = TextAlign.Start,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
+        Box(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(24.dp)) {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("O que você gostaria de aprender?", style = MaterialTheme.typography.headlineMedium, color = TextoPrincipal, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Descreva o assunto e o objetivo. O Gemini irá gerar um plano de estudos completo com etapas e prazos.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextoSecundario,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
+                Text("Descreva o assunto e o objetivo. O Gemini irá gerar um plano de estudos completo com etapas e prazos.", style = MaterialTheme.typography.bodyMedium, color = TextoSecundario, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Campo Conteúdo/Objetivo
                 OutlinedTextField(
                     value = content,
-                    onValueChange = { viewModel.content.value = it },
-                    label = { Text("Ex: Quero aprender Spring Boot com Kotlin para criar APIs REST") },
-                    minLines = 4,
-                    maxLines = 6,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BrancoPuro,
-                        unfocusedContainerColor = BrancoPuro,
-                        focusedBorderColor = RoxoAcolhedor,
-                        unfocusedBorderColor = CinzaDesabilitado
-                    )
+                    onValueChange = { viewModel.updateContent(it) },
+                    label = { Text("Ex: Quero aprender Spring Boot com Kotlin...") },
+                    minLines = 4, maxLines = 6, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Campo Seleção de Data Limite (Target Date)
                 OutlinedTextField(
                     value = targetDate,
                     onValueChange = {},
@@ -130,70 +91,35 @@ fun CreateTrailScreen(
                     label = { Text("Data limite de conclusão (YYYY-MM-DD)") },
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(
-                                imageVector = Icons.Default.DateRange,
-                                contentDescription = "Selecionar Data",
-                                tint = RoxoAcolhedor
-                            )
+                            Icon(Icons.Default.DateRange, contentDescription = "Selecionar Data", tint = RoxoAcolhedor)
                         }
                     },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BrancoPuro,
-                        unfocusedContainerColor = BrancoPuro,
-                        focusedBorderColor = RoxoAcolhedor,
-                        unfocusedBorderColor = CinzaDesabilitado
-                    )
+                    modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
                 )
 
-                // Feedback de Erro
                 if (uiState is CreateTrailUiState.Error) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = (uiState as CreateTrailUiState.Error).message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = VermelhoErro,
-                        textAlign = TextAlign.Center
-                    )
+                    Text(text = (uiState as CreateTrailUiState.Error).message, style = MaterialTheme.typography.bodyMedium, color = VermelhoErro, textAlign = TextAlign.Center)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Botão de Envio
                 Button(
                     onClick = { viewModel.generateTrail() },
                     enabled = uiState !is CreateTrailUiState.Loading,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = RoxoAcolhedor,
-                        contentColor = BrancoPuro
-                    )
+                    colors = ButtonDefaults.buttonColors(containerColor = RoxoAcolhedor, contentColor = BrancoPuro)
                 ) {
                     if (uiState is CreateTrailUiState.Loading) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            CircularProgressIndicator(
-                                color = BrancoPuro,
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp
-                            )
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator(color = BrancoPuro, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = "O Gemini está criando sua trilha...",
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                            Text("O Gemini está criando sua trilha...", style = MaterialTheme.typography.labelLarge)
                         }
                     } else {
-                        Text(
-                            text = "Gerar Trilha com IA",
-                            style = MaterialTheme.typography.labelLarge
-                        )
+                        Text("Gerar Trilha com IA", style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }

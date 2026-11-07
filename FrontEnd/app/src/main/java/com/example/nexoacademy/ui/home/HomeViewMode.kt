@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class HomeViewModel(
     private val trailApiService: TrailApiService,
@@ -27,49 +29,23 @@ class HomeViewModel(
 
     fun loadTrails(page: Int = 0) {
         _uiState.value = HomeUiState.Loading
-
         viewModelScope.launch {
             try {
                 val response = trailApiService.getTrails(page)
-
                 if (response.isSuccessful && response.body() != null) {
                     _uiState.value = HomeUiState.Success(response.body()!!)
                 } else if (response.code() == 401) {
-                    tryRefreshTokenAndRetry(page)
+                    _uiState.value = HomeUiState.Error("Sessão expirada. Por favor, faça login novamente.")
                 } else {
                     _uiState.value = HomeUiState.Error("Erro ao carregar as trilhas (${response.code()})")
                 }
+            } catch (e: IOException) {
+                _uiState.value = HomeUiState.Error("Falha de rede. Verifique sua conexão com a internet.")
+            } catch (e: HttpException) {
+                _uiState.value = HomeUiState.Error("Erro no servidor. Tente novamente mais tarde.")
             } catch (e: Exception) {
-                _uiState.value = HomeUiState.Error(e.message ?: "Falha na conexão com o servidor")
+                _uiState.value = HomeUiState.Error("Ocorreu um erro inesperado.")
             }
-        }
-    }
-
-    private suspend fun tryRefreshTokenAndRetry(page: Int) {
-        val currentRefreshToken = tokenManager.refreshToken.firstOrNull()
-
-        if (currentRefreshToken.isNullOrBlank()) {
-            _uiState.value = HomeUiState.Error("Sessão expirada. Por favor, faça login novamente.")
-            return
-        }
-
-        try {
-            val refreshResponse = authApiService.refreshToken(RefreshTokenRequest(currentRefreshToken))
-            if (refreshResponse.isSuccessful && refreshResponse.body() != null) {
-                val newAccessToken = refreshResponse.body()!!.accessToken
-                tokenManager.saveTokens(access = newAccessToken, refresh = currentRefreshToken)
-
-                val retryResponse = trailApiService.getTrails(page)
-                if (retryResponse.isSuccessful && retryResponse.body() != null) {
-                    _uiState.value = HomeUiState.Success(retryResponse.body()!!)
-                } else {
-                    _uiState.value = HomeUiState.Error("Erro ao carregar as trilhas após renovar sessão.")
-                }
-            } else {
-                _uiState.value = HomeUiState.Error("Sessão expirada. Por favor, faça login novamente.")
-            }
-        } catch (e: Exception) {
-            _uiState.value = HomeUiState.Error("Falha na conexão ao renovar sessão.")
         }
     }
 
@@ -81,7 +57,6 @@ class HomeViewModel(
                     authApiService.logout(RefreshTokenRequest(refreshToken))
                 }
             } catch (_: Exception) {
-                // Ignora erro de rede para garantir que o usuário consiga sair localmente
             } finally {
                 tokenManager.clearTokens()
                 onLoggedOut()
