@@ -33,17 +33,27 @@ class HomeViewModel(
             try {
                 val response = trailApiService.getTrails(page)
                 if (response.isSuccessful && response.body() != null) {
-                    _uiState.value = HomeUiState.Success(response.body()!!)
+                    _uiState.value = HomeUiState.Success(response.body()!!.content)
+
                 } else if (response.code() == 401) {
                     _uiState.value = HomeUiState.Error("Sessão expirada. Por favor, faça login novamente.")
-                } else {
+                }
+
+                else {
                     _uiState.value = HomeUiState.Error("Erro ao carregar as trilhas (${response.code()})")
                 }
-            } catch (e: IOException) {
+
+            }
+
+            catch (e: IOException) {
                 _uiState.value = HomeUiState.Error("Falha de rede. Verifique sua conexão com a internet.")
-            } catch (e: HttpException) {
+            }
+
+            catch (e: HttpException) {
                 _uiState.value = HomeUiState.Error("Erro no servidor. Tente novamente mais tarde.")
-            } catch (e: Exception) {
+            }
+
+            catch (e: Exception) {
                 _uiState.value = HomeUiState.Error("Ocorreu um erro inesperado.")
             }
         }

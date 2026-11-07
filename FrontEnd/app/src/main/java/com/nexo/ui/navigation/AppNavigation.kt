@@ -1,25 +1,37 @@
 package com.nexo.ui.navigation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.nexo.security.TokenManager
-import com.nexo.ui.auth.LoginViewModel
-import com.nexo.ui.auth.RegisterViewModel
+import androidx.navigation.navArgument
 import com.nexo.config.RetrofitClient
+import com.nexo.security.TokenManager
 import com.nexo.ui.auth.LoginScreen
+import com.nexo.ui.auth.LoginViewModel
 import com.nexo.ui.auth.RegisterScreen
+import com.nexo.ui.auth.RegisterViewModel
 import com.nexo.ui.home.HomeScreen
 import com.nexo.ui.home.HomeViewModel
 import com.nexo.ui.splash.SplashScreen
 import com.nexo.ui.splash.SplashViewModel
 import com.nexo.ui.trail.CreateTrailScreen
 import com.nexo.ui.trail.CreateTrailViewModel
-
 object Routes {
     const val SPLASH = "splash"
     const val LOGIN = "login"
@@ -118,6 +130,28 @@ fun AppNavigation(
                     navController.popBackStack()
                 }
             )
+        }
+
+        // Trail details route
+        composable(
+            route = Routes.TRAIL_DETAILS,
+            arguments = listOf(navArgument("trailId") {type = NavType.LongType})
+        ) { backStrackEntry ->
+            val trailId = backStrackEntry.arguments?.getLong("trailId") ?: 0L
+
+            Surface(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Detalhes da Trilha ID: $trailId")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { navController.popBackStack() }) {
+                        Text(text = "Voltar")
+                    }
+                }
+            }
         }
     }
 }

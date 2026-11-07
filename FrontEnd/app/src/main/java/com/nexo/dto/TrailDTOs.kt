@@ -13,3 +13,11 @@ data class StudyTrailSummaryResponse(
     val description: String?,
     val status: String // IN_PROGRESS, PENDING, COMPLETED
 )
+
+data class PageResponse<T>(
+    val content: List<T>,
+    val totalPages: Int,
+    val totalElements: Long,
+    val last: Boolean,
+    val number: Int
+)

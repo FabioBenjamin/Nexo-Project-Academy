@@ -1,5 +1,6 @@
 package com.nexo.data.api
 
+import com.nexo.dto.PageResponse
 import com.nexo.dto.StudyTrailRequestDTO
 import com.nexo.dto.StudyTrailSummaryResponse
 import retrofit2.Response
@@ -15,12 +16,12 @@ interface TrailApiService {
     @GET("trails")
     suspend fun getTrails(
         @Query("page") page: Int = 0
-    ): Response<List<StudyTrailSummaryResponse>>
+    ): Response<PageResponse<StudyTrailSummaryResponse>>
 
     // TODO: Generates a new study path based on a request to the AI (Gemini)
     // TODO: Route - POST /trails/generate
-    @POST("trails/generate")
+    @POST("trail")
     suspend fun generateTrail(
         @Body request: StudyTrailRequestDTO
-    ): Response<StudyTrailSummaryResponse>
+    ): Response<Long>
 }
