@@ -5,6 +5,7 @@ import com.nexo.security.AuthInterceptor
 import com.nexo.data.api.TrailApiService
 import com.nexo.security.TokenManager
 import com.nexo.data.api.AuthApiService
+import com.nexo.data.api.UserApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -52,4 +53,7 @@ object RetrofitClient {
 
     fun getTrailApiService(context: Context): TrailApiService = getClient(context).create(
         TrailApiService::class.java)
-}
+
+
+    fun getUserApiService(context: Context): UserApiService = getClient(context).create(
+        UserApiService::class.java)}

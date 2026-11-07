@@ -7,14 +7,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.nexo.security.TokenManager
-import com.nexo.ui.auth.LoginViewModel
-import com.nexo.ui.auth.RegisterViewModel
 import com.nexo.config.RetrofitClient
+import com.nexo.data.api.SettingsApiService
+import com.nexo.data.api.UserApiService
+import com.nexo.security.TokenManager
 import com.nexo.ui.auth.LoginScreen
+import com.nexo.ui.auth.LoginViewModel
 import com.nexo.ui.auth.RegisterScreen
+import com.nexo.ui.auth.RegisterViewModel
 import com.nexo.ui.home.HomeScreen
 import com.nexo.ui.home.HomeViewModel
+import com.nexo.ui.profile.ProfileScreen
+import com.nexo.ui.profile.ProfileViewModel
+import com.nexo.ui.settings.SettingsScreen
+import com.nexo.ui.settings.SettingsViewModel
 import com.nexo.ui.splash.SplashScreen
 import com.nexo.ui.splash.SplashViewModel
 import com.nexo.ui.trail.CreateTrailScreen
@@ -26,7 +32,9 @@ object Routes {
     const val REGISTER = "register"
     const val HOME = "home"
     const val CREATE_TRAIL = "create_trail"
-    const val TRAIL_DETAILS = "trail_details/{trailId}" // Rota futura para a próxima tela
+    const val TRAIL_DETAILS = "trail_details/{trailId}"
+    const val PROFILE = "profile"
+    const val SETTINGS = "settings"
 }
 
 @Composable
@@ -39,9 +47,9 @@ fun AppNavigation(
 
     NavHost(
         navController = navController,
-        startDestination = Routes.SPLASH // Set Splash as the initial screen
+        startDestination = Routes.SPLASH
     ) {
-        // Rota Splash
+        // Splash Screen Route
         composable(Routes.SPLASH) {
             val splashViewModel = viewModel { SplashViewModel(tokenManager) }
             SplashScreen(
@@ -59,7 +67,7 @@ fun AppNavigation(
             )
         }
 
-        // Login route
+        // Login Screen Route
         composable(Routes.LOGIN) {
             val loginViewModel = viewModel { LoginViewModel(authApiService, tokenManager) }
             LoginScreen(
@@ -73,7 +81,7 @@ fun AppNavigation(
             )
         }
 
-        // Registration route
+        // Register Screen Route
         composable(Routes.REGISTER) {
             val registerViewModel = viewModel { RegisterViewModel(authApiService) }
             RegisterScreen(
@@ -87,7 +95,7 @@ fun AppNavigation(
             )
         }
 
-        // Home route (Dashboard)
+        // Home Screen Route
         composable(Routes.HOME) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val homeViewModel = viewModel { HomeViewModel(trailApiService, authApiService, tokenManager) }
@@ -106,7 +114,7 @@ fun AppNavigation(
             )
         }
 
-        // AI Powered trail creation route
+        // Create Trail Screen Route
         composable(Routes.CREATE_TRAIL) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val createTrailViewModel = viewModel { CreateTrailViewModel(trailApiService) }
@@ -117,6 +125,26 @@ fun AppNavigation(
                 onTrailCreatedSuccessfully = {
                     navController.popBackStack()
                 }
+            )
+        }
+
+        // Profile Screen Route (Parte 2)
+        composable(Routes.PROFILE) {
+            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
+            val profileViewModel = viewModel { ProfileViewModel(userApiService) }
+            ProfileScreen(
+                viewModel = profileViewModel,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Settings Screen Route (Parte 2)
+        composable(Routes.SETTINGS) {
+            val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
+            val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }
+            SettingsScreen(
+                viewModel = settingsViewModel,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }
