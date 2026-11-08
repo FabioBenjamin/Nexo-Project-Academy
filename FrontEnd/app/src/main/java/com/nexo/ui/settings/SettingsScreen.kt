@@ -1,7 +1,8 @@
 package com.nexo.ui.settings
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,15 +12,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.nexo.R
 import com.nexo.dto.UserSettingsDTO
+import com.nexo.ui.navigation.NexoBottomBar
+import com.nexo.ui.navigation.Routes
 import com.nexo.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -27,11 +35,7 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Configurações",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = TextoPrincipal
-                    )
+                    Text(text = "Configurações", style = MaterialTheme.typography.titleLarge, color = TextoPrincipal)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -43,6 +47,12 @@ fun SettingsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
+            )
+        },
+        bottomBar = {
+            NexoBottomBar(
+                currentRoute = Routes.SETTINGS,
+                onNavigate = onNavigateBottom
             )
         },
         containerColor = CremeSuave
@@ -99,20 +109,59 @@ fun SettingsContent(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Notifications Toggle Row
+        // Real Mascot Calm Pose Image Header
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = BrancoPuro),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.mascote_calma),
+                    contentDescription = "Mascote Calma",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(CircleShape)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text = "Ajustes de Aprendizado",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextoPrincipal
+                    )
+                    Text(
+                        text = "Personalize o ritmo e lembretes da sua rotina.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextoSecundario
+                    )
+                }
+            }
+        }
+
         SettingSwitchItem(
-            title = "Notificações",
-            subtitle = "Receber lembretes de estudos diários",
+            title = "Notificações Diárias",
+            subtitle = "Receber lembretes amigáveis para estudar",
             checked = settings.notifications,
-            onCheckedChange = { isChecked -> onSettingsChanged(settings.copy(notifications = isChecked)) }
+            onCheckedChange = { isChecked: Boolean ->
+                onSettingsChanged(settings.copy(notifications = isChecked))
+            }
         )
 
-        // Study on Weekends Toggle Row
         SettingSwitchItem(
             title = "Estudar nos Finais de Semana",
-            subtitle = "Incluir sábados e domingos no cronograma",
+            subtitle = "Incluir sábados e domingos nas suas metas",
             checked = settings.studyWeekends,
-            onCheckedChange = { isChecked -> onSettingsChanged(settings.copy(studyWeekends = isChecked)) }
+            onCheckedChange = { isChecked: Boolean ->
+                onSettingsChanged(settings.copy(studyWeekends = isChecked))
+            }
         )
     }
 }
@@ -127,15 +176,15 @@ fun SettingSwitchItem(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = BrancoPuro),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -143,21 +192,21 @@ fun SettingSwitchItem(
                     style = MaterialTheme.typography.titleMedium,
                     color = TextoPrincipal
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextoSecundario
                 )
             }
+            Spacer(modifier = Modifier.width(16.dp))
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = BrancoPuro,
-                    checkedTrackColor = RoxoAcolhedor,
-                    uncheckedThumbColor = TextoSecundario,
-                    uncheckedTrackColor = CinzaDesabilitado
+                    checkedTrackColor = VerdeEquilibrio,
+                    uncheckedThumbColor = CinzaDesabilitado,
+                    uncheckedTrackColor = CremeSuave
                 )
             )
         }

@@ -29,8 +29,6 @@ fun CreateTrailScreen(
     val context = LocalContext.current
 
     val calendar = Calendar.getInstance()
-
-    // Processes the date stored in the ViewModel to open the calendar on the correct date
     val dateParts = targetDate.split("-")
     val year = dateParts.getOrNull(0)?.toIntOrNull() ?: calendar.get(Calendar.YEAR)
     val month = (dateParts.getOrNull(1)?.toIntOrNull()?.minus(1)) ?: calendar.get(Calendar.MONTH)

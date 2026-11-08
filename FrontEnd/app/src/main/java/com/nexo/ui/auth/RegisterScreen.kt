@@ -25,7 +25,6 @@ fun RegisterScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val confirmPassword by viewModel.confirmPassword.collectAsState()
-
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState) {
@@ -36,10 +35,7 @@ fun RegisterScreen(
     }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(CremeSuave)
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().background(CremeSuave).padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -47,26 +43,11 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Título e Boas-vindas
-            Text(
-                text = "Criar Conta",
-                style = MaterialTheme.typography.headlineLarge,
-                color = TextoPrincipal,
-                textAlign = TextAlign.Center
-            )
-
+            Text(text = "Criar Conta", style = MaterialTheme.typography.headlineLarge, color = TextoPrincipal, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Junte-se ao Nexo Academy e comece sua jornada de aprendizado!",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextoSecundario,
-                textAlign = TextAlign.Center
-            )
-
+            Text(text = "Junte-se ao Nexo Academy e comece sua jornada de aprendizado!", style = MaterialTheme.typography.bodyMedium, color = TextoSecundario, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Username field
             OutlinedTextField(
                 value = username,
                 onValueChange = { viewModel.username.value = it },
@@ -74,131 +55,75 @@ fun RegisterScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = BrancoPuro,
-                    unfocusedContainerColor = BrancoPuro,
-                    focusedBorderColor = RoxoAcolhedor,
-                    unfocusedBorderColor = CinzaDesabilitado
-                )
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Email field
             OutlinedTextField(
                 value = email,
                 onValueChange = { viewModel.email.value = it },
                 label = { Text("E-mail") },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = BrancoPuro,
-                    unfocusedContainerColor = BrancoPuro,
-                    focusedBorderColor = RoxoAcolhedor,
-                    unfocusedBorderColor = CinzaDesabilitado
-                )
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password field
             OutlinedTextField(
                 value = password,
                 onValueChange = { viewModel.password.value = it },
                 label = { Text("Senha") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Next
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = BrancoPuro,
-                    unfocusedContainerColor = BrancoPuro,
-                    focusedBorderColor = RoxoAcolhedor,
-                    unfocusedBorderColor = CinzaDesabilitado
-                )
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Confirm password field
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { viewModel.confirmPassword.value = it },
                 label = { Text("Confirmar Senha") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
-                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = BrancoPuro,
-                    unfocusedContainerColor = BrancoPuro,
-                    focusedBorderColor = RoxoAcolhedor,
-                    unfocusedBorderColor = CinzaDesabilitado
-                )
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
             )
 
-            // If necessary
-            // Error message
             if (uiState is RegisterUiState.Error) {
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = (uiState as RegisterUiState.Error).message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = VermelhoErro,
-                    textAlign = TextAlign.Center
-                )
+                Text(text = (uiState as RegisterUiState.Error).message, style = MaterialTheme.typography.bodyMedium, color = VermelhoErro, textAlign = TextAlign.Center)
             }
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // Main button (Register)
             Button(
                 onClick = { viewModel.register() },
                 enabled = uiState !is RegisterUiState.Loading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
+                modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = RoxoAcolhedor,
-                    contentColor = BrancoPuro
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = RoxoAcolhedor, contentColor = BrancoPuro)
             ) {
                 if (uiState is RegisterUiState.Loading) {
-                    CircularProgressIndicator(
-                        color = BrancoPuro,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    CircularProgressIndicator(color = BrancoPuro, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(
-                        text = "Cadastrar",
-                        style = MaterialTheme.typography.labelLarge
-                    )
+                    Text(text = "Cadastrar", style = MaterialTheme.typography.labelLarge)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Login Shortcut
             TextButton(onClick = onNavigateToLogin) {
-                Text(
-                    text = "Já tem uma conta? Faça login",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = AzulNexo
-                )
+                Text(text = "Já tem uma conta? Faça login", style = MaterialTheme.typography.bodyMedium, color = AzulNexo)
             }
         }
     }

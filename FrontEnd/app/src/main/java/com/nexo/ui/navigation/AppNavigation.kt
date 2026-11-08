@@ -4,9 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.nexo.config.RetrofitClient
 import com.nexo.data.api.SettingsApiService
 import com.nexo.data.api.UserApiService
@@ -25,6 +27,8 @@ import com.nexo.ui.splash.SplashScreen
 import com.nexo.ui.splash.SplashViewModel
 import com.nexo.ui.trail.CreateTrailScreen
 import com.nexo.ui.trail.CreateTrailViewModel
+import com.nexo.ui.trail.TrailDetailsScreen
+import com.nexo.ui.trail.TrailDetailsViewModel
 
 object Routes {
     const val SPLASH = "splash"
@@ -44,6 +48,19 @@ fun AppNavigation(
     val context = LocalContext.current
     val authApiService = RetrofitClient.getAuthApiService(context)
     val tokenManager = TokenManager(context)
+
+    // Função auxiliar para navegação na barra inferior evitando múltiplas pilhas duplicadas
+    val handleBottomNavigation: (String) -> Unit = { route ->
+        if (navController.currentBackStackEntry?.destination?.route != route) {
+            navController.navigate(route) {
+                popUpTo(Routes.HOME) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
 
     NavHost(
         navController = navController,
@@ -106,11 +123,14 @@ fun AppNavigation(
                 onTrailClick = { trailId ->
                     navController.navigate("trail_details/$trailId")
                 },
+                onProfileClick = { navController.navigate(Routes.PROFILE) },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
                 onLogoutClick = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = true }
                     }
-                }
+                },
+                onNavigateBottom = handleBottomNavigation
             )
         }
 
@@ -128,7 +148,22 @@ fun AppNavigation(
             )
         }
 
-        // Profile Screen Route (Parte 2)
+        // Trail Details Screen Route
+        composable(
+            route = Routes.TRAIL_DETAILS,
+            arguments = listOf(navArgument("trailId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val trailId = backStackEntry.arguments?.getLong("trailId") ?: 0L
+            val trailApiService = RetrofitClient.getTrailApiService(context)
+            val trailDetailsViewModel = viewModel { TrailDetailsViewModel(trailApiService, trailId) }
+
+            TrailDetailsScreen(
+                viewModel = trailDetailsViewModel,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Profile Screen Route
         composable(Routes.PROFILE) {
             val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
             val profileViewModel = viewModel { ProfileViewModel(userApiService) }
@@ -138,13 +173,14 @@ fun AppNavigation(
             )
         }
 
-        // Settings Screen Route (Parte 2)
+        // Settings Screen Route
         composable(Routes.SETTINGS) {
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }
             SettingsScreen(
                 viewModel = settingsViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onNavigateBottom = handleBottomNavigation
             )
         }
     }
