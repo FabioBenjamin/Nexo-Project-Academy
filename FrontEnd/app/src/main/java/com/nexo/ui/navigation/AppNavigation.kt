@@ -105,7 +105,9 @@ fun AppNavigation(
                 onCreateTrailClick = { navController.navigate(Routes.CREATE_TRAIL) },
                 onTrailClick = { trailId ->
                     navController.navigate("trail_details/$trailId")
+                    println(trailId)
                 },
+
                 onLogoutClick = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = true }
@@ -128,7 +130,7 @@ fun AppNavigation(
             )
         }
 
-        // Profile Screen Route (Parte 2)
+        // Profile Screen Route (Part 2)
         composable(Routes.PROFILE) {
             val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
             val profileViewModel = viewModel { ProfileViewModel(userApiService) }
@@ -138,7 +140,7 @@ fun AppNavigation(
             )
         }
 
-        // Settings Screen Route (Parte 2)
+        // Settings Screen Route (Part 2)
         composable(Routes.SETTINGS) {
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }

@@ -1,5 +1,6 @@
 package com.nexo.data.api
 
+import com.nexo.dto.PageResponse
 import com.nexo.dto.StudyTrailRequestDTO
 import com.nexo.dto.StudyTrailResponse
 import com.nexo.dto.StudyTrailSummaryResponse
@@ -17,19 +18,24 @@ interface TrailApiService {
      * Endpoint: GET /trails?page=0
      */
     @GET("trails")
-    suspend fun getTrails(@Query("page") page: Int = 0): Response<List<StudyTrailSummaryResponse>>
+    suspend fun getTrails(
+        @Query("page") page: Int = 0
+    ): Response<PageResponse<StudyTrailSummaryResponse>>
 
     /**
      * Generates a new study trail via Gemini AI
      * Endpoint: POST /trails/generate
      */
-    @POST("trails/generate")
-    suspend fun generateTrail(@Body request: StudyTrailRequestDTO): Response<StudyTrailSummaryResponse>
+    @POST("trail")
+    suspend fun generateTrail(
+        @Body request: StudyTrailRequestDTO): Response<Long>
 
     /**
      * Retrieves full trail details with its complete topic hierarchy
      * Endpoint: GET /trail/{id}
      */
     @GET("trail/{id}")
-    suspend fun getTrailDetails(@Path("id") trailId: Long): Response<StudyTrailResponse>
+    suspend fun getTrailDetails(
+        @Path("id") trailId: Long):
+            Response<StudyTrailResponse>
 }
