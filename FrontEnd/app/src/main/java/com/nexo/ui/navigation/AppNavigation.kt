@@ -122,6 +122,7 @@ fun AppNavigation(
                 onCreateTrailClick = { navController.navigate(Routes.CREATE_TRAIL) },
                 onTrailClick = { trailId ->
                     navController.navigate("trail_details/$trailId")
+                    println(trailId)
                 },
                 onProfileClick = { navController.navigate(Routes.PROFILE) },
                 onSettingsClick = { navController.navigate(Routes.SETTINGS) },

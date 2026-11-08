@@ -36,3 +36,11 @@ data class TopicResponse(
     val completedAt: String?,
     val subTopics: List<TopicResponse> = emptyList()
 )
+
+data class PageResponse<T>(
+    val content: List<T>,
+    val totalPages: Int,
+    val totalElements: Long,
+    val last: Boolean,
+    val number: Int
+)
