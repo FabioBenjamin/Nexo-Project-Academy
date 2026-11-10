@@ -11,10 +11,10 @@ import androidx.compose.ui.unit.dp
 import com.nexo.ui.theme.*
 
 // Navigation item representation for the bottom bar
-sealed class BottomNavItem(val route: String, val title: String, val icon: ImageVector) {
-    object Home : BottomNavItem(Routes.HOME, "Início", Icons.Default.Home)
-    object Profile : BottomNavItem(Routes.PROFILE, "Perfil", Icons.Default.Person)
-    object Settings : BottomNavItem(Routes.SETTINGS, "Ajustes", Icons.Default.Settings)
+sealed class BottomNavItem(val route: String, val getTitle: () -> String, val icon: ImageVector) {
+    object Home : BottomNavItem(Routes.HOME, { AppStrings.navHome }, Icons.Default.Home)
+    object Profile : BottomNavItem(Routes.PROFILE, { AppStrings.navProfile }, Icons.Default.Person)
+    object Settings : BottomNavItem(Routes.SETTINGS, { AppStrings.navSettings }, Icons.Default.Settings)
 }
 
 @Composable
@@ -29,11 +29,13 @@ fun NexoBottomBar(
     )
 
     NavigationBar(
-        containerColor = BrancoPuro,
+        containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 8.dp
     ) {
         items.forEach { item ->
             val isSelected = currentRoute == item.route
+            val title = item.getTitle()
+
             NavigationBarItem(
                 selected = isSelected,
                 onClick = {
@@ -44,19 +46,19 @@ fun NexoBottomBar(
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.title,
-                        tint = if (isSelected) RoxoAcolhedor else TextoSecundario
+                        contentDescription = title,
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 label = {
                     Text(
-                        text = item.title,
+                        text = title,
                         style = MaterialTheme.typography.labelMedium,
-                        color = if (isSelected) RoxoAcolhedor else TextoSecundario
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = CremeSuave
+                    indicatorColor = MaterialTheme.colorScheme.background
                 )
             )
         }
