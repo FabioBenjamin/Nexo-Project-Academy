@@ -9,7 +9,7 @@ import com.nexo.exceptions.InvalidEmailException;
 import com.nexo.exceptions.UsernameAlreadyExistsException;
 import com.nexo.models.classes.User;
 import com.nexo.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.apache.commons.validator.routines.EmailValidator;
 
@@ -20,14 +20,19 @@ public class AuthService {
     // that will be created once and cannot be modified
     // dependencies
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final EmailValidator emailValidator;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
-    public AuthService(UserRepository userRepository, JwtService jwtService, RefreshTokenService refreshTokenService){
+    public AuthService(
+            UserRepository userRepository,
+            JwtService jwtService,
+            RefreshTokenService refreshTokenService,
+            PasswordEncoder passwordEncoder){
+
         this.userRepository = userRepository;
-        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.passwordEncoder = passwordEncoder;
         this.emailValidator = EmailValidator.getInstance();
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
