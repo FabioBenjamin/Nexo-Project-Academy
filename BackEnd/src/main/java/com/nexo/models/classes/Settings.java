@@ -19,7 +19,7 @@ public class Settings {
     @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean notifications;
 
-    @Column(name = "lang", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
+    @Column(name = "language", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
     private String language;
 
     @Column(length = 10, columnDefinition = "DEFAULT 'light'", nullable = false)

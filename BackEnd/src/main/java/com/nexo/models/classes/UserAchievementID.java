@@ -1,29 +1,26 @@
 package com.nexo.models.classes;
 
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 // For understanding: This class don't represent
 // a table, but a field set that will be implemented into another @Entity
+@Setter
+@Getter
 public class UserAchievementID implements Serializable {
 
     private Long userId;
     private Long achievementId;
 
-    public Long getUserId() {
-        return userId;
-    }
+    // Default Constructor
+    public UserAchievementID() {}
 
-    public Long getAchievementId() {
-        return achievementId;
-    }
-
-    public void setUserId(Long userId) {
+    // Constructor with parameters for quick instantiation
+    public UserAchievementID(Long userId, Long achievementId) {
         this.userId = userId;
-    }
-
-    public void setAchievementId(Long achievementId) {
         this.achievementId = achievementId;
     }
 

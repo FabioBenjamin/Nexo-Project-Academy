@@ -3,6 +3,8 @@ package com.nexo.models.classes;
 import com.nexo.models.enums.StudyTrailStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDate;
@@ -27,7 +29,12 @@ public class StudyTrail {
     // mappedBy allows bidirectional navigation
     @OneToMany(mappedBy = "studyTrail", cascade = CascadeType.PERSIST)
     @OrderBy("orderIndex ASC") // the item name is the attribute name of Java class
+    @OnDelete(action = OnDeleteAction.CASCADE) // delegate the delegate responsibility to data bank
     private List<Topic> topics = new ArrayList<>();
+
+    @OneToOne(mappedBy = "studyTrail", cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private StudyTest studyTest;
 
     @Column(nullable = false, length = 80)
     private String title;
@@ -42,7 +49,7 @@ public class StudyTrail {
     private LocalDate targetDate;
 
     @Enumerated(EnumType.STRING)
-    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    // tells Hibernate that the field is enum named in databank instead just a simple varchar
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTrailStatus status;
 
@@ -93,4 +100,12 @@ public class StudyTrail {
     public void setUser(User user) { this.user = user; }
 
     public List<Topic> getTopics() { return topics; }
+
+    public StudyTest getStudyTest() {
+        return studyTest;
+    }
+
+    public void setStudyTest(StudyTest studyTest) {
+        this.studyTest = studyTest;
+    }
 }

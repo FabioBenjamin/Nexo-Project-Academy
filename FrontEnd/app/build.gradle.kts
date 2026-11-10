@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.nexoacademy"
+    namespace = "com.nexo"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.example.nexoacademy"
+        applicationId = "com.nexo.nexoacademy"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -52,15 +52,19 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    // Retrofit &amp; Converter JSON (Gson)
+
+    // Retrofit & Converter JSON (Gson)
     implementation("com.squareup.retrofit2:retrofit:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:3.0.0")
     implementation("com.squareup.okhttp3:logging-interceptor:5.5.1")
+
     // Preferences DataStore (para salvar os Tokens JWT de forma segura)
     implementation("androidx.datastore:datastore-preferences:1.3.0")
-    // Navigation &amp; ViewModel para Jetpack Compose
+
+    // Navigation & ViewModel para Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.10.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
 
     implementation("androidx.compose.material:material-icons-core:1.7.8")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }
