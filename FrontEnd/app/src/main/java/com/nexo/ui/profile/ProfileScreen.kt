@@ -23,13 +23,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nexo.dto.AchievementDTO
 import com.nexo.dto.UserProfileResponse
+import com.nexo.ui.navigation.NexoBottomBar
+import com.nexo.ui.navigation.Routes
 import com.nexo.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -38,24 +41,32 @@ fun ProfileScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Meu Perfil",
+                        text = AppStrings.myProfile,
                         style = MaterialTheme.typography.titleLarge,
-                        color = TextoPrincipal
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = TextoPrincipal
+                            contentDescription = AppStrings.back,
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         },
-        containerColor = CremeSuave
+        bottomBar = {
+            NexoBottomBar(
+                currentRoute = Routes.PROFILE,
+                onNavigate = onNavigateBottom
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -66,7 +77,7 @@ fun ProfileScreen(
             when (val state = uiState) {
                 is ProfileUiState.Loading -> {
                     CircularProgressIndicator(
-                        color = RoxoAcolhedor,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -78,14 +89,16 @@ fun ProfileScreen(
                         Text(
                             text = state.message,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = VermelhoErro
+                            color = MaterialTheme.colorScheme.error
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { viewModel.loadProfile() },
-                            colors = ButtonDefaults.buttonColors(containerColor = RoxoAcolhedor)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            )
                         ) {
-                            Text("Tentar Novamente", color = BrancoPuro)
+                            Text(AppStrings.tryAgain, color = BrancoPuro)
                         }
                     }
                 }
@@ -105,10 +118,9 @@ fun ProfileContent(profile: UserProfileResponse) {
     ) {
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Main User Profile Card with XP Level Progress
         Card(
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(containerColor = BrancoPuro),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -118,12 +130,11 @@ fun ProfileContent(profile: UserProfileResponse) {
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // User Avatar Circle
                 Box(
                     modifier = Modifier
                         .size(80.dp)
                         .clip(CircleShape)
-                        .background(RoxoAcolhedor),
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -138,18 +149,17 @@ fun ProfileContent(profile: UserProfileResponse) {
                 Text(
                     text = profile.username,
                     style = MaterialTheme.typography.headlineMedium,
-                    color = TextoPrincipal
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Text(
                     text = profile.email,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextoSecundario
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Level and XP indicator row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -164,23 +174,22 @@ fun ProfileContent(profile: UserProfileResponse) {
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Nível ${profile.level}",
+                            text = "${AppStrings.level} ${profile.level}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = TextoPrincipal
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
                     Text(
                         text = "${profile.currentXp} / ${profile.maxXp} XP",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextoSecundario
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Linear progress bar for experience points
                 val progressValue = if (profile.maxXp > 0) profile.currentXp.toFloat() / profile.maxXp else 0f
                 LinearProgressIndicator(
                     progress = { progressValue },
@@ -189,18 +198,17 @@ fun ProfileContent(profile: UserProfileResponse) {
                         .height(10.dp)
                         .clip(RoundedCornerShape(5.dp)),
                     color = AmareloAcolhedor,
-                    trackColor = CinzaDesabilitado,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Achievements grid section
         Text(
-            text = "Conquistas",
+            text = AppStrings.achievements,
             style = MaterialTheme.typography.titleLarge,
-            color = TextoPrincipal,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -221,8 +229,12 @@ fun ProfileContent(profile: UserProfileResponse) {
 
 @Composable
 fun AchievementCard(achievement: AchievementDTO) {
-    val cardBg = if (achievement.isUnlocked) BrancoPuro else CinzaDesabilitado.copy(alpha = 0.5f)
-    val iconColor = if (achievement.isUnlocked) AmareloAcolhedor else TextoSecundario
+    val cardBg = if (achievement.isUnlocked) {
+        MaterialTheme.colorScheme.surface
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    }
+    val iconColor = if (achievement.isUnlocked) AmareloAcolhedor else MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -249,7 +261,7 @@ fun AchievementCard(achievement: AchievementDTO) {
                 text = achievement.title,
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
-                color = if (achievement.isUnlocked) TextoPrincipal else TextoSecundario
+                color = if (achievement.isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -259,7 +271,7 @@ fun AchievementCard(achievement: AchievementDTO) {
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
-                color = TextoSecundario
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -268,7 +280,7 @@ fun AchievementCard(achievement: AchievementDTO) {
                 text = "+${achievement.xpReward} XP",
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (achievement.isUnlocked) VerdeEquilibrio else TextoSecundario
+                color = if (achievement.isUnlocked) VerdeEquilibrio else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }

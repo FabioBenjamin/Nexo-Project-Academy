@@ -122,10 +122,9 @@ fun AppNavigation(
                 onCreateTrailClick = { navController.navigate(Routes.CREATE_TRAIL) },
                 onTrailClick = { trailId ->
                     navController.navigate("trail_details/$trailId")
-                    println(trailId)
                 },
-                onProfileClick = { navController.navigate(Routes.PROFILE) },
-                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
+                onProfileClick = { handleBottomNavigation(Routes.PROFILE) },
+                onSettingsClick = { handleBottomNavigation(Routes.SETTINGS) },
                 onLogoutClick = {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.HOME) { inclusive = true }
@@ -170,7 +169,8 @@ fun AppNavigation(
             val profileViewModel = viewModel { ProfileViewModel(userApiService) }
             ProfileScreen(
                 viewModel = profileViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onNavigateBottom = handleBottomNavigation
             )
         }
 

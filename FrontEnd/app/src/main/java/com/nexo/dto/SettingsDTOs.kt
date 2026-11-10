@@ -2,6 +2,7 @@ package com.nexo.dto
 
 // Data Transfer Object representing user settings, aligned with Spring Boot Settings entity
 data class UserSettingsDTO(
+    val email: String = "",
     val notifications: Boolean = false,
     val language: String = "pt-BR",
     val theme: String = "light",
