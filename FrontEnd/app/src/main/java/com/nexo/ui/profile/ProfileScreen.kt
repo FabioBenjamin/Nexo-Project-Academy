@@ -1,5 +1,7 @@
 package com.nexo.ui.profile
 
+import com.nexo.ui.navigation.Routes
+import com.nexo.ui.navigation.NexoBottomBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -29,7 +31,8 @@ import com.nexo.ui.theme.*
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -53,6 +56,12 @@ fun ProfileScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
+            )
+        },
+        bottomBar = {
+            NexoBottomBar(
+                currentRoute = Routes.PROFILE,
+                onNavigate = onNavigateBottom
             )
         },
         containerColor = CremeSuave
