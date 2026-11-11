@@ -66,7 +66,7 @@ fun TopicDetailModal(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.mascote_focado),
-                            contentDescription = AppStrings.cdMascotStudying,
+                            contentDescription = "Mascote Estudando",
                             contentScale = ContentScale.Fit,
                             modifier = Modifier.size(44.dp)
                         )
@@ -77,7 +77,7 @@ fun TopicDetailModal(
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = AppStrings.modalClose,
+                            contentDescription = "Fechar Modal",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -134,7 +134,7 @@ fun TopicDetailModal(
                     ) {
                         Icon(
                             imageVector = Icons.Default.DateRange,
-                            contentDescription = AppStrings.topicDate,
+                            contentDescription = "Prazo",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
@@ -173,7 +173,7 @@ fun TopicDetailModal(
                         if (isCompleted) {
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
-                                contentDescription = AppStrings.topicCompleted,
+                                contentDescription = "Concluído",
                                 modifier = Modifier.size(20.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
