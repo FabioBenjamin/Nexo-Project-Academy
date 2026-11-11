@@ -60,6 +60,7 @@ public class StudyTrailPersistenceService {
             TopicProgress progress = new TopicProgress();
             progress.setTargetDate(topicResponse.targetDate());
             progress.setStatus(TopicProgressStatus.IN_PROGRESS);
+            progress.setXpAwarded(false);
 
             // Save Topic progress
             topic.setProgress(progress);
@@ -85,6 +86,7 @@ public class StudyTrailPersistenceService {
                 TopicProgress subTopicProgress = new TopicProgress();
                 subTopicProgress.setTargetDate(subTopicResponse.targetDate());
                 subTopicProgress.setStatus(TopicProgressStatus.IN_PROGRESS);
+                subTopicProgress.setXpAwarded(false);
 
                 // Save Topic progress
                 subTopic.setProgress(subTopicProgress);
