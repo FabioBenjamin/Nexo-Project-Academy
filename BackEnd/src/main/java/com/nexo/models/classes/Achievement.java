@@ -12,11 +12,17 @@ public class Achievement {
     @Column(name = "achievement_id")
     private Long id;
 
-    @Column(name = "title",length = 100)
+    @Column(name = "title",length = 100, nullable = false)
     private String title;
 
     @Column(length = 50)
     private String description;
+
+    @Column(length = 100)
+    private String titleEn;
+
+    @Column(length = 50)
+    private String descriptionEn;
 
     @Column(name = "xp_reward", nullable = false)
     private Integer xpReward;
@@ -47,5 +53,25 @@ public class Achievement {
 
     public void setXpReward(Integer xpReward) {
         this.xpReward = xpReward;
+    }
+
+    public String getTitleEn() {
+        return titleEn;
+    }
+
+    public String getDescriptionEn() {
+        return descriptionEn;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setTitleEn(String titleEn) {
+        this.titleEn = titleEn;
+    }
+
+    public void setDescriptionEn(String descriptionEn) {
+        this.descriptionEn = descriptionEn;
     }
 }

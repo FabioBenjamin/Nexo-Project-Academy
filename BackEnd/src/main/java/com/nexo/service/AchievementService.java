@@ -4,6 +4,8 @@ import com.nexo.dto.AchievementDTO;
 import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.models.classes.Achievement;
 import com.nexo.models.classes.AchievementRequirement;
+import com.nexo.models.classes.Settings;
+import com.nexo.repository.SettingsRepository;
 import com.nexo.models.classes.User;
 import com.nexo.repository.AchievementRepository;
 import com.nexo.repository.AchievementRequirementRepository;
@@ -29,6 +31,9 @@ public class AchievementService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private SettingsRepository settingsRepository;
 
     @Transactional
     public void processActivityCompletion(Long userId) {
@@ -144,6 +149,13 @@ public class AchievementService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
+        // Retrieves user settings to check configured language (defaults to "pt-BR")
+        String language = settingsRepository.findByUserId(userId)
+                .map(Settings::getLanguage)
+                .orElse("pt-BR");
+
+        boolean isEnglish = "en".equalsIgnoreCase(language) || "en-US".equalsIgnoreCase(language);
+
         List<Achievement> allAchievements = achievementRepository.findAll();
         List<Achievement> unlockedAchievements = achievementRepository.findUnlockedByUserId(userId);
 
@@ -155,10 +167,18 @@ public class AchievementService {
             int targetProgress = getTargetForAchievement(achievement.getId());
             int currentProgress = isUnlocked ? targetProgress : getCurrentProgressForAchievement(user, achievement.getId());
 
+            String localizedTitle = (isEnglish && achievement.getTitleEn() != null)
+                    ? achievement.getTitleEn()
+                    : achievement.getTitle();
+
+            String localizedDescription = (isEnglish && achievement.getDescriptionEn() != null)
+                    ? achievement.getDescriptionEn()
+                    : achievement.getDescription();
+
             return new AchievementDTO(
                     achievement.getId(),
-                    achievement.getTitle(),
-                    achievement.getDescription(),
+                    localizedTitle,
+                    localizedDescription,
                     achievement.getXpReward(),
                     isUnlocked,
                     isUnlocked ? LocalDate.now() : null,
