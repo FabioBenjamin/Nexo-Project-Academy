@@ -62,24 +62,24 @@ fun HomeScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Nexo Academy",
+                            text = AppStrings.homeAppTitle,
                             style = MaterialTheme.typography.titleLarge,
-                            color = TextoPrincipal
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
                 actions = {
                     IconButton(onClick = onProfileClick) {
-                        Icon(Icons.Default.Person, contentDescription = "Perfil", tint = RoxoAcolhedor)
+                        Icon(Icons.Default.Person, contentDescription = AppStrings.homeActionProfile, tint = MaterialTheme.colorScheme.primary)
                     }
                     IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Default.Settings, contentDescription = "Ajustes", tint = TextoPrincipal)
+                        Icon(Icons.Default.Settings, contentDescription = AppStrings.homeActionSettings, tint = MaterialTheme.colorScheme.onBackground)
                     }
                     IconButton(onClick = { viewModel.logout(onLogoutClick) }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Sair", tint = VermelhoErro)
+                        Icon(Icons.Default.ExitToApp, contentDescription = AppStrings.homeActionLogout, tint = MaterialTheme.colorScheme.error)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
         bottomBar = {
@@ -91,14 +91,14 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateTrailClick,
-                containerColor = RoxoAcolhedor,
-                contentColor = BrancoPuro,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Nova Trilha")
+                Icon(Icons.Default.Add, contentDescription = AppStrings.homeNewTrailFab)
             }
         },
-        containerColor = CremeSuave
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -109,7 +109,7 @@ fun HomeScreen(
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
                     CircularProgressIndicator(
-                        color = RoxoAcolhedor,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
@@ -121,15 +121,15 @@ fun HomeScreen(
                         Text(
                             text = state.message,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = VermelhoErro,
+                            color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = { viewModel.loadTrails() },
-                            colors = ButtonDefaults.buttonColors(containerColor = RoxoAcolhedor)
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                         ) {
-                            Text("Tentar Novamente", color = BrancoPuro)
+                            Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
                         }
                     }
                 }
@@ -139,20 +139,22 @@ fun HomeScreen(
                         contentPadding = PaddingValues(vertical = 16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
+                        // Official Dashboard Card Component from Brandbook
                         item {
                             DashboardWelcomeCard(onProfileClick = onProfileClick)
                         }
 
                         if (state.trails.isEmpty()) {
+                            // Official Empty State Component from Brandbook
                             item {
                                 EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
                             }
                         } else {
                             item {
                                 Text(
-                                    text = "Minhas Trilhas Ativas",
+                                    text = AppStrings.homeActiveTrailsHeader,
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = TextoPrincipal,
+                                    color = MaterialTheme.colorScheme.onBackground,
                                     modifier = Modifier.padding(top = 8.dp)
                                 )
                             }
@@ -171,25 +173,26 @@ fun HomeScreen(
 fun DashboardWelcomeCard(onProfileClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = BrancoPuro),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onProfileClick() }
     ) {
         Box(modifier = Modifier.padding(20.dp)) {
+            // Target Icon in Top Right Corner (from Brandbook)
             Box(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(RoxoAcolhedor.copy(alpha = 0.2f))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                     .align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.GpsFixed,
                     contentDescription = "Foco",
-                    tint = RoxoAcolhedor,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -200,15 +203,15 @@ fun DashboardWelcomeCard(onProfileClick: () -> Unit) {
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Olá, Nexo!",
+                        text = AppStrings.homeWelcomeTitle,
                         style = MaterialTheme.typography.headlineMedium,
-                        color = TextoPrincipal
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Continue sua jornada\nde aprendizado.",
+                        text = AppStrings.homeWelcomeSubtitle,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextoSecundario,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
                     )
 
@@ -218,40 +221,41 @@ fun DashboardWelcomeCard(onProfileClick: () -> Unit) {
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "XP",
-                            tint = AmareloAcolhedor,
+                            tint = MaterialTheme.colorScheme.secondary,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "Nível 3",
+                            text = AppStrings.homeLevelLabel,
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold,
-                            color = TextoPrincipal
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = "200 / 400 XP",
                             style = MaterialTheme.typography.labelMedium,
-                            color = TextoSecundario
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     Spacer(modifier = Modifier.height(6.dp))
 
                     LinearProgressIndicator(
-                        progress = 0.5f,
+                        progress = { 0.5f },
                         modifier = Modifier
                             .fillMaxWidth(0.85f)
                             .height(8.dp)
                             .clip(RoundedCornerShape(4.dp)),
-                        color = AmareloAcolhedor,
-                        trackColor = CinzaDesabilitado
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 }
 
+                // Mascot Image Studying (Foco Pose)
                 Image(
                     painter = painterResource(id = R.drawable.mascote_focado),
-                    contentDescription = "Mascote Focado",
+                    contentDescription = "Mascote Estudando",
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(90.dp)
                 )
@@ -264,25 +268,26 @@ fun DashboardWelcomeCard(onProfileClick: () -> Unit) {
 fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = BrancoPuro),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp)
     ) {
         Box(modifier = Modifier.padding(24.dp)) {
+            // Clipboard Icon in Top Right Corner (from Brandbook)
             Box(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
-                    .background(RoxoAcolhedor.copy(alpha = 0.2f))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                     .align(Alignment.TopEnd),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Assignment,
                     contentDescription = "Missão",
-                    tint = RoxoAcolhedor,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -291,6 +296,7 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                // Mascot Image Support / Routine Pose with Checklist
                 Image(
                     painter = painterResource(id = R.drawable.mascote_apoio),
                     contentDescription = "Mascote Sem Atividades",
@@ -301,18 +307,18 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Ainda não há atividades por aqui.",
+                    text = AppStrings.homeEmptyStateTitle,
                     style = MaterialTheme.typography.titleLarge,
-                    color = TextoPrincipal,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Que tal começar uma nova missão?",
+                    text = AppStrings.homeEmptyStateSubtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextoSecundario,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -322,12 +328,12 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                     onClick = onCreateTrailClick,
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = RoxoAcolhedor,
-                        contentColor = BrancoPuro
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Text(
-                        text = "Explorar atividades",
+                        text = AppStrings.homeEmptyStateButton,
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
@@ -335,70 +341,80 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
         }
     }
 }
-
 @Composable
-fun TrailCard(trail: StudyTrailSummaryResponse, onClick: () -> Unit) {
+fun TrailCard(
+    trail: StudyTrailSummaryResponse,
+    onClick: () -> Unit
+) {
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = BrancoPuro),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = trail.title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = TextoPrincipal,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
                 )
-                if (!trail.description.isNullOrBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = trail.description,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextoSecundario,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                Spacer(modifier = Modifier.width(8.dp))
+                StatusBadge(status = trail.status)
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            StatusBadge(status = trail.status)
+
+            if (!trail.description.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = trail.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+            }
         }
     }
 }
 
 @Composable
 fun StatusBadge(status: String) {
-    val (badgeColor, textColor) = when (status.uppercase()) {
-        "COMPLETED" -> VerdeEquilibrio to BrancoPuro
-        "IN_PROGRESS" -> AmareloAcolhedor to TextoPrincipal
-        else -> CinzaDesabilitado to TextoSecundario
+    val (backgroundColor, textColor, textLabel) = when (status.uppercase()) {
+        "COMPLETED" -> Triple(
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
+            MaterialTheme.colorScheme.tertiary,
+            AppStrings.statusCompleted
+        )
+        "IN_PROGRESS" -> Triple(
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
+            MaterialTheme.colorScheme.secondary,
+            AppStrings.statusInProgress
+        )
+        else -> Triple(
+            MaterialTheme.colorScheme.surfaceVariant,
+            MaterialTheme.colorScheme.onSurfaceVariant,
+            AppStrings.statusPending
+        )
     }
 
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = badgeColor.copy(alpha = 0.2f)
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+            .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Text(
-            text = when (status.uppercase()) {
-                "COMPLETED" -> "Concluído"
-                "IN_PROGRESS" -> "Em Andamento"
-                else -> "Pendente"
-            },
+            text = textLabel,
             style = MaterialTheme.typography.labelMedium,
-            color = badgeColor,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            color = textColor,
+            fontWeight = FontWeight.Bold
         )
     }
 }
