@@ -58,8 +58,8 @@ fun LoginScreen(
                     IconButton(onClick = { /* Handle optional back action */ }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = TextoPrincipal
+                            contentDescription = AppStrings.btnBack,
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
@@ -67,15 +67,15 @@ fun LoginScreen(
                     IconButton(onClick = { /* Handle help modal */ }) {
                         Icon(
                             imageVector = Icons.Default.HelpOutline,
-                            contentDescription = "Ajuda",
-                            tint = TextoPrincipal
+                            contentDescription = AppStrings.btnHelp,
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
-        containerColor = CremeSuave
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -94,7 +94,7 @@ fun LoginScreen(
                     modifier = Modifier
                         .size(100.dp)
                         .clip(CircleShape)
-                        .background(AmareloAcolhedor),
+                        .background(MaterialTheme.colorScheme.secondary),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
@@ -110,15 +110,15 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Olá, Nexo!",
+                    text = AppStrings.loginGreetingTitle,
                     style = MaterialTheme.typography.headlineLarge,
-                    color = TextoPrincipal,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Que bom te ver por aqui.",
+                    text = AppStrings.loginGreetingSubtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextoSecundario,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -128,14 +128,14 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = username,
                     onValueChange = { viewModel.username.value = it },
-                    label = { Text("E-mail") },
-                    placeholder = { Text("seu@email.com") },
+                    label = { Text(AppStrings.labelEmail) },
+                    placeholder = { Text(AppStrings.loginEmailPlaceholder) },
                     singleLine = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.Email,
-                            contentDescription = "Email",
-                            tint = TextoSecundario
+                            contentDescription = AppStrings.labelEmail,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     keyboardOptions = KeyboardOptions(
@@ -145,10 +145,10 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BrancoPuro,
-                        unfocusedContainerColor = BrancoPuro,
-                        focusedBorderColor = RoxoAcolhedor,
-                        unfocusedBorderColor = CinzaDesabilitado
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     )
                 )
 
@@ -158,16 +158,16 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.password.value = it },
-                    label = { Text("Senha") },
-                    placeholder = { Text("••••••••") },
+                    label = { Text(AppStrings.labelPassword) },
+                    placeholder = { Text(AppStrings.loginPasswordPlaceholder) },
                     singleLine = true,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
                             Icon(
                                 imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = "Alternar Senha",
-                                tint = TextoSecundario
+                                contentDescription = AppStrings.labelPassword,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     },
@@ -178,10 +178,10 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = BrancoPuro,
-                        unfocusedContainerColor = BrancoPuro,
-                        focusedBorderColor = RoxoAcolhedor,
-                        unfocusedBorderColor = CinzaDesabilitado
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     )
                 )
 
@@ -189,9 +189,9 @@ fun LoginScreen(
 
                 // Forgot Password Link
                 Text(
-                    text = "Esqueceu sua senha?",
+                    text = AppStrings.loginForgotPassword,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextoSecundario,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -203,7 +203,7 @@ fun LoginScreen(
                     Text(
                         text = (uiState as LoginUiState.Error).message,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = VermelhoErro,
+                        color = MaterialTheme.colorScheme.error,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -219,15 +219,15 @@ fun LoginScreen(
                         .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = RoxoAcolhedor,
-                        contentColor = BrancoPuro
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     if (uiState is LoginUiState.Loading) {
-                        CircularProgressIndicator(color = BrancoPuro, modifier = Modifier.size(22.dp))
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(22.dp))
                     } else {
                         Text(
-                            text = "Entrar",
+                            text = AppStrings.loginBtnSubmit,
                             style = MaterialTheme.typography.labelLarge,
                             fontSize = 16.sp
                         )
@@ -243,20 +243,20 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = TextoPrincipal),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(brush = androidx.compose.ui.graphics.SolidColor(RoxoAcolhedor))
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary))
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "G ",
                             fontWeight = FontWeight.ExtraBold,
-                            color = VermelhoErro,
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 18.sp
                         )
                         Text(
-                            text = "Entrar com Google",
+                            text = AppStrings.loginBtnGoogle,
                             style = MaterialTheme.typography.labelLarge,
-                            color = TextoPrincipal
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -266,15 +266,15 @@ fun LoginScreen(
                 // Bottom Registration Redirect
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Não tem uma conta? ",
+                        text = AppStrings.loginNoAccountPrompt,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextoSecundario
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "Criar conta",
+                        text = AppStrings.loginCreateAccountLink,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
-                        color = RoxoAcolhedor,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.clickable { onNavigateToRegister() }
                     )
                 }

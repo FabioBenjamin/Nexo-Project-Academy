@@ -54,30 +54,30 @@ fun CreateTrailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nova Trilha com IA", style = MaterialTheme.typography.titleLarge, color = TextoPrincipal) },
+                title = { Text(AppStrings.createTrailTitle, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = TextoPrincipal)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = AppStrings.btnBack, tint = MaterialTheme.colorScheme.onBackground)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CremeSuave)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
-        containerColor = CremeSuave
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Box(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(24.dp)) {
             Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("O que você gostaria de aprender?", style = MaterialTheme.typography.headlineMedium, color = TextoPrincipal, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
+                Text(AppStrings.createTrailHeader, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Start, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("Descreva o assunto e o objetivo. O Gemini irá gerar um plano de estudos completo com etapas e prazos.", style = MaterialTheme.typography.bodyMedium, color = TextoSecundario, modifier = Modifier.fillMaxWidth())
+                Text(AppStrings.createTrailDescription, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(24.dp))
 
                 OutlinedTextField(
                     value = content,
                     onValueChange = { viewModel.updateContent(it) },
-                    label = { Text("Ex: Quero aprender Spring Boot com Kotlin...") },
+                    label = { Text(AppStrings.createTrailInputPlaceholder) },
                     minLines = 4, maxLines = 6, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
+                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -86,19 +86,19 @@ fun CreateTrailScreen(
                     value = targetDate,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("Data limite de conclusão (YYYY-MM-DD)") },
+                    label = { Text(AppStrings.createTrailDateLabel) },
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
-                            Icon(Icons.Default.DateRange, contentDescription = "Selecionar Data", tint = RoxoAcolhedor)
+                            Icon(Icons.Default.DateRange, contentDescription = AppStrings.createTrailSelectDate, tint = MaterialTheme.colorScheme.primary)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
+                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
                 )
 
                 if (uiState is CreateTrailUiState.Error) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = (uiState as CreateTrailUiState.Error).message, style = MaterialTheme.typography.bodyMedium, color = VermelhoErro, textAlign = TextAlign.Center)
+                    Text(text = (uiState as CreateTrailUiState.Error).message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -108,16 +108,16 @@ fun CreateTrailScreen(
                     enabled = uiState !is CreateTrailUiState.Loading,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = RoxoAcolhedor, contentColor = BrancoPuro)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
                 ) {
                     if (uiState is CreateTrailUiState.Loading) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                            CircularProgressIndicator(color = BrancoPuro, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text("O Gemini está criando sua trilha...", style = MaterialTheme.typography.labelLarge)
+                            Text(AppStrings.createTrailLoadingText, style = MaterialTheme.typography.labelLarge)
                         }
                     } else {
-                        Text("Gerar Trilha com IA", style = MaterialTheme.typography.labelLarge)
+                        Text(AppStrings.createTrailBtnSubmit, style = MaterialTheme.typography.labelLarge)
                     }
                 }
             }

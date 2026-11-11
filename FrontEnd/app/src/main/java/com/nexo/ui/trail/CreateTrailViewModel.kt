@@ -64,7 +64,6 @@ class CreateTrailViewModel(
                 val response = trailApiService.generateTrail(request)
                 if (response.isSuccessful && response.body() != null) {
                     val createdTrailId = response.body()!!
-                    // CORREÇÃO: Pegando o ID do DTO de resposta da trilha gerada
                     _uiState.value = CreateTrailUiState.Success(createdTrailId)
                 } else {
                     _uiState.value = CreateTrailUiState.Error("Erro ao gerar a trilha (${response.code()})")

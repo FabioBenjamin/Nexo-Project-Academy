@@ -35,7 +35,7 @@ fun RegisterScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(CremeSuave).padding(24.dp),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -43,19 +43,19 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Criar Conta", style = MaterialTheme.typography.headlineLarge, color = TextoPrincipal, textAlign = TextAlign.Center)
+            Text(text = AppStrings.registerTitle, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onBackground, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Junte-se ao Nexo Academy e comece sua jornada de aprendizado!", style = MaterialTheme.typography.bodyMedium, color = TextoSecundario, textAlign = TextAlign.Center)
+            Text(text = AppStrings.registerSubtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedTextField(
                 value = username,
                 onValueChange = { viewModel.username.value = it },
-                label = { Text("Nome de usuário") },
+                label = { Text(AppStrings.labelUsername) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -63,12 +63,12 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { viewModel.email.value = it },
-                label = { Text("E-mail") },
+                label = { Text(AppStrings.labelEmail) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -76,13 +76,13 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { viewModel.password.value = it },
-                label = { Text("Senha") },
+                label = { Text(AppStrings.labelPassword) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -90,18 +90,18 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { viewModel.confirmPassword.value = it },
-                label = { Text("Confirmar Senha") },
+                label = { Text(AppStrings.registerConfirmPasswordLabel) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = BrancoPuro, unfocusedContainerColor = BrancoPuro, focusedBorderColor = RoxoAcolhedor, unfocusedBorderColor = CinzaDesabilitado)
+                colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
             )
 
             if (uiState is RegisterUiState.Error) {
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(text = (uiState as RegisterUiState.Error).message, style = MaterialTheme.typography.bodyMedium, color = VermelhoErro, textAlign = TextAlign.Center)
+                Text(text = (uiState as RegisterUiState.Error).message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, textAlign = TextAlign.Center)
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -111,19 +111,19 @@ fun RegisterScreen(
                 enabled = uiState !is RegisterUiState.Loading,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = RoxoAcolhedor, contentColor = BrancoPuro)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
             ) {
                 if (uiState is RegisterUiState.Loading) {
-                    CircularProgressIndicator(color = BrancoPuro, modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                 } else {
-                    Text(text = "Cadastrar", style = MaterialTheme.typography.labelLarge)
+                    Text(text = AppStrings.registerBtnSubmit, style = MaterialTheme.typography.labelLarge)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             TextButton(onClick = onNavigateToLogin) {
-                Text(text = "Já tem uma conta? Faça login", style = MaterialTheme.typography.bodyMedium, color = AzulNexo)
+                Text(text = AppStrings.registerAlreadyHaveAccountLink, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
             }
         }
     }
