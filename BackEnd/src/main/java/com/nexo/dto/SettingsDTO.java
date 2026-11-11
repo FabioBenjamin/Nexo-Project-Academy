@@ -5,7 +5,6 @@ public class SettingsDTO {
     private String language;
     private String theme;
     private Boolean studyWeekends;
-    private String email;
 
     public SettingsDTO() {}
 
@@ -26,10 +25,6 @@ public class SettingsDTO {
         return studyWeekends;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public void setNotifications(Boolean notifications) {
         this.notifications = notifications;
     }
@@ -46,7 +41,4 @@ public class SettingsDTO {
         this.studyWeekends = studyWeekends;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
 }

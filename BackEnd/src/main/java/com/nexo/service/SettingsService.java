@@ -52,19 +52,6 @@ public class SettingsService {
             settings.setStudyWeekends(dto.getStudyWeekends());
         }
 
-        // In case the user wants to change the registered email
-        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
-            String newEmail = dto.getEmail().trim();
-
-            if (!newEmail.equalsIgnoreCase(user.getEmail())) {
-                if (userRepository.existsByEmail(newEmail)) {
-                    throw new EmailAlreadyExistsException("The provided email is already in use by another account."); // Message if Email is already in use
-                }
-                user.setEmail(newEmail);
-                userRepository.save(user);
-            }
-        }
-
         // Save user changes
         Settings update = settingsRepository.save(settings);
         return mapToDTO(update);
@@ -87,11 +74,9 @@ public class SettingsService {
 
     private SettingsDTO mapToDTO(Settings settings) {
         User user = settings.getUser();
-        String email = (user != null && user.getEmail() != null) ? user.getEmail() : "";
 
         SettingsDTO settingsDTO =  new SettingsDTO();
 
-        settingsDTO.setEmail(email);
         settingsDTO.setLanguage(settings.getLanguage());
         settingsDTO.setNotifications(settings.getNotifications());
         settingsDTO.setStudyWeekends(settings.getStudyWeekends());
