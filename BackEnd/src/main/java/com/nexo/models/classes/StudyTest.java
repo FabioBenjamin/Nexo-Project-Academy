@@ -33,6 +33,10 @@ public class StudyTest {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Question> questions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "studyTest", cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<TestAttempt> testAttempts = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -56,4 +60,6 @@ public class StudyTest {
     public List<Question> getQuestions() {
         return questions;
     }
+
+    public List<TestAttempt> getTestAttempts(){ return testAttempts; }
 }
