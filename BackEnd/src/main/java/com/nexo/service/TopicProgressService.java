@@ -85,7 +85,7 @@ public class TopicProgressService {
         processCompletionXp(topic, userId);
 
         // Verify if the completed topic was the remaining one
-        if(areAllTopicsCompleted(topic.getStudyTrail())){
+        if(shouldOpenStudyTest(topic.getStudyTrail())){
             // open studyTest
             topic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
         }
@@ -119,7 +119,7 @@ public class TopicProgressService {
             processCompletionXp(parentTopic, userId);
 
             // Verify if the completed topic was the remaining one
-            if(areAllTopicsCompleted(parentTopic.getStudyTrail())){
+            if(shouldOpenStudyTest(parentTopic.getStudyTrail())){
                 // open studyTest
                 parentTopic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
             }
@@ -153,7 +153,7 @@ public class TopicProgressService {
 
     private void processCompletionXp(Topic topic, Long userId){
         // If user has already received Xp for complete this topic
-        if(topic.getProgress().isXpAwarded()){
+        if(topic.getProgress().isXpAwarded() == null || topic.getProgress().isXpAwarded()){
             return;
         }
 
@@ -161,8 +161,13 @@ public class TopicProgressService {
         achievementService.processActivityCompletion(userId);
     }
 
-    private boolean areAllTopicsCompleted(StudyTrail studyTrail){
+    private boolean shouldOpenStudyTest(StudyTrail studyTrail){
 
+        if(studyTrail.getStudyTest().getStatus() != StudyTestStatus.BLOCKED) {
+            return false;
+        }
+
+        // Verify if all topics are completed
         return studyTrail.getTopics()
                 .stream()
                 .allMatch(topic ->
