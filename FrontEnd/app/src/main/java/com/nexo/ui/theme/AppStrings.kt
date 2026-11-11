@@ -112,7 +112,8 @@ object AppStrings {
     val errMissingSubject get() = if (isEn) "Describe the subject you want to study." else "Descreva o assunto que você deseja estudar."
     val errMissingDate get() = if (isEn) "Provide the desired completion date." else "Informe a data de término desejada."
     val errLoadTrails get() = if (isEn) "Error loading trails" else "Erro ao carregar as trilhas"
-    val errLoadProfile get() = if (isEn) "Error loading profile" else "Erro ao carregar o perfil"
+    val errLoadTrailDetails get() = if (isEn) "Error loading trail details" else "Erro ao carregar os detalhes da trilha"
+     val errLoadProfile get() = if (isEn) "Error loading profile" else "Erro ao carregar o perfil"
     val errLoadTopics get() = if (isEn) "Error loading topics" else "Erro ao carregar os tópicos"
 
 

@@ -97,7 +97,8 @@ fun TrailDetailsScreen(
                 is TrailDetailsUiState.Success -> {
                     TrailDetailsContent(
                         trail = state.trail,
-                        onTopicClick = { topic -> selectedTopicForModal = topic }
+                        onTopicClick = { topic -> selectedTopicForModal = topic },
+                        progressFraction = state.progressFraction
                     )
                 }
             }
@@ -108,7 +109,7 @@ fun TrailDetailsScreen(
                     topic = topic,
                     onDismiss = { selectedTopicForModal = null },
                     onCompleteTopic = { targetTopic ->
-                        // Triggers completion action logic in ViewModel
+                        viewModel.completeTopic(targetTopic.id)
                     }
                 )
             }
@@ -119,15 +120,9 @@ fun TrailDetailsScreen(
 @Composable
 fun TrailDetailsContent(
     trail: StudyTrailResponse,
+    progressFraction: Float,
     onTopicClick: (TopicResponse) -> Unit
 ) {
-    val allTopicsCount = trail.topics.sumOf { 1 + it.subTopics.size }
-    val completedCount = trail.topics.sumOf { topic ->
-        val mainCompleted = if (topic.status.equals("COMPLETED", ignoreCase = true)) 1 else 0
-        val subCompleted = topic.subTopics.count { it.status.equals("COMPLETED", ignoreCase = true) }
-        mainCompleted + subCompleted
-    }
-    val progressFraction = if (allTopicsCount > 0) completedCount.toFloat() / allTopicsCount else 0f
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
