@@ -84,7 +84,7 @@ fun CreateTrailScreen(
 
                 OutlinedTextField(
                     value = targetDate,
-                    onValueChange = {},
+                    onValueChange = { viewModel.updateTargetDate(it) },
                     readOnly = true,
                     label = { Text(AppStrings.createTrailDateLabel) },
                     trailingIcon = {
