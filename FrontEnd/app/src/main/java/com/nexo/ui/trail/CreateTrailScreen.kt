@@ -1,8 +1,6 @@
 package com.nexo.ui.trail
 
 import android.app.DatePickerDialog
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,9 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nexo.ui.theme.*
-import java.time.LocalDate
+import java.util.Calendar
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTrailScreen(
@@ -31,11 +28,11 @@ fun CreateTrailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    val currentDate = LocalDate.now()
+    val calendar = Calendar.getInstance()
     val dateParts = targetDate.split("-")
-    val year = dateParts.getOrNull(0)?.toIntOrNull() ?: currentDate.year
-    val month = (dateParts.getOrNull(1)?.toIntOrNull()?.minus(1)) ?: (currentDate.monthValue - 1)
-    val day = dateParts.getOrNull(2)?.toIntOrNull() ?: currentDate.dayOfMonth
+    val year = dateParts.getOrNull(0)?.toIntOrNull() ?: calendar.get(Calendar.YEAR)
+    val month = (dateParts.getOrNull(1)?.toIntOrNull()?.minus(1)) ?: calendar.get(Calendar.MONTH)
+    val day = dateParts.getOrNull(2)?.toIntOrNull() ?: calendar.get(Calendar.DAY_OF_MONTH)
 
     val datePickerDialog = DatePickerDialog(
         context,
