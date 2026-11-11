@@ -38,4 +38,7 @@ interface TrailApiService {
     suspend fun getTrailDetails(
         @Path("id") trailId: Long):
             Response<StudyTrailResponse>
+
+    @POST("api/topics/{topicId}/complete")
+    suspend fun completeTopic(@Path("topicId") topicId: Long): Response<Unit>
 }

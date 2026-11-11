@@ -29,7 +29,8 @@ import com.nexo.ui.theme.*
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

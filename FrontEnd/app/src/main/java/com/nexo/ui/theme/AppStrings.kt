@@ -76,6 +76,13 @@ object AppStrings {
     val modalTopicCompletedBtn get() = if (isEn) "Topic Completed!" else "Tópico Concluído!"
     val modalCompleteTopicBtn get() = if (isEn) "Complete Topic (+50 XP)" else "Concluir Tópico (+50 XP)"
 
+    // Topic Detail Modal Specific Properties
+    val topicCall get() = modalWhatYouWillLearn
+    val topicErr get() = modalDefaultDescription
+    val topicDate get() = modalTargetDateLabel
+    val topicComplete get() = modalCompleteTopicBtn
+    val topicCompleted get() = modalTopicCompletedBtn
+
     // Profile & Settings Screens
     val profileTitle get() = if (isEn) "My Profile" else "Meu Perfil"
     val profileLevelLabel get() = if (isEn) "Level " else "Nível "
@@ -92,7 +99,7 @@ object AppStrings {
     val settingsWeekendsTitle get() = if (isEn) "Study on Weekends" else "Estudar nos Finais de Semana"
     val settingsWeekendsSubtitle get() = if (isEn) "Include Saturdays and Sundays in your goals" else "Incluir sábados e domingos nas suas metas"
 
-    // --- NEW: Error Messages & Alerts ---
+    // Error Messages & Alerts
     val errFillFields get() = if (isEn) "Please fill in all fields" else "Preencha todos os campos"
     val errInvalidCredentials get() = if (isEn) "Invalid username or password" else "Usuário ou senha inválidos"
     val errServerConn get() = if (isEn) "Error connecting to the server" else "Erro ao conectar com o servidor"
@@ -105,7 +112,7 @@ object AppStrings {
     val errMissingDate get() = if (isEn) "Provide the desired completion date." else "Informe a data de término desejada."
     val errLoadTrails get() = if (isEn) "Error loading trails" else "Erro ao carregar as trilhas"
 
-    // --- NEW: Content Descriptions (Acessibilidade) ---
+    // Content Descriptions (Accessibility)
     val cdMascotDefault get() = if (isEn) "Nexo Mascot" else "Mascote Nexo"
     val cdMascotStudying get() = if (isEn) "Mascot Studying" else "Mascote Estudando"
     val cdMascotSupport get() = if (isEn) "Support Mascot" else "Mascote de Apoio"
