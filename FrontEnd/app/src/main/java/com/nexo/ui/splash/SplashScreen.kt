@@ -45,7 +45,7 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CremeSuave),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -62,7 +62,7 @@ fun SplashScreen(
                 Icon(
                     imageVector = Icons.Default.Star,
                     contentDescription = "Estrela Nexo",
-                    tint = AmareloAcolhedor,
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(36.dp)
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -70,14 +70,15 @@ fun SplashScreen(
                     text = "NEXO",
                     style = MaterialTheme.typography.headlineLarge,
                     fontSize = 44.sp,
-                    color = RoxoAcolhedor,
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 1.sp
                 )
                 Text(
-                    text = "PROJECT ACADEMY",
+
+                    text = AppStrings.splashProjectAcademy,
                     style = MaterialTheme.typography.labelMedium,
-                    color = TextoPrincipal,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 3.sp
                 )
@@ -95,10 +96,11 @@ fun SplashScreen(
             // Slogan and Loading Indicator
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Aprender hoje,\ntransformar o amanhã.",
+
+                    text = AppStrings.splashSlogan,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = TextoPrincipal,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
                     lineHeight = 22.sp
                 )
@@ -106,7 +108,7 @@ fun SplashScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 CircularProgressIndicator(
-                    color = RoxoAcolhedor,
+                    color = MaterialTheme.colorScheme.primary,
                     strokeWidth = 3.dp,
                     modifier = Modifier.size(28.dp)
                 )

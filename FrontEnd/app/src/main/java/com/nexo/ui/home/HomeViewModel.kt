@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import com.nexo.ui.theme.AppStrings
 
 class HomeViewModel(
     private val trailApiService: TrailApiService,
@@ -34,26 +35,19 @@ class HomeViewModel(
                 val response = trailApiService.getTrails(page)
                 if (response.isSuccessful && response.body() != null) {
                     _uiState.value = HomeUiState.Success(response.body()!!.content)
-
                 } else if (response.code() == 401) {
-                    _uiState.value = HomeUiState.Error("Sessão expirada. Por favor, faça login novamente.")
+
+                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
+                } else {
+
+                    _uiState.value = HomeUiState.Error("${AppStrings.errLoadTrails} (${response.code()})")
                 }
+            } catch (e: IOException) {
 
-                else {
-                    _uiState.value = HomeUiState.Error("Erro ao carregar as trilhas (${response.code()})")
-                }
-
-            }
-
-            catch (e: IOException) {
-                _uiState.value = HomeUiState.Error("Falha de rede. Verifique sua conexão com a internet.")
-            }
-
-            catch (e: HttpException) {
+                _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
+            } catch (e: HttpException) {
                 _uiState.value = HomeUiState.Error("Erro no servidor. Tente novamente mais tarde.")
-            }
-
-            catch (e: Exception) {
+            } catch (e: Exception) {
                 _uiState.value = HomeUiState.Error("Ocorreu um erro inesperado.")
             }
         }
