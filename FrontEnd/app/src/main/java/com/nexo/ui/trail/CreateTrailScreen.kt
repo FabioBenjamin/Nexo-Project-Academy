@@ -34,7 +34,6 @@ fun CreateTrailScreen(
     val currentDate = LocalDate.now()
     val dateParts = targetDate.split("-")
     val year = dateParts.getOrNull(0)?.toIntOrNull() ?: currentDate.year
-    // O DatePickerDialog (Android legado) exige meses de 0 a 11, mas o LocalDate usa 1 a 12
     val month = (dateParts.getOrNull(1)?.toIntOrNull()?.minus(1)) ?: (currentDate.monthValue - 1)
     val day = dateParts.getOrNull(2)?.toIntOrNull() ?: currentDate.dayOfMonth
 
