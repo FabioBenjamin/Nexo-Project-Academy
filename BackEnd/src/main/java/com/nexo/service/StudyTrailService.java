@@ -6,9 +6,7 @@ import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.integration.dto.GeminiResponse;
 import com.nexo.integration.dto.GeminiTrailResponse;
 import com.nexo.integration.gemini.GeminiClient;
-import com.nexo.models.classes.StudyTrail;
-import com.nexo.models.classes.Topic;
-import com.nexo.models.classes.TopicProgress;
+import com.nexo.models.classes.*;
 import com.nexo.repository.StudyTrailRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,6 +57,8 @@ public class StudyTrailService {
                 .map(this::toTopicResponse) // apply this function to each element
                 .toList(); // gather elements into a list
 
+        StudyTest studyTest = studyTrail.getStudyTest();
+
         return new StudyTrailResponse(
                 studyTrailId,
                 studyTrail.getTitle(),
@@ -66,7 +66,29 @@ public class StudyTrailService {
                 studyTrail.getStartDate(),
                 studyTrail.getTargetDate(),
                 studyTrail.getStatus(),
-                topics
+                topics,
+                mapToStudyTestPreviewDTO(studyTest)
+        );
+    }
+
+    private StudyTestPreviewResponse mapToStudyTestPreviewDTO(StudyTest studyTest){
+
+        if (studyTest == null){
+            return null;
+        }
+
+        List<TestAttempt> testAttempts = studyTest.getTestAttempts();
+        Integer userScore = null;
+
+        if(testAttempts != null && !testAttempts.isEmpty()){
+            userScore = testAttempts.getLast().getScore();
+        }
+
+        return new StudyTestPreviewResponse(
+                studyTest.getId(),
+                studyTest.getStatus(),
+                studyTest.getPassingScore(),
+                userScore
         );
     }
 

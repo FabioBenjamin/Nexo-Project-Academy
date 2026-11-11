@@ -1,5 +1,6 @@
 package com.nexo.service;
 
+import com.nexo.dto.StudyTestResponse;
 import com.nexo.integration.dto.GeminiAlternativeResponse;
 import com.nexo.integration.dto.GeminiQuestionResponse;
 import com.nexo.integration.dto.GeminiTestResponse;
@@ -27,6 +28,7 @@ public class StudyTestService {
         StudyTest studyTest = new StudyTest();
         studyTest.setStatus(StudyTestStatus.BLOCKED);
         studyTest.setStudyTrail(studyTrail);
+        studyTest.setPassingScore(7);
 
         studyTrail.setStudyTest(studyTest);
 

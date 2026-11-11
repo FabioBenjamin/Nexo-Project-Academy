@@ -27,6 +27,9 @@ public class StudyTest {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTestStatus status;
 
+    @Column(name = "passing_score", nullable = false)
+    private int passingScore;
+
     // references the attribute name in Question class
     // mappedBy allows bidirectional navigation
     @OneToMany(mappedBy = "studyTest", cascade = CascadeType.PERSIST)
@@ -62,4 +65,12 @@ public class StudyTest {
     }
 
     public List<TestAttempt> getTestAttempts(){ return testAttempts; }
+
+    public int getPassingScore() {
+        return passingScore;
+    }
+
+    public void setPassingScore(int passingScore) {
+        this.passingScore = passingScore;
+    }
 }
