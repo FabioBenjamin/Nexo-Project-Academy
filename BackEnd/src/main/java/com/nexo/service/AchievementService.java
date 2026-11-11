@@ -101,13 +101,17 @@ public class AchievementService {
 
                 case COMPLETED_ACTIVITIES:
                 case FIRST_STEPS:
-                case COMPLETE_TRAIL:
 
                     // Checks completed activity count against requirement target
                     int completed = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
                     if (completed >= target){
                         unlockAchievementIfNotPresent(user, achievementId);
                     }
+                    break;
+
+                case COMPLETE_TRAIL:
+                    // COMPLETE_TRAIL should be ignored here in the general activity counter check
+                    // It should be triggered via processTrailCompletion(userId) once the trail is 100% completed.
                     break;
 
                 case STREAK_DAYS:

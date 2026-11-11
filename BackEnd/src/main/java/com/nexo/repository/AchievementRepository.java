@@ -2,6 +2,7 @@ package com.nexo.repository;
 
 import com.nexo.models.classes.Achievement;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -21,4 +22,10 @@ public interface AchievementRepository extends JpaRepository<Achievement, Long> 
     @Query(value = "SELECT EXISTS(SELECT 1 FROM userachievement " +
             "WHERE user_id = :userId AND achievement_id = :achievementId)", nativeQuery = true)
     boolean existsByUserIdAndAchievementId(@Param("userId") Long userId, @Param("achievementId") Long achievementId);
+
+    //
+    @Modifying
+    @Query(value = "INSERT INTO useachievement (user_id, achievement_id, achievement_date)" +
+            "VALUE (userId, :achievementId, CURRENT_DATE) ON CONFLICT DO NOTHING", nativeQuery = true)
+    void inserUserAchievement(@Param("userId") Long userId, @Param("achievementId") Long achievementId);
 }

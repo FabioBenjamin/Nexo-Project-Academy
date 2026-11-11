@@ -27,11 +27,18 @@ public class StudyTest {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTestStatus status;
 
+    @Column(name = "passing_score", nullable = false)
+    private int passingScore;
+
     // references the attribute name in Question class
     // mappedBy allows bidirectional navigation
     @OneToMany(mappedBy = "studyTest", cascade = CascadeType.PERSIST)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Question> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyTest", cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<TestAttempt> testAttempts = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -55,5 +62,15 @@ public class StudyTest {
 
     public List<Question> getQuestions() {
         return questions;
+    }
+
+    public List<TestAttempt> getTestAttempts(){ return testAttempts; }
+
+    public int getPassingScore() {
+        return passingScore;
+    }
+
+    public void setPassingScore(int passingScore) {
+        this.passingScore = passingScore;
     }
 }

@@ -2,7 +2,9 @@ package com.nexo.service;
 
 import com.nexo.dto.UpdateTopicProgressRequest;
 import com.nexo.exceptions.EntityNotFoundException;
+import com.nexo.models.classes.StudyTrail;
 import com.nexo.models.classes.Topic;
+import com.nexo.models.enums.StudyTestStatus;
 import com.nexo.models.enums.TopicProgressStatus;
 import com.nexo.repository.TopicRepository;
 import org.springframework.stereotype.Service;
@@ -81,6 +83,12 @@ public class TopicProgressService {
 
         // Assign xp for complete a topic
         processCompletionXp(topic, userId);
+
+        // Verify if the completed topic was the remaining one
+        if(shouldOpenStudyTest(topic.getStudyTrail())){
+            // open studyTest
+            topic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
+        }
     }
 
     private void completeSubTopic(Topic subTopic, Long userId){
@@ -109,6 +117,12 @@ public class TopicProgressService {
 
             // Assign xp for complete a topic
             processCompletionXp(parentTopic, userId);
+
+            // Verify if the completed topic was the remaining one
+            if(shouldOpenStudyTest(parentTopic.getStudyTrail())){
+                // open studyTest
+                parentTopic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
+            }
         }
     }
 
@@ -139,11 +153,24 @@ public class TopicProgressService {
 
     private void processCompletionXp(Topic topic, Long userId){
         // If user has already received Xp for complete this topic
-        if(topic.getProgress().isXpAwarded()){
+        if(topic.getProgress().isXpAwarded() == null || topic.getProgress().isXpAwarded()){
             return;
         }
 
         topic.getProgress().setXpAwarded(true);
         achievementService.processActivityCompletion(userId);
+    }
+
+    private boolean shouldOpenStudyTest(StudyTrail studyTrail){
+
+        if(studyTrail.getStudyTest().getStatus() != StudyTestStatus.BLOCKED) {
+            return false;
+        }
+
+        // Verify if all topics are completed
+        return studyTrail.getTopics()
+                .stream()
+                .allMatch(topic ->
+                        topic.getProgress().getStatus() == TopicProgressStatus.COMPLETED);
     }
 }

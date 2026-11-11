@@ -6,11 +6,13 @@ import com.nexo.data.api.TrailApiService
 import com.nexo.security.TokenManager
 import com.nexo.data.api.AuthApiService
 import com.nexo.data.api.UserApiService
+import com.nexo.data.api.AchievementApiService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import kotlin.jvm.java
 
 object RetrofitClient {
 
@@ -32,9 +34,9 @@ object RetrofitClient {
             val okHttpClient = OkHttpClient.Builder()
                 .addInterceptor(AuthInterceptor(tokenManager))
                 .addInterceptor(loggingInterceptor)
-                .connectTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(90, TimeUnit.SECONDS)
-                .writeTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
                 .build()
 
             retrofit = Retrofit.Builder()
@@ -55,4 +57,8 @@ object RetrofitClient {
         TrailApiService::class.java)
 
     fun getUserApiService(context: Context): UserApiService = getClient(context).create(
-        UserApiService::class.java)}
+        UserApiService::class.java)
+
+    fun getAchievementApiService(context: Context): AchievementApiService = getClient(context).create(
+        AchievementApiService::class.java)
+}

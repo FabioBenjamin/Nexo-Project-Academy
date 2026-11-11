@@ -155,7 +155,16 @@ fun AppNavigation(
         ) { backStackEntry ->
             val trailId = backStackEntry.arguments?.getLong("trailId") ?: 0L
             val trailApiService = RetrofitClient.getTrailApiService(context)
-            val trailDetailsViewModel = viewModel { TrailDetailsViewModel(trailApiService, trailId) }
+            val achievementApiService = RetrofitClient.getAchievementApiService(context)
+
+            val trailDetailsViewModel = viewModel {
+                TrailDetailsViewModel(
+                    trailApiService = trailApiService,
+                    achievementApiService = achievementApiService,
+                    tokenManager = tokenManager,
+                    trailId = trailId
+                )
+            }
 
             TrailDetailsScreen(
                 viewModel = trailDetailsViewModel,
