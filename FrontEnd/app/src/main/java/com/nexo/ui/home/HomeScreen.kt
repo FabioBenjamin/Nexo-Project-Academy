@@ -9,9 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -33,6 +33,8 @@ import com.nexo.dto.StudyTrailSummaryResponse
 import com.nexo.ui.navigation.NexoBottomBar
 import com.nexo.ui.navigation.Routes
 import com.nexo.ui.theme.*
+import com.nexo.dto.UserProfileResponse
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +78,7 @@ fun HomeScreen(
                         Icon(Icons.Default.Settings, contentDescription = AppStrings.homeActionSettings, tint = MaterialTheme.colorScheme.onBackground)
                     }
                     IconButton(onClick = { viewModel.logout(onLogoutClick) }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = AppStrings.homeActionLogout, tint = MaterialTheme.colorScheme.error)
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = AppStrings.homeActionLogout, tint = MaterialTheme.colorScheme.error)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -141,7 +143,10 @@ fun HomeScreen(
                     ) {
                         // Official Dashboard Card Component from Brandbook
                         item {
-                            DashboardWelcomeCard(onProfileClick = onProfileClick)
+                            DashboardWelcomeCard(
+                                profile = state.profile,
+                                onProfileClick = onProfileClick
+                            )
                         }
 
                         if (state.trails.isEmpty()) {
@@ -170,101 +175,6 @@ fun HomeScreen(
 }
 
 @Composable
-fun DashboardWelcomeCard(onProfileClick: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onProfileClick() }
-    ) {
-        Box(modifier = Modifier.padding(20.dp)) {
-            // Target Icon in Top Right Corner (from Brandbook)
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-                    .align(Alignment.TopEnd),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.GpsFixed,
-                    contentDescription = "Foco",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = AppStrings.homeWelcomeTitle,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = AppStrings.homeWelcomeSubtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "XP",
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = AppStrings.homeLevelLabel,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "200 / 400 XP",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    LinearProgressIndicator(
-                        progress = { 0.5f },
-                        modifier = Modifier
-                            .fillMaxWidth(0.85f)
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp)),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                }
-
-                // Mascot Image Studying (Foco Pose)
-                Image(
-                    painter = painterResource(id = R.drawable.mascote_focado),
-                    contentDescription = "Mascote Estudando",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(90.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(24.dp),
@@ -285,7 +195,7 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Assignment,
+                    imageVector = Icons.AutoMirrored.Filled.Assignment,
                     contentDescription = "Missão",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
@@ -377,7 +287,7 @@ fun TrailCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -416,5 +326,110 @@ fun StatusBadge(status: String) {
             color = textColor,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+@Composable
+fun DashboardWelcomeCard(
+    profile: UserProfileResponse?,
+    onProfileClick: () -> Unit
+) {
+    // Calculo do progresso real (com trava para evitar divisão por 0 caso maxXp seja 0 por engano)
+    val currentXp = profile?.currentXp ?: 0
+    val maxXp = profile?.maxXp?.takeIf { it > 0 } ?: 400
+    val level = profile?.level ?: 1
+
+    val progress = (currentXp.toFloat() / maxXp.toFloat()).coerceIn(0f, 1f)
+
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onProfileClick() }
+    ) {
+        Box(modifier = Modifier.padding(20.dp)) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                    .align(Alignment.TopEnd),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.GpsFixed,
+                    contentDescription = "Foco",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = AppStrings.homeWelcomeTitle(profile?.username ?: "Nexo"),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = AppStrings.homeWelcomeSubtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 18.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "XP",
+                            tint = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "${AppStrings.homeLevelLabel} $level", // CORREÇÃO: Nível Dinâmico
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = "$currentXp / $maxXp XP", // CORREÇÃO: XP Dinâmico
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    LinearProgressIndicator(
+                        progress = { progress }, // CORREÇÃO: Barra de progresso conectada
+                        modifier = Modifier
+                            .fillMaxWidth(0.85f)
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                }
+
+                Image(
+                    painter = painterResource(id = R.drawable.mascote_focado),
+                    contentDescription = "Mascote Estudando",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(90.dp)
+                )
+            }
+        }
     }
 }

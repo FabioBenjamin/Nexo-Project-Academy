@@ -50,7 +50,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = username,
-                onValueChange = { viewModel.username.value = it },
+                onValueChange = { viewModel.updateUsername(it) },
                 label = { Text(AppStrings.labelUsername) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -62,7 +62,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { viewModel.email.value = it },
+                onValueChange = { viewModel.updateEmail(it) },
                 label = { Text(AppStrings.labelEmail) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
@@ -75,7 +75,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { viewModel.password.value = it },
+                onValueChange = { viewModel.updatePassword(it) },
                 label = { Text(AppStrings.labelPassword) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -89,7 +89,7 @@ fun RegisterScreen(
 
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = { viewModel.confirmPassword.value = it },
+                onValueChange = { viewModel.updateConfirmPassword(it) },
                 label = { Text(AppStrings.registerConfirmPasswordLabel) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
