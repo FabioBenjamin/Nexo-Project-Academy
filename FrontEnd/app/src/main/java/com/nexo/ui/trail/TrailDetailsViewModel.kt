@@ -11,12 +11,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
+
 class TrailDetailsViewModel(
     private val trailApiService: TrailApiService,
     private val trailId: Long,
     private val achievementApiService: AchievementApiService,
     private val tokenManager: TokenManager
-
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TrailDetailsUiState>(TrailDetailsUiState.Loading)
@@ -26,7 +28,6 @@ class TrailDetailsViewModel(
         loadTrailDetails()
     }
 
-    // Loads complete study trail information and nested topics
     fun loadTrailDetails() {
         viewModelScope.launch {
             _uiState.value = TrailDetailsUiState.Loading
@@ -37,10 +38,14 @@ class TrailDetailsViewModel(
                     val progress = calculateProgress(trail)
                     _uiState.value = TrailDetailsUiState.Success(trail = trail, progressFraction = progress)
                 } else {
-                    _uiState.value = TrailDetailsUiState.Error(" (${response.code()})")
+                    _uiState.value = TrailDetailsUiState.Error("${AppStrings.errLoadTrailDetails} (${response.code()})")
                 }
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
+            } catch (e: HttpException) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errServer)
+            } catch (e: Exception) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errUnexpected)
             }
         }
     }
@@ -51,14 +56,26 @@ class TrailDetailsViewModel(
                 val response = trailApiService.completeTopic(topicId)
                 if (response.isSuccessful) {
                     val userId = tokenManager.getUserId() ?: 1L
-                    achievementApiService.completeActivity(userId)
-                    loadTrailDetails()
+                    val achievementResponse = achievementApiService.completeActivity(userId)
+
+                    if (achievementResponse.isSuccessful) {
+                        loadTrailDetails()
+                    } else {
+                        _uiState.value = TrailDetailsUiState.Error(AppStrings.errLoadXp)
+                    }
+                } else {
+                    _uiState.value = TrailDetailsUiState.Error("${AppStrings.errConcludeTopic} (${response.code()})")
                 }
+            } catch (e: IOException) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
+            } catch (e: HttpException) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errServer)
             } catch (e: Exception) {
-                e.printStackTrace()
+                _uiState.value = TrailDetailsUiState.Error(e.message ?: AppStrings.errUnexpected)
             }
         }
     }
+
     private fun calculateProgress(trail: StudyTrailResponse): Float {
         val allTopicsCount = trail.topics.sumOf { 1 + it.subTopics.size }
         val completedCount = trail.topics.sumOf { topic ->
