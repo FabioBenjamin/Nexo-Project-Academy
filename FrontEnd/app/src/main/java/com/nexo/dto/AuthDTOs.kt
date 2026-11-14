@@ -9,11 +9,9 @@ data class RegisterUserDTO(
 
 // Login DTO sent to POST /auth/login
 data class LoginUserDTO(
-    val email: String, // Changed from username to email / REVER SE O BACKEND ATENDE
+    val email: String,
     val password: String
-) {
-    constructor(username: String, password: String) : this()
-}
+)
 
 // Response received from the POST /auth/login
 data class LoginResponseDTO(

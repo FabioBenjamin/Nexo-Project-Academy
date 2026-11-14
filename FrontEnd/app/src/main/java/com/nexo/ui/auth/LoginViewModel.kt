@@ -1,18 +1,16 @@
 package com.nexo.ui.auth
 
-import android.net.http.HttpException
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.AuthApiService
 import com.nexo.dto.LoginUserDTO
 import com.nexo.security.TokenManager
+import com.nexo.ui.theme.AppStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.nexo.ui.theme.AppStrings
+import retrofit2.HttpException
 import java.io.IOException
 
 class LoginViewModel(
@@ -20,7 +18,6 @@ class LoginViewModel(
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    // Encapsulation: Private MutableStateFlow, public StateFlow
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
 
@@ -29,8 +26,6 @@ class LoginViewModel(
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
-
-    // State update events delegated to the ViewModel
 
     fun updateEmail(newEmail: String) {
         _email.value = newEmail
@@ -46,7 +41,7 @@ class LoginViewModel(
             val p = password.value
             return android.util.Patterns.EMAIL_ADDRESS.matcher(e).matches() && p.isNotBlank()
         }
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+
     fun login() {
         if (_uiState.value is LoginUiState.Loading) return
 
@@ -96,7 +91,6 @@ class LoginViewModel(
             }
         }
     }
-
 
     fun resetUiState() {
         _uiState.value = LoginUiState.Idle

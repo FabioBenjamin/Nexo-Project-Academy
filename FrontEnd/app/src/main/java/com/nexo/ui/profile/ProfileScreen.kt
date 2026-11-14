@@ -2,6 +2,7 @@ package com.nexo.ui.profile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -28,12 +30,12 @@ import androidx.compose.ui.unit.dp
 import com.nexo.dto.AchievementDTO
 import com.nexo.dto.UserProfileResponse
 import com.nexo.ui.theme.*
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onBackClick: () -> Unit,
+    onNavigateToEditProfile: () -> Unit = {},
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -99,7 +101,10 @@ fun ProfileScreen(
                     }
                 }
                 is ProfileUiState.Success -> {
-                    ProfileContent(profile = state.profile)
+                    ProfileContent(
+                        profile = state.profile,
+                        onNavigateToEditProfile = onNavigateToEditProfile
+                    )
                 }
             }
         }
@@ -107,7 +112,10 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileContent(profile: UserProfileResponse) {
+fun ProfileContent(
+    profile: UserProfileResponse,
+    onNavigateToEditProfile: () -> Unit = {}
+    ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -119,7 +127,7 @@ fun ProfileContent(profile: UserProfileResponse) {
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().clickable { onNavigateToEditProfile() }
         ) {
             Column(
                 modifier = Modifier
@@ -316,33 +324,6 @@ fun AchievementCard(achievement: AchievementDTO) {
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color = if (unlocked) emeraldXp else lockedText
-            )
-        }
-    }
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onNavigateToEditProfile() }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = AppStrings.editProfileTitle,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
             )
         }
     }

@@ -10,32 +10,11 @@ data class UserProfileResponse(
     val level: Int,
     val currentXp: Int,
     val maxXp: Int,
-    val completedTrailsCount: Int,
+    val completedTrailsCount: Int = 0,
     val achievements: List<AchievementDTO>,
-    val password: String
-) {
-    constructor(
-        id: Long,
-        username: String,
-        email: String,
-        password: String?,
-        level: Int,
-        currentXp: Int,
-        maxXp: Int,
-        completedTrailsCount: Int,
-        achievements: List<AchievementDTO>
-    ) : this(
-        id,
-        username,
-        email,
-        level,
-        currentXp,
-        maxXp,
-        completedTrailsCount,
-        achievements,
-        password
-    )
-}
+    val password: String? = null
+)
+
 
 // DTO representing an individual achievement badge
 data class AchievementDTO(

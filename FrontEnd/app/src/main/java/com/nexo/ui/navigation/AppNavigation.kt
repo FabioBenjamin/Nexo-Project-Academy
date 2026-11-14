@@ -1,8 +1,5 @@
 package com.nexo.ui.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,12 +41,9 @@ object Routes {
     const val TRAIL_DETAILS = "trail_details/{trailId}"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
-
     const val EDIT_PROFILE = "edit_profile"
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
@@ -192,6 +186,7 @@ fun AppNavigation(
             ProfileScreen(
                 viewModel = profileViewModel,
                 onBackClick = { navController.popBackStack() },
+                onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
                 onNavigateBottom = handleBottomNavigation
             )
         }
