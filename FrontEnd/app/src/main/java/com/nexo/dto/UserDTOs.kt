@@ -1,6 +1,5 @@
 package com.nexo.dto
 
-import com.google.gson.annotations.SerializedName
 
 // User profile response containing level, XP progress, and unlocked achievements
 data class UserProfileResponse(
@@ -16,15 +15,3 @@ data class UserProfileResponse(
 )
 
 
-// DTO representing an individual achievement badge
-data class AchievementDTO(
-    val id: Long,
-    val title: String,
-    val description: String?,
-    val xpReward: Int,
-    @SerializedName(value = "isUnlocked", alternate = ["unlocked"])
-    val unlocked: Boolean = false,
-    val unlockAt: String? = null,
-    val currentProgress: Int = 0,
-    val targetProgress: Int = 1
-)

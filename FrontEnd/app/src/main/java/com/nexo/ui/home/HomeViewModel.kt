@@ -50,13 +50,13 @@ class HomeViewModel(
                 if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
                     val trails = trailsResponse.body()!!.content ?: emptyList()
                     val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
-                    _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
-                } else {
-                    val errorMsg = trailsResponse.errorBody()?.string()
-                    val finalMessage = errorMsg?.takeIf { it.isNotBlank() }
-                        ?: "${AppStrings.errLoadTrails} (${trailsResponse.code()})"
 
-                    _uiState.value = HomeUiState.Error(finalMessage)
+                    if (profile != null) {
+                        tokenManager.saveUserId(profile.id)
+                        tokenManager.saveUsername(profile.username)
+                    }
+
+                    _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
                 }
             } catch (e: IOException) {
                 _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
