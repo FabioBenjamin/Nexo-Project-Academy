@@ -7,4 +7,5 @@ sealed interface HomeUiState {
     object Loading : HomeUiState
     data class Success(val trails: List<StudyTrailSummaryResponse>, val profile: UserProfileResponse? = null) : HomeUiState
     data class Error(val message: String) : HomeUiState
+    data object Unauthorized : HomeUiState
 }

@@ -25,7 +25,7 @@ public interface AchievementRepository extends JpaRepository<Achievement, Long> 
 
     //
     @Modifying
-    @Query(value = "INSERT INTO useachievement (user_id, achievement_id, achievement_date)" +
+    @Query(value = "INSERT INTO userachievement (user_id, achievement_id, achievement_date)" +
             "VALUE (userId, :achievementId, CURRENT_DATE) ON CONFLICT DO NOTHING", nativeQuery = true)
     void inserUserAchievement(@Param("userId") Long userId, @Param("achievementId") Long achievementId);
 }

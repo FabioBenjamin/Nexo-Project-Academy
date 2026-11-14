@@ -53,6 +53,13 @@ fun HomeScreen(
         viewModel.loadTrails()
     }
 
+    // Se a sessão expirar (401 no refresh), redireciona automaticamente para o Login
+    LaunchedEffect(uiState) {
+        if (uiState is HomeUiState.Unauthorized) {
+            onLogoutClick()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -131,6 +138,7 @@ fun HomeScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+                is HomeUiState.Unauthorized -> Unit
                 is HomeUiState.Error -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
