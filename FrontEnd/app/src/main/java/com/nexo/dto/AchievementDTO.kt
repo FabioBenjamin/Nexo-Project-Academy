@@ -2,7 +2,7 @@ package com.nexo.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class UserAchievementDTO(
+data class AchievementDTO(
     val id: Long,
     val title: String,
     val description: String?,

@@ -84,7 +84,9 @@ public class AuthService {
 
         return new LoginResponseDTO(
                 accessToken,
-                refreshToken
+                refreshToken,
+                user.getUsername(),
+                user.getEmail()
         );
     }
 
