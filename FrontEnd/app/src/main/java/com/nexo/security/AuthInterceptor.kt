@@ -1,7 +1,5 @@
 package com.nexo.security
 
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 
@@ -16,7 +14,9 @@ class AuthInterceptor(private val tokenManager: TokenManager) : Interceptor {
         }
 
         val requestBuilder = originalRequest.newBuilder()
-        val token = runBlocking { tokenManager.accessToken.firstOrNull() }
+
+        // Retrieve token from fast in-memory cache instead of blocking the thread
+        val token = tokenManager.cachedAccessToken
 
         if (!token.isNullOrBlank()) {
             requestBuilder.addHeader("Authorization", "Bearer $token")

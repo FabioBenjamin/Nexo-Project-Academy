@@ -5,6 +5,7 @@ import com.nexo.dto.QuestionResponse;
 import com.nexo.dto.StudyTestResponse;
 import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.exceptions.StudyTestUnavailableException;
+import com.nexo.dto.StudyTestResponse;
 import com.nexo.integration.dto.GeminiAlternativeResponse;
 import com.nexo.integration.dto.GeminiQuestionResponse;
 import com.nexo.integration.dto.GeminiTestResponse;

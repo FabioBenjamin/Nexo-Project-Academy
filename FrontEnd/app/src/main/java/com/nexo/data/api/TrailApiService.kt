@@ -4,9 +4,11 @@ import com.nexo.dto.PageResponse
 import com.nexo.dto.StudyTrailRequestDTO
 import com.nexo.dto.StudyTrailResponse
 import com.nexo.dto.StudyTrailSummaryResponse
+import com.nexo.dto.UpdateTopicProgressRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -38,4 +40,14 @@ interface TrailApiService {
     suspend fun getTrailDetails(
         @Path("id") trailId: Long):
             Response<StudyTrailResponse>
+
+    /**
+     *  Marks a topic or subtopic as completed/in-progress
+     *  Endpoint: PATCH /topics/{id}/progress
+     */
+    @PATCH("/topics/{id}/progress")
+    suspend fun completeTopic(
+        @Path("id") topicId: Long,
+        @Body request: UpdateTopicProgressRequest = UpdateTopicProgressRequest(completed = true)
+        ): Response<Unit>
 }

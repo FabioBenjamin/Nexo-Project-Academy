@@ -9,10 +9,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Assignment
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -21,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nexo.R
 import com.nexo.dto.StudyTrailSummaryResponse
+import com.nexo.dto.UserProfileResponse
 import com.nexo.ui.navigation.NexoBottomBar
 import com.nexo.ui.navigation.Routes
 import com.nexo.ui.theme.*
@@ -46,6 +47,11 @@ fun HomeScreen(
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Recarrega trilhas, nível e XP sempre que voltar para a Home
+    LaunchedEffect(Unit) {
+        viewModel.loadTrails()
+    }
 
     Scaffold(
         topBar = {
@@ -70,13 +76,25 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(onClick = onProfileClick) {
-                        Icon(Icons.Default.Person, contentDescription = AppStrings.homeActionProfile, tint = MaterialTheme.colorScheme.primary)
+                        Icon(
+                            Icons.Default.Person,
+                            contentDescription = AppStrings.homeActionProfile,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                     IconButton(onClick = onSettingsClick) {
-                        Icon(Icons.Default.Settings, contentDescription = AppStrings.homeActionSettings, tint = MaterialTheme.colorScheme.onBackground)
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = AppStrings.homeActionSettings,
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
                     }
                     IconButton(onClick = { viewModel.logout(onLogoutClick) }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = AppStrings.homeActionLogout, tint = MaterialTheme.colorScheme.error)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = AppStrings.homeActionLogout,
+                            tint = MaterialTheme.colorScheme.error
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
@@ -139,13 +157,14 @@ fun HomeScreen(
                         contentPadding = PaddingValues(vertical = 16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        // Official Dashboard Card Component from Brandbook
                         item {
-                            DashboardWelcomeCard(onProfileClick = onProfileClick)
+                            DashboardWelcomeCard(
+                                profile = state.profile,
+                                onProfileClick = onProfileClick
+                            )
                         }
 
                         if (state.trails.isEmpty()) {
-                            // Official Empty State Component from Brandbook
                             item {
                                 EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
                             }
@@ -170,101 +189,6 @@ fun HomeScreen(
 }
 
 @Composable
-fun DashboardWelcomeCard(onProfileClick: () -> Unit) {
-    Card(
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onProfileClick() }
-    ) {
-        Box(modifier = Modifier.padding(20.dp)) {
-            // Target Icon in Top Right Corner (from Brandbook)
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
-                    .align(Alignment.TopEnd),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.GpsFixed,
-                    contentDescription = "Foco",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = AppStrings.homeWelcomeTitle,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = AppStrings.homeWelcomeSubtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "XP",
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = AppStrings.homeLevelLabel,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "200 / 400 XP",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    LinearProgressIndicator(
-                        progress = { 0.5f },
-                        modifier = Modifier
-                            .fillMaxWidth(0.85f)
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp)),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                }
-
-                // Mascot Image Studying (Foco Pose)
-                Image(
-                    painter = painterResource(id = R.drawable.mascote_focado),
-                    contentDescription = "Mascote Estudando",
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(90.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
     Card(
         shape = RoundedCornerShape(24.dp),
@@ -275,7 +199,6 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
             .padding(vertical = 12.dp)
     ) {
         Box(modifier = Modifier.padding(24.dp)) {
-            // Clipboard Icon in Top Right Corner (from Brandbook)
             Box(
                 modifier = Modifier
                     .size(32.dp)
@@ -285,7 +208,7 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Assignment,
+                    imageVector = Icons.AutoMirrored.Filled.Assignment,
                     contentDescription = "Missão",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
@@ -296,7 +219,6 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Mascot Image Support / Routine Pose with Checklist
                 Image(
                     painter = painterResource(id = R.drawable.mascote_apoio),
                     contentDescription = "Mascote Sem Atividades",
@@ -341,6 +263,7 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
         }
     }
 }
+
 @Composable
 fun TrailCard(
     trail: StudyTrailSummaryResponse,
@@ -377,7 +300,7 @@ fun TrailCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -388,9 +311,9 @@ fun TrailCard(
 fun StatusBadge(status: String) {
     val (backgroundColor, textColor, textLabel) = when (status.uppercase()) {
         "COMPLETED" -> Triple(
-            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
-            MaterialTheme.colorScheme.tertiary,
-            AppStrings.statusCompleted
+            Color(0xFFE8F5E9),
+            Color(0xFF2E7D32),
+            "Concluída"
         )
         "IN_PROGRESS" -> Triple(
             MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
@@ -408,7 +331,7 @@ fun StatusBadge(status: String) {
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .background(backgroundColor)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .padding(horizontal = 10.dp, vertical = 4.dp)
     ) {
         Text(
             text = textLabel,
@@ -416,5 +339,92 @@ fun StatusBadge(status: String) {
             color = textColor,
             fontWeight = FontWeight.Bold
         )
+    }
+}
+
+@Composable
+fun DashboardWelcomeCard(
+    profile: UserProfileResponse?,
+    onProfileClick: () -> Unit
+) {
+    val currentXp = profile?.currentXp ?: 0
+    val maxXp = profile?.maxXp?.takeIf { it > 0 } ?: 300
+    val level = profile?.level ?: 1
+    val progress = (currentXp.toFloat() / maxXp.toFloat()).coerceIn(0f, 1f)
+
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onProfileClick() }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = AppStrings.homeWelcomeTitle(profile?.username ?: "Nexo"),
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = AppStrings.homeWelcomeSubtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = 18.sp
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "XP",
+                        tint = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Nível $level",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "$currentXp / $maxXp XP",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .height(8.dp)
+                        .clip(RoundedCornerShape(4.dp)),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.mascote_focado),
+                contentDescription = "Mascote Estudando",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(90.dp)
+            )
+        }
     }
 }

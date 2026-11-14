@@ -13,15 +13,25 @@ class RegisterViewModel(
     private val authApiService: AuthApiService
 ) : ViewModel() {
 
-    var username = MutableStateFlow("")
-    var email = MutableStateFlow("")
-    var password = MutableStateFlow("")
-    var confirmPassword = MutableStateFlow("")
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username.asStateFlow()
 
-    private val _uiState =
-        MutableStateFlow<RegisterUiState>(RegisterUiState.Idle)
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
+
+    private val _confirmPassword = MutableStateFlow("")
+    val confirmPassword: StateFlow<String> = _confirmPassword.asStateFlow()
+
+    private val _uiState = MutableStateFlow<RegisterUiState>(RegisterUiState.Idle)
     val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
+
+    fun updateUsername(newValue: String) { _username.value = newValue }
+    fun updateEmail(newValue: String) { _email.value = newValue }
+    fun updatePassword(newValue: String) { _password.value = newValue }
+    fun updateConfirmPassword(newValue: String) { _confirmPassword.value = newValue }
 
     fun register() {
 

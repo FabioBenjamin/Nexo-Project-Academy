@@ -1,5 +1,5 @@
 package com.nexo.ui.theme
-
+import com.nexo.dto.UserProfileResponse
 object AppStrings {
     private val isEn: Boolean
         get() = AppPreferencesState.language == "en-US"
@@ -23,7 +23,7 @@ object AppStrings {
     val splashSlogan get() = if (isEn) "Learning today,\ntransforming tomorrow." else "Aprender hoje,\ntransformar o amanhã."
 
     // Login & Register Screens
-    val loginGreetingTitle get() = if (isEn) "Hello, Nexo!" else "Olá, Nexo!"
+    val loginGreetingTitle get() = if (isEn) "Hello, welcome back!" else "Olá, bem-vindo de volta!"
     val loginGreetingSubtitle get() = if (isEn) "Great to see you here." else "Que bom te ver por aqui."
     val loginEmailPlaceholder get() = if (isEn) "your@email.com" else "seu@email.com"
     val loginPasswordPlaceholder get() = if (isEn) "••••••••" else "••••••••"
@@ -44,7 +44,8 @@ object AppStrings {
     val homeActionSettings get() = if (isEn) "Settings" else "Ajustes"
     val homeActionLogout get() = if (isEn) "Log out" else "Sair"
     val homeNewTrailFab get() = if (isEn) "New Trail" else "Nova Trilha"
-    val homeWelcomeTitle get() = if (isEn) "Hello, Nexo!" else "Olá, Nexo!"
+
+    fun homeWelcomeTitle(name: String) = if (isEn) "Hello, $name!" else "Olá, $name!"
     val homeWelcomeSubtitle get() = if (isEn) "Continue your learning\njourney." else "Continue sua jornada\nde aprendizado."
     val homeLevelLabel get() = if (isEn) "Level 3" else "Nível 3"
     val homeActiveTrailsHeader get() = if (isEn) "My Active Trails" else "Minhas Trilhas Ativas"
@@ -76,6 +77,13 @@ object AppStrings {
     val modalTopicCompletedBtn get() = if (isEn) "Topic Completed!" else "Tópico Concluído!"
     val modalCompleteTopicBtn get() = if (isEn) "Complete Topic (+50 XP)" else "Concluir Tópico (+50 XP)"
 
+    // Topic Detail Modal Specific Properties
+    val topicCall get() = modalWhatYouWillLearn
+    val topicErr get() = modalDefaultDescription
+    val topicDate get() = modalTargetDateLabel
+    val topicComplete get() = modalCompleteTopicBtn
+    val topicCompleted get() = modalTopicCompletedBtn
+
     // Profile & Settings Screens
     val profileTitle get() = if (isEn) "My Profile" else "Meu Perfil"
     val profileLevelLabel get() = if (isEn) "Level " else "Nível "
@@ -92,7 +100,7 @@ object AppStrings {
     val settingsWeekendsTitle get() = if (isEn) "Study on Weekends" else "Estudar nos Finais de Semana"
     val settingsWeekendsSubtitle get() = if (isEn) "Include Saturdays and Sundays in your goals" else "Incluir sábados e domingos nas suas metas"
 
-    // --- NEW: Error Messages & Alerts ---
+    // Error Messages & Alerts
     val errFillFields get() = if (isEn) "Please fill in all fields" else "Preencha todos os campos"
     val errInvalidCredentials get() = if (isEn) "Invalid username or password" else "Usuário ou senha inválidos"
     val errServerConn get() = if (isEn) "Error connecting to the server" else "Erro ao conectar com o servidor"
@@ -104,8 +112,12 @@ object AppStrings {
     val errMissingSubject get() = if (isEn) "Describe the subject you want to study." else "Descreva o assunto que você deseja estudar."
     val errMissingDate get() = if (isEn) "Provide the desired completion date." else "Informe a data de término desejada."
     val errLoadTrails get() = if (isEn) "Error loading trails" else "Erro ao carregar as trilhas"
+    val errLoadTrailDetails get() = if (isEn) "Error loading trail details" else "Erro ao carregar os detalhes da trilha"
+     val errLoadProfile get() = if (isEn) "Error loading profile" else "Erro ao carregar o perfil"
+    val errLoadTopics get() = if (isEn) "Error loading topics" else "Erro ao carregar os tópicos"
 
-    // --- NEW: Content Descriptions (Acessibilidade) ---
+
+    // Content Descriptions (Accessibility)
     val cdMascotDefault get() = if (isEn) "Nexo Mascot" else "Mascote Nexo"
     val cdMascotStudying get() = if (isEn) "Mascot Studying" else "Mascote Estudando"
     val cdMascotSupport get() = if (isEn) "Support Mascot" else "Mascote de Apoio"

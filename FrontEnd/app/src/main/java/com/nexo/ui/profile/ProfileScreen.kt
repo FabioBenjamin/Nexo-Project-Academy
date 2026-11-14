@@ -1,5 +1,6 @@
 package com.nexo.ui.profile
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,14 +11,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -29,9 +33,14 @@ import com.nexo.ui.theme.*
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadProfile()
+    }
 
     Scaffold(
         topBar = {
@@ -118,7 +127,6 @@ fun ProfileContent(profile: UserProfileResponse) {
                     .padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // User Avatar Circle
                 Box(
                     modifier = Modifier
                         .size(80.dp)
@@ -149,7 +157,6 @@ fun ProfileContent(profile: UserProfileResponse) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Level and XP indicator row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -159,7 +166,7 @@ fun ProfileContent(profile: UserProfileResponse) {
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = "XP",
-                            tint = MaterialTheme.colorScheme.secondary,
+                            tint = Color(0xFFFFB300),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -180,7 +187,6 @@ fun ProfileContent(profile: UserProfileResponse) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Linear progress bar for experience points
                 val progressValue = if (profile.maxXp > 0) profile.currentXp.toFloat() / profile.maxXp else 0f
                 LinearProgressIndicator(
                     progress = { progressValue },
@@ -188,7 +194,7 @@ fun ProfileContent(profile: UserProfileResponse) {
                         .fillMaxWidth()
                         .height(10.dp)
                         .clip(RoundedCornerShape(5.dp)),
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = Color(0xFFFFB300),
                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
             }
@@ -196,7 +202,6 @@ fun ProfileContent(profile: UserProfileResponse) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Achievements grid section
         Text(
             text = AppStrings.profileAchievementsHeader,
             style = MaterialTheme.typography.titleLarge,
@@ -210,6 +215,7 @@ fun ProfileContent(profile: UserProfileResponse) {
             columns = GridCells.Fixed(2),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(bottom = 24.dp),
             modifier = Modifier.fillMaxSize()
         ) {
             items(profile.achievements) { achievement ->
@@ -221,45 +227,86 @@ fun ProfileContent(profile: UserProfileResponse) {
 
 @Composable
 fun AchievementCard(achievement: AchievementDTO) {
-    val cardBg = if (achievement.isUnlocked) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-    val iconColor = if (achievement.isUnlocked) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurfaceVariant
+    val unlocked = achievement.unlocked
+
+    // Paleta vibrante para desbloqueadas vs. cinza neutro para bloqueadas
+    val goldAccent = Color(0xFFFFB300)
+    val goldSurface = Color(0xFFFFF8E1)
+    val goldDarkText = Color(0xFF5D4037)
+    val emeraldXp = Color(0xFF2E7D32)
+
+    val lockedBg = Color(0xFFE5E7EB)
+    val lockedCircle = Color(0xFFD1D5DB)
+    val lockedText = Color(0xFF6B7280)
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = cardBg),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (achievement.isUnlocked) 2.dp else 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (unlocked) goldSurface else lockedBg
+        ),
+        border = BorderStroke(
+            width = if (unlocked) 2.dp else 1.dp,
+            color = if (unlocked) goldAccent else Color(0xFFD1D5DB)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (unlocked) 4.dp else 0.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(14.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = Icons.Default.EmojiEvents,
-                contentDescription = achievement.title,
-                tint = iconColor,
-                modifier = Modifier.size(36.dp)
-            )
+            // Badge de status no topo do card
+            Surface(
+                shape = RoundedCornerShape(50),
+                color = if (unlocked) goldAccent else lockedCircle
+            ) {
+                Text(
+                    text = if (unlocked) "DESBLOQUEADA" else "BLOQUEADA",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = if (unlocked) Color.White else lockedText,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Círculo do ícone (Troféu dourado vs. Cadeado cinza)
+            Box(
+                modifier = Modifier
+                    .size(54.dp)
+                    .clip(CircleShape)
+                    .background(if (unlocked) goldAccent else lockedCircle),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (unlocked) Icons.Default.EmojiEvents else Icons.Default.Lock,
+                    contentDescription = achievement.title,
+                    tint = if (unlocked) Color.White else lockedText,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = achievement.title,
                 style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
-                color = if (achievement.isUnlocked) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (unlocked) goldDarkText else lockedText
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = achievement.description,
-                style = MaterialTheme.typography.bodyMedium,
+                text = achievement.description.orEmpty(),
+                style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (unlocked) Color(0xFF6D4C41) else lockedText
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -267,8 +314,8 @@ fun AchievementCard(achievement: AchievementDTO) {
             Text(
                 text = "+${achievement.xpReward} XP",
                 style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (achievement.isUnlocked) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.ExtraBold,
+                color = if (unlocked) emeraldXp else lockedText
             )
         }
     }

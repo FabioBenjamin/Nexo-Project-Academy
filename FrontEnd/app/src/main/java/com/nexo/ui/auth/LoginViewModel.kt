@@ -16,11 +16,24 @@ class LoginViewModel(
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    var username = MutableStateFlow("")
-    var password = MutableStateFlow("")
+    // Encapsulation: Private MutableStateFlow, public StateFlow
+    private val _username = MutableStateFlow("")
+    val username: StateFlow<String> = _username.asStateFlow()
+
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
+
+    // State update events delegated to the ViewModel
+    fun updateUsername(newUsername: String) {
+        _username.value = newUsername
+    }
+
+    fun updatePassword(newPassword: String) {
+        _password.value = newPassword
+    }
 
     fun login() {
         if (username.value.isBlank() || password.value.isBlank()) {

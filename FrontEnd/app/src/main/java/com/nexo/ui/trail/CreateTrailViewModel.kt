@@ -1,5 +1,7 @@
 package com.nexo.ui.trail
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.TrailApiService
@@ -10,9 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.time.LocalDate
 
 class CreateTrailViewModel(
     private val trailApiService: TrailApiService
@@ -27,11 +27,9 @@ class CreateTrailViewModel(
     private val _uiState = MutableStateFlow<CreateTrailUiState>(CreateTrailUiState.Idle)
     val uiState: StateFlow<CreateTrailUiState> = _uiState.asStateFlow()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getDefaultTargetDate(): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_MONTH, 30)
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return formatter.format(calendar.time)
+        return LocalDate.now().plusDays(30).toString()
     }
 
     fun updateContent(newContent: String) {

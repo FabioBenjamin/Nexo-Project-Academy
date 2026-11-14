@@ -4,6 +4,8 @@ import com.nexo.dto.AchievementDTO;
 import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.models.classes.Achievement;
 import com.nexo.models.classes.AchievementRequirement;
+import com.nexo.models.classes.Settings;
+import com.nexo.repository.SettingsRepository;
 import com.nexo.models.classes.User;
 import com.nexo.repository.AchievementRepository;
 import com.nexo.repository.AchievementRequirementRepository;
@@ -30,6 +32,9 @@ public class AchievementService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private SettingsRepository settingsRepository;
+
     @Transactional
     public void processActivityCompletion(Long userId) {
         User user = userRepository.findById(userId)
@@ -47,6 +52,9 @@ public class AchievementService {
         // 2. Increments total completed activities count for the user
         int currentCount = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
         user.setCompletedActivitiesCount(currentCount + 1);
+
+        int currentXp = user.getXp() != null ? user.getXp() : 0;
+        user.setXp(currentXp + 50); // Base Xp for completing a topic
 
         // 3. Time check (before 6:00 AM or after 10:00 PM) - Night Owl
         boolean isNightShift = now.isAfter(LocalTime.of(22, 0)) || now.isBefore(LocalTime.of(6, 0));
@@ -101,13 +109,17 @@ public class AchievementService {
 
                 case COMPLETED_ACTIVITIES:
                 case FIRST_STEPS:
-                case COMPLETE_TRAIL:
 
                     // Checks completed activity count against requirement target
                     int completed = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
                     if (completed >= target){
                         unlockAchievementIfNotPresent(user, achievementId);
                     }
+                    break;
+
+                case COMPLETE_TRAIL:
+                    // COMPLETE_TRAIL should be ignored here in the general activity counter check
+                    // It should be triggered via processTrailCompletion(userId) once the trail is 100% completed.
                     break;
 
                 case STREAK_DAYS:
@@ -140,6 +152,13 @@ public class AchievementService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id " + userId));
 
+        // Retrieves user settings to check configured language (defaults to "pt-BR")
+        String language = settingsRepository.findByUserId(userId)
+                .map(Settings::getLanguage)
+                .orElse("pt-BR");
+
+        boolean isEnglish = "en".equalsIgnoreCase(language) || "en-US".equalsIgnoreCase(language);
+
         List<Achievement> allAchievements = achievementRepository.findAll();
         List<Achievement> unlockedAchievements = achievementRepository.findUnlockedByUserId(userId);
 
@@ -151,10 +170,18 @@ public class AchievementService {
             int targetProgress = getTargetForAchievement(achievement.getId());
             int currentProgress = isUnlocked ? targetProgress : getCurrentProgressForAchievement(user, achievement.getId());
 
+            String localizedTitle = (isEnglish && achievement.getTitleEn() != null)
+                    ? achievement.getTitleEn()
+                    : achievement.getTitle();
+
+            String localizedDescription = (isEnglish && achievement.getDescriptionEn() != null)
+                    ? achievement.getDescriptionEn()
+                    : achievement.getDescription();
+
             return new AchievementDTO(
                     achievement.getId(),
-                    achievement.getTitle(),
-                    achievement.getDescription(),
+                    localizedTitle,
+                    localizedDescription,
                     achievement.getXpReward(),
                     isUnlocked,
                     isUnlocked ? LocalDate.now() : null,

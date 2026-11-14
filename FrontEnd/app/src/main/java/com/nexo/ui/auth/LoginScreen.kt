@@ -127,7 +127,7 @@ fun LoginScreen(
                 // Email / Username Input
                 OutlinedTextField(
                     value = username,
-                    onValueChange = { viewModel.username.value = it },
+                    onValueChange = { viewModel.updateUsername(it) },
                     label = { Text(AppStrings.labelEmail) },
                     placeholder = { Text(AppStrings.loginEmailPlaceholder) },
                     singleLine = true,
@@ -157,7 +157,7 @@ fun LoginScreen(
                 // Password Input
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { viewModel.password.value = it },
+                    onValueChange = { viewModel.updatePassword(it) },
                     label = { Text(AppStrings.labelPassword) },
                     placeholder = { Text(AppStrings.loginPasswordPlaceholder) },
                     singleLine = true,
