@@ -79,9 +79,19 @@ fun CreateTrailScreen(
                 OutlinedTextField(
                     value = content,
                     onValueChange = { viewModel.updateContent(it) },
-                    label = { Text(AppStrings.createTrailInputPlaceholder) },
+                    label = {
+                        Text(
+                            text = AppStrings.createTrailInputPlaceholder,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     minLines = 4, maxLines = 6, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))
@@ -90,14 +100,24 @@ fun CreateTrailScreen(
                     value = targetDate,
                     onValueChange = { viewModel.updateTargetDate(it) },
                     readOnly = true,
-                    label = { Text(AppStrings.createTrailDateLabel) },
+                    label = {
+                        Text(
+                            text = AppStrings.createTrailDateLabel,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     trailingIcon = {
                         IconButton(onClick = { datePickerDialog.show() }) {
                             Icon(Icons.Default.DateRange, contentDescription = AppStrings.createTrailSelectDate, tint = MaterialTheme.colorScheme.primary)
                         }
                     },
                     modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(focusedContainerColor = MaterialTheme.colorScheme.surface, unfocusedContainerColor = MaterialTheme.colorScheme.surface, focusedBorderColor = MaterialTheme.colorScheme.primary, unfocusedBorderColor = MaterialTheme.colorScheme.outline)
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                    )
                 )
 
                 if (uiState is CreateTrailUiState.Error) {
@@ -109,10 +129,15 @@ fun CreateTrailScreen(
 
                 Button(
                     onClick = { viewModel.generateTrail() },
-                    enabled = uiState !is CreateTrailUiState.Loading,
+                    enabled = viewModel.isFormValid && uiState !is CreateTrailUiState.Loading,
                     modifier = Modifier.fillMaxWidth().height(56.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
                 ) {
                     if (uiState is CreateTrailUiState.Loading) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
