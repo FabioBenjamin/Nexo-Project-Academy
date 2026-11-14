@@ -1,5 +1,8 @@
 package com.nexo.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,6 +22,8 @@ import com.nexo.ui.auth.RegisterScreen
 import com.nexo.ui.auth.RegisterViewModel
 import com.nexo.ui.home.HomeScreen
 import com.nexo.ui.home.HomeViewModel
+import com.nexo.ui.profile.EditProfileScreen
+import com.nexo.ui.profile.EditProfileViewModel
 import com.nexo.ui.profile.ProfileScreen
 import com.nexo.ui.profile.ProfileViewModel
 import com.nexo.ui.settings.SettingsScreen
@@ -39,8 +44,12 @@ object Routes {
     const val TRAIL_DETAILS = "trail_details/{trailId}"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
+
+    const val EDIT_PROFILE = "edit_profile"
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
@@ -49,7 +58,6 @@ fun AppNavigation(
     val authApiService = RetrofitClient.getAuthApiService(context)
     val tokenManager = TokenManager(context)
 
-    // Função auxiliar para navegação na barra inferior evitando múltiplas pilhas duplicadas
     val handleBottomNavigation: (String) -> Unit = { route ->
         if (navController.currentBackStackEntry?.destination?.route != route) {
             navController.navigate(route) {
@@ -191,6 +199,24 @@ fun AppNavigation(
                 viewModel = settingsViewModel,
                 onBackClick = { navController.popBackStack() },
                 onNavigateBottom = handleBottomNavigation
+            )
+        }
+
+        // Edit Profile Screen Route
+        composable(Routes.EDIT_PROFILE) {
+            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
+            val editViewModel = viewModel {
+                EditProfileViewModel(
+                    userApiService,
+                    initialUsername = "Nexo",
+                    initialEmail = "nexo@email.com"
+                )
+            }
+
+            EditProfileScreen(
+                viewModel = editViewModel,
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
             )
         }
     }

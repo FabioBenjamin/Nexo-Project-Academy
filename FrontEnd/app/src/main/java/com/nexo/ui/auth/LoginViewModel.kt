@@ -70,7 +70,7 @@ class LoginViewModel(
 
         viewModelScope.launch {
             try {
-                val request = LoginUserDTO(username = trimmedEmail, password = rawPassword)
+                val request = LoginUserDTO(email = trimmedEmail, password = rawPassword)
                 val response = authApiService.login(request)
 
                 if (response.isSuccessful && response.body() != null) {
