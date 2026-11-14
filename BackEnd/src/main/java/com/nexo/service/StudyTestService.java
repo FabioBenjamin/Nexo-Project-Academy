@@ -1,6 +1,6 @@
 package com.nexo.service;
 
-import com.nexo.dto.StudyTestResponse;
+// import com.nexo.dto.StudyTestResponse;
 import com.nexo.integration.dto.GeminiAlternativeResponse;
 import com.nexo.integration.dto.GeminiQuestionResponse;
 import com.nexo.integration.dto.GeminiTestResponse;

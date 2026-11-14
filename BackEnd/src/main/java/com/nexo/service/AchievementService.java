@@ -53,6 +53,9 @@ public class AchievementService {
         int currentCount = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
         user.setCompletedActivitiesCount(currentCount + 1);
 
+        int currentXp = user.getXp() != null ? user.getXp() : 0;
+        user.setXp(currentXp + 50); // Base Xp for completing a topic
+
         // 3. Time check (before 6:00 AM or after 10:00 PM) - Night Owl
         boolean isNightShift = now.isAfter(LocalTime.of(22, 0)) || now.isBefore(LocalTime.of(6, 0));
         if (isNightShift) {
