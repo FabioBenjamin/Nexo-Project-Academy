@@ -23,11 +23,6 @@ class HomeViewModel(
     private val userApiService: UserApiService,
     private val tokenManager: TokenManager
 ) : ViewModel() {
-    constructor(
-        trailApiService: TrailApiService,
-        authApiService: AuthApiService,
-        userApiService: TokenManager
-    ) : this()
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
