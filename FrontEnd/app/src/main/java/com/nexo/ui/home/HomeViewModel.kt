@@ -27,37 +27,47 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    init {
-        loadTrails()
-    }
-
-    fun loadTrails() {
+    fun loadTrails(page: Int = 0) {
         viewModelScope.launch {
             _uiState.value = HomeUiState.Loading
             try {
-                val trailsDeferred = async { trailApiService.getTrails() }
+                val trailsDeferred = async { trailApiService.getTrails(page) }
                 val profileDeferred = async { userApiService.getUserProfile() }
 
                 val trailsResponse = trailsDeferred.await()
                 val profileResponse = profileDeferred.await()
 
+                if (trailsResponse.code() == 401 || profileResponse.code() == 401) {
+                    tokenManager.clearTokens()
+                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
+                    return@launch
+                }
+
                 if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
                     val trails = trailsResponse.body()!!.content ?: emptyList()
                     val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
 
+                    if (profile != null) {
+                        tokenManager.saveUserId(profile.id)
+                    }
+
                     _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
-                } else if (trailsResponse.code() == 401) {
-                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
                 } else {
                     val errorMsg = trailsResponse.errorBody()?.string()
                     val finalMessage = errorMsg?.takeIf { it.isNotBlank() }
                         ?: "${AppStrings.errLoadTrails} (${trailsResponse.code()})"
+
                     _uiState.value = HomeUiState.Error(finalMessage)
                 }
             } catch (e: IOException) {
                 _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
             } catch (e: HttpException) {
-                _uiState.value = HomeUiState.Error(AppStrings.errServer)
+                if (e.code() == 401) {
+                    tokenManager.clearTokens()
+                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
+                } else {
+                    _uiState.value = HomeUiState.Error(AppStrings.errServer)
+                }
             } catch (e: Exception) {
                 _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
             }

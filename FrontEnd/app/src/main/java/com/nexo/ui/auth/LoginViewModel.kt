@@ -35,25 +35,36 @@ class LoginViewModel(
         _password.value = newPassword
     }
 
+    private fun isValidUserIdentifier(input: String): Boolean {
+        if (input.isBlank()) return false
+        return if (input.contains("@")) {
+            android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()
+        } else {
+            input.length >= 3 && !input.contains(" ")
+        }
+    }
+
     val isFormValid: Boolean
         get() {
-            val e = email.value.trim()
+            val u = email.value.trim()
             val p = password.value
-            return android.util.Patterns.EMAIL_ADDRESS.matcher(e).matches() && p.isNotBlank()
+            return isValidUserIdentifier(u) && p.isNotBlank()
         }
 
     fun login() {
         if (_uiState.value is LoginUiState.Loading) return
 
-        val trimmedEmail = email.value.trim()
+        val trimmedUser = email.value.trim()
         val rawPassword = password.value
 
-        if (trimmedEmail.isBlank()) {
+        if (trimmedUser.isBlank()) {
             _uiState.value = LoginUiState.Error(AppStrings.errEmailBlankLogin)
             return
         }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
-            _uiState.value = LoginUiState.Error(AppStrings.errEmailInvalid)
+        if (!isValidUserIdentifier(trimmedUser)) {
+            _uiState.value = LoginUiState.Error(
+                if (trimmedUser.contains("@")) AppStrings.errEmailInvalid else AppStrings.errUsernameLength
+            )
             return
         }
         if (rawPassword.isBlank()) {
@@ -65,14 +76,14 @@ class LoginViewModel(
 
         viewModelScope.launch {
             try {
-                val request = LoginUserDTO(email = trimmedEmail, password = rawPassword)
+                val request = LoginUserDTO(user = trimmedUser, password = rawPassword)
                 val response = authApiService.login(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val loginResponse = response.body()!!
                     tokenManager.saveTokens(
                         access = loginResponse.accessToken,
-                        refresh = loginResponse.refreshToken
+                        refresh = loginResponse.refreshToken,
                     )
                     _uiState.value = LoginUiState.Success
                 } else {

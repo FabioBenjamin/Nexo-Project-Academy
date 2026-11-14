@@ -12,7 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -127,22 +127,22 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Email Input
+                // Email or Username Input
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.updateEmail(it) },
-                    label = { Text(AppStrings.loginEmailLabel) },
-                    placeholder = { Text(AppStrings.loginEmailPlaceholder) },
+                    label = { Text("Email ou Username") },
+                    placeholder = { Text("Digite seu email ou username") },
                     singleLine = true,
                     trailingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = AppStrings.loginEmailLabel,
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Email ou Username",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
                     modifier = Modifier.fillMaxWidth(),

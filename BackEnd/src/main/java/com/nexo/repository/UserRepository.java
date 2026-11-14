@@ -27,4 +27,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "VALUES (:userId, :achievementId, CURRENT_DATE) ON CONFLICT DO NOTHING", nativeQuery = true)
     void insertUserAchievement(@Param("userId") Long userId, @Param("achievementId") Long achievementId);
 
+    @Query("""
+        SELECT u 
+        FROM User u
+        WHERE u.username = :user
+        OR u.email = :user
+    """)
+    Optional<User> findUserInLogin(@Param("user") String user);
 }
