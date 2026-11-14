@@ -2,7 +2,7 @@ package com.nexo.dto;
 
 public class LoginUserDTO {
 
-    private String email;
+    private String user;
     private String password;
 
     // Constructor
@@ -13,13 +13,13 @@ public class LoginUserDTO {
     public String getPassword() {
         return password;
     }
-    public String getEmail() {
-        return email;
+    public String getUser() {
+        return user;
     }
     public void setPassword(String password) {
         this.password = password;
     }
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUser(String email) {
+        this.user = user;
     }
 }
