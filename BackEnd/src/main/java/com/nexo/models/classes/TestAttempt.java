@@ -2,6 +2,8 @@ package com.nexo.models.classes;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "testattempt")
 public class TestAttempt {
@@ -13,6 +15,9 @@ public class TestAttempt {
 
     @Column
     private int score;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDate createdAt;
 
     @ManyToOne
     @JoinColumn(name = "studytest_id")
@@ -36,5 +41,13 @@ public class TestAttempt {
 
     public void setStudyTest(StudyTest studyTest) {
         this.studyTest = studyTest;
+    }
+
+    public LocalDate getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDate createdAt) {
+        this.createdAt = createdAt;
     }
 }

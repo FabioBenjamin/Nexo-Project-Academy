@@ -7,6 +7,7 @@ import com.nexo.integration.dto.GeminiResponse;
 import com.nexo.integration.dto.GeminiTrailResponse;
 import com.nexo.integration.gemini.GeminiClient;
 import com.nexo.models.classes.*;
+import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.repository.StudyTrailRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,16 +25,19 @@ public class StudyTrailService {
     private final GeminiClient geminiClient;
     private final StudyTrailCreationService studyTrailCreationService;
     private final StudyTrailRepository studyTrailRepository;
+    private final AchievementService achievementService;
 
     // constructor
     public StudyTrailService(
             GeminiClient geminiClient,
             StudyTrailRepository studyTrailRepository,
-            StudyTrailCreationService studyTrailCreationService){
+            StudyTrailCreationService studyTrailCreationService,
+            AchievementService achievementService){
 
         this.geminiClient = geminiClient;
         this.studyTrailRepository = studyTrailRepository;
         this.studyTrailCreationService = studyTrailCreationService;
+        this.achievementService = achievementService;
     }
 
     public Long createStudyTrail(StudyTrailRequestDTO dto, Long userId){
@@ -167,5 +171,16 @@ public class StudyTrailService {
         }
 
         studyTrailRepository.save(studyTrail);
+    }
+
+    public void completeStudyTrail(StudyTrail studyTrail){
+
+        studyTrail.setStatus(StudyTrailStatus.COMPLETED);
+
+        Long userId = studyTrail.getUser().getId();
+
+        achievementService.processTrailCompletion(userId);
+        achievementService.addXpCheckAchievement(userId, 300);
+
     }
 }

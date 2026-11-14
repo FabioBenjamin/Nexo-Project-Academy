@@ -23,11 +23,14 @@ import java.util.List;
 public class StudyTestService {
 
     private final StudyTestRepository studyTestRepository;
+    private final StudyTrailService studyTrailService;
 
     public StudyTestService(
-            StudyTestRepository studyTestRepository
+            StudyTestRepository studyTestRepository,
+            StudyTrailService studyTrailService
     ){
         this.studyTestRepository = studyTestRepository;
+        this.studyTrailService = studyTrailService;
     }
 
     public void saveStudyTest(GeminiTestResponse testResponse, StudyTrail studyTrail){
@@ -117,5 +120,20 @@ public class StudyTestService {
                 alternative.getId(),
                 alternative.getDescription()
         );
+    }
+
+    public boolean completeStudyTest(StudyTest studyTest, int score){
+
+        if(score >= studyTest.getPassingScore()){
+
+            studyTest.setStatus(StudyTestStatus.COMPLETED);
+
+            studyTrailService.completeStudyTrail(studyTest.getStudyTrail());
+
+            return true;
+        }
+
+        return false;
+
     }
 }
