@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.AuthApiService
 import com.nexo.data.api.TrailApiService
+import com.nexo.data.api.UserApiService
 import com.nexo.dto.RefreshTokenRequest
 import com.nexo.security.TokenManager
+import com.nexo.ui.theme.AppStrings
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,9 +16,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
-import com.nexo.ui.theme.AppStrings
-import com.nexo.data.api.UserApiService
-import kotlinx.coroutines.async
 
 class HomeViewModel(
     private val trailApiService: TrailApiService,
@@ -41,12 +41,16 @@ class HomeViewModel(
                 val trailsResponse = trailsDeferred.await()
                 val profileResponse = profileDeferred.await()
 
+                if (trailsResponse.code() == 401 || profileResponse.code() == 401) {
+                    tokenManager.clearTokens()
+                    _uiState.value = HomeUiState.Unauthorized
+                    return@launch
+                }
+
                 if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
                     val trails = trailsResponse.body()!!.content ?: emptyList()
                     val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
                     _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
-                } else if (trailsResponse.code() == 401) {
-                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
                 } else {
                     val errorMsg = trailsResponse.errorBody()?.string()
                     val finalMessage = errorMsg?.takeIf { it.isNotBlank() }
@@ -57,7 +61,12 @@ class HomeViewModel(
             } catch (e: IOException) {
                 _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
             } catch (e: HttpException) {
-                _uiState.value = HomeUiState.Error(AppStrings.errServer)
+                if (e.code() == 401) {
+                    tokenManager.clearTokens()
+                    _uiState.value = HomeUiState.Unauthorized
+                } else {
+                    _uiState.value = HomeUiState.Error(AppStrings.errServer)
+                }
             } catch (e: Exception) {
                 _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
             }

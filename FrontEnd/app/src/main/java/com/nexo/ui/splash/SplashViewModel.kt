@@ -3,12 +3,12 @@ package com.nexo.ui.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexo.security.TokenManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-
 
 class SplashViewModel(
     private val tokenManager: TokenManager
@@ -18,20 +18,20 @@ class SplashViewModel(
     val destination: StateFlow<SplashDestination> = _destination.asStateFlow()
 
     init {
-        checkAuthentication()
+        checkActiveSession()
     }
 
-    private fun checkAuthentication() {
+    private fun checkActiveSession() {
         viewModelScope.launch {
-            val accessToken = tokenManager.accessToken.firstOrNull()
-            val refreshToken = tokenManager.refreshToken.firstOrNull()
+            delay(600) // Tempo breve para exibir a identidade visual do Nexo
+            val access = tokenManager.accessToken.firstOrNull()
+            val refresh = tokenManager.refreshToken.firstOrNull()
+            val hasSession = !access.isNullOrBlank() || !refresh.isNullOrBlank()
 
-            // The interceptor and the authenticator will handle the actual renewal during navigation
-            // Here, we only validate whether the session exists locally
-            if (accessToken.isNullOrBlank() || refreshToken.isNullOrBlank()) {
-                _destination.value = SplashDestination.GoToLogin
+            _destination.value = if (hasSession) {
+                SplashDestination.GoToHome
             } else {
-                _destination.value = SplashDestination.GoToHome
+                SplashDestination.GoToLogin
             }
         }
     }
