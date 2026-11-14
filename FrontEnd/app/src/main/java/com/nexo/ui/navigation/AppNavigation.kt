@@ -115,7 +115,10 @@ fun AppNavigation(
         // Home Screen Route
         composable(Routes.HOME) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
-            val homeViewModel = viewModel { HomeViewModel(trailApiService, authApiService, tokenManager) }
+            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
+            val homeViewModel = viewModel {
+                HomeViewModel(trailApiService, authApiService, userApiService, tokenManager)
+            }
 
             HomeScreen(
                 viewModel = homeViewModel,
@@ -137,7 +140,9 @@ fun AppNavigation(
         // Create Trail Screen Route
         composable(Routes.CREATE_TRAIL) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
-            val createTrailViewModel = viewModel { CreateTrailViewModel(trailApiService) }
+            val createTrailViewModel = viewModel {
+                CreateTrailViewModel(trailApiService)
+            }
 
             CreateTrailScreen(
                 viewModel = createTrailViewModel,
@@ -187,6 +192,7 @@ fun AppNavigation(
         composable(Routes.SETTINGS) {
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }
+
             SettingsScreen(
                 viewModel = settingsViewModel,
                 onBackClick = { navController.popBackStack() },

@@ -5,18 +5,19 @@ import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.AchievementApiService
 import com.nexo.data.api.TrailApiService
 import com.nexo.dto.StudyTrailResponse
+import com.nexo.dto.UpdateTopicProgressRequest
 import com.nexo.security.TokenManager
 import com.nexo.ui.theme.AppStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+
 class TrailDetailsViewModel(
     private val trailApiService: TrailApiService,
     private val trailId: Long,
     private val achievementApiService: AchievementApiService,
     private val tokenManager: TokenManager
-
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<TrailDetailsUiState>(TrailDetailsUiState.Loading)
@@ -35,7 +36,10 @@ class TrailDetailsViewModel(
                 if (response.isSuccessful && response.body() != null) {
                     val trail = response.body()!!
                     val progress = calculateProgress(trail)
-                    _uiState.value = TrailDetailsUiState.Success(trail = trail, progressFraction = progress)
+                    _uiState.value = TrailDetailsUiState.Success(
+                        trail = trail,
+                        progressFraction = progress
+                    )
                 } else {
                     _uiState.value = TrailDetailsUiState.Error(" (${response.code()})")
                 }
@@ -48,17 +52,23 @@ class TrailDetailsViewModel(
     fun completeTopic(topicId: Long) {
         viewModelScope.launch {
             try {
-                val response = trailApiService.completeTopic(topicId)
+                val response = trailApiService.completeTopic(
+                    topicId = topicId,
+                    request = UpdateTopicProgressRequest(completed = true)
+                )
+
                 if (response.isSuccessful) {
-                    val userId = tokenManager.getUserId() ?: 1L
-                    achievementApiService.completeActivity(userId)
                     loadTrailDetails()
+                } else {
+                    _uiState.value = TrailDetailsUiState.Error(" (${response.code()})")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
             }
         }
     }
+
     private fun calculateProgress(trail: StudyTrailResponse): Float {
         val allTopicsCount = trail.topics.sumOf { 1 + it.subTopics.size }
         val completedCount = trail.topics.sumOf { topic ->

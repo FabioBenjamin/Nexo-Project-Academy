@@ -44,3 +44,8 @@ data class PageResponse<T>(
     val last: Boolean,
     val number: Int
 )
+
+// Request DTO matching backend UpdateTopicProgressRequest
+data class UpdateTopicProgressRequest(
+    val completed: Boolean
+)
