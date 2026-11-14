@@ -239,6 +239,8 @@ fun AppNavigation(
             val editProfileViewModel = viewModel {
                 EditProfileViewModel(
                     userApiService = userApiService,
+                    authApiService = authApiService,
+                    tokenManager = tokenManager,
                     initialUsername = username,
                     initialEmail = email
                 )
@@ -249,6 +251,11 @@ fun AppNavigation(
                 onBackClick = { navController.popBackStack() },
                 onSaveSuccess = {
                     navController.popBackStack()
+                },
+                onLogoutOrDeleteSuccess = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
