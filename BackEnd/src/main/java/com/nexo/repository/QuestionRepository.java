@@ -3,6 +3,7 @@ package com.nexo.repository;
 import com.nexo.models.classes.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
     AND q.id IN :questionIds
 """)
     long countQuestionsBelongingToStudyTest(
-            Long studyTestId,
-            List<Long> questionIds
+            @Param("studyTestId") Long studyTestId,
+            @Param("questionIds") List<Long> questionIds
     );
 }
