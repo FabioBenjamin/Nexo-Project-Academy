@@ -17,7 +17,6 @@ import com.nexo.ui.theme.AppStrings
 import com.nexo.data.api.UserApiService
 import kotlinx.coroutines.async
 
-
 class HomeViewModel(
     private val trailApiService: TrailApiService,
     private val authApiService: AuthApiService,
@@ -47,19 +46,20 @@ class HomeViewModel(
                     val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
                     _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
                 } else if (trailsResponse.code() == 401) {
-
                     _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
                 } else {
+                    val errorMsg = trailsResponse.errorBody()?.string()
+                    val finalMessage = errorMsg?.takeIf { it.isNotBlank() }
+                        ?: "${AppStrings.errLoadTrails} (${trailsResponse.code()})"
 
-                    _uiState.value = HomeUiState.Error("${AppStrings.errLoadTrails} (${trailsResponse.code()})")
+                    _uiState.value = HomeUiState.Error(finalMessage)
                 }
             } catch (e: IOException) {
-
                 _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
             } catch (e: HttpException) {
                 _uiState.value = HomeUiState.Error(AppStrings.errServer)
             } catch (e: Exception) {
-                _uiState.value = HomeUiState.Error(AppStrings.errUnexpected)
+                _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
             }
         }
     }

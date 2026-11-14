@@ -5,20 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.AuthApiService
 import com.nexo.dto.LoginUserDTO
 import com.nexo.security.TokenManager
+import com.nexo.ui.theme.AppStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.nexo.ui.theme.AppStrings
+import retrofit2.HttpException
+import java.io.IOException
 
 class LoginViewModel(
     private val authApiService: AuthApiService,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    // Encapsulation: Private MutableStateFlow, public StateFlow
-    private val _username = MutableStateFlow("")
-    val username: StateFlow<String> = _username.asStateFlow()
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
 
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
@@ -26,19 +27,37 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    // State update events delegated to the ViewModel
-    fun updateUsername(newUsername: String) {
-        _username.value = newUsername
+    fun updateEmail(newEmail: String) {
+        _email.value = newEmail
     }
 
     fun updatePassword(newPassword: String) {
         _password.value = newPassword
     }
 
-    fun login() {
-        if (username.value.isBlank() || password.value.isBlank()) {
+    val isFormValid: Boolean
+        get() {
+            val e = email.value.trim()
+            val p = password.value
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(e).matches() && p.isNotBlank()
+        }
 
-            _uiState.value = LoginUiState.Error(AppStrings.errFillFields)
+    fun login() {
+        if (_uiState.value is LoginUiState.Loading) return
+
+        val trimmedEmail = email.value.trim()
+        val rawPassword = password.value
+
+        if (trimmedEmail.isBlank()) {
+            _uiState.value = LoginUiState.Error(AppStrings.errEmailBlankLogin)
+            return
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
+            _uiState.value = LoginUiState.Error(AppStrings.errEmailInvalid)
+            return
+        }
+        if (rawPassword.isBlank()) {
+            _uiState.value = LoginUiState.Error(AppStrings.errPasswordBlankLogin)
             return
         }
 
@@ -46,20 +65,29 @@ class LoginViewModel(
 
         viewModelScope.launch {
             try {
-                val request = LoginUserDTO(username = username.value, password = password.value)
+                val request = LoginUserDTO(email = trimmedEmail, password = rawPassword)
                 val response = authApiService.login(request)
 
                 if (response.isSuccessful && response.body() != null) {
                     val loginResponse = response.body()!!
-                    tokenManager.saveTokens(access = loginResponse.accessToken, refresh = loginResponse.refreshToken)
+                    tokenManager.saveTokens(
+                        access = loginResponse.accessToken,
+                        refresh = loginResponse.refreshToken
+                    )
                     _uiState.value = LoginUiState.Success
                 } else {
+                    val errorBody = response.errorBody()?.string()
+                    val errorMessage = errorBody?.takeIf { it.isNotBlank() }
+                        ?: AppStrings.errInvalidCredentials
 
-                    _uiState.value = LoginUiState.Error(AppStrings.errInvalidCredentials)
+                    _uiState.value = LoginUiState.Error(errorMessage)
                 }
+            } catch (e: IOException) {
+                _uiState.value = LoginUiState.Error(AppStrings.errNetwork)
+            } catch (e: HttpException) {
+                _uiState.value = LoginUiState.Error(AppStrings.errServer)
             } catch (e: Exception) {
-
-                _uiState.value = LoginUiState.Error(e.message ?: AppStrings.errServerConn)
+                _uiState.value = LoginUiState.Error(e.message ?: AppStrings.errUnexpected)
             }
         }
     }

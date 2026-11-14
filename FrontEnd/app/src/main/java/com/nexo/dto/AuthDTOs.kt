@@ -9,7 +9,7 @@ data class RegisterUserDTO(
 
 // Login DTO sent to POST /auth/login
 data class LoginUserDTO(
-    val username: String,
+    val email: String,
     val password: String
 )
 

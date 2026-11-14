@@ -108,15 +108,28 @@ fun RegisterScreen(
 
             Button(
                 onClick = { viewModel.register() },
-                enabled = uiState !is RegisterUiState.Loading,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
+                enabled = viewModel.isFormValid && uiState !is RegisterUiState.Loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                )
             ) {
                 if (uiState is RegisterUiState.Loading) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
                 } else {
-                    Text(text = AppStrings.registerBtnSubmit, style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        text = AppStrings.registerBtnSubmit,
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
             }
 

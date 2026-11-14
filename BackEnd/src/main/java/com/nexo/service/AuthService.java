@@ -68,7 +68,7 @@ public class AuthService {
     public LoginResponseDTO login(LoginUserDTO dto){
 
         // find user by username if exists, else throw exception
-        User user = userRepository.findByUsername(dto.getUsername())
+        User user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new InvalidCredentialsException("Invalid Credentials"));
 
         // Verify password

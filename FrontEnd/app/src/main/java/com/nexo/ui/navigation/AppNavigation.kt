@@ -19,6 +19,8 @@ import com.nexo.ui.auth.RegisterScreen
 import com.nexo.ui.auth.RegisterViewModel
 import com.nexo.ui.home.HomeScreen
 import com.nexo.ui.home.HomeViewModel
+import com.nexo.ui.profile.EditProfileScreen
+import com.nexo.ui.profile.EditProfileViewModel
 import com.nexo.ui.profile.ProfileScreen
 import com.nexo.ui.profile.ProfileViewModel
 import com.nexo.ui.settings.SettingsScreen
@@ -39,6 +41,7 @@ object Routes {
     const val TRAIL_DETAILS = "trail_details/{trailId}"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
+    const val EDIT_PROFILE = "edit_profile"
 }
 
 @Composable
@@ -49,7 +52,6 @@ fun AppNavigation(
     val authApiService = RetrofitClient.getAuthApiService(context)
     val tokenManager = TokenManager(context)
 
-    // Função auxiliar para navegação na barra inferior evitando múltiplas pilhas duplicadas
     val handleBottomNavigation: (String) -> Unit = { route ->
         if (navController.currentBackStackEntry?.destination?.route != route) {
             navController.navigate(route) {
@@ -184,6 +186,7 @@ fun AppNavigation(
             ProfileScreen(
                 viewModel = profileViewModel,
                 onBackClick = { navController.popBackStack() },
+                onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
                 onNavigateBottom = handleBottomNavigation
             )
         }
@@ -197,6 +200,24 @@ fun AppNavigation(
                 viewModel = settingsViewModel,
                 onBackClick = { navController.popBackStack() },
                 onNavigateBottom = handleBottomNavigation
+            )
+        }
+
+        // Edit Profile Screen Route
+        composable(Routes.EDIT_PROFILE) {
+            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
+            val editViewModel = viewModel {
+                EditProfileViewModel(
+                    userApiService,
+                    initialUsername = "Nexo",
+                    initialEmail = "nexo@email.com"
+                )
+            }
+
+            EditProfileScreen(
+                viewModel = editViewModel,
+                onBackClick = { navController.popBackStack() },
+                onSaveSuccess = { navController.popBackStack() }
             )
         }
     }

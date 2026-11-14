@@ -5,13 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.AchievementApiService
 import com.nexo.data.api.TrailApiService
 import com.nexo.dto.StudyTrailResponse
-import com.nexo.dto.UpdateTopicProgressRequest
 import com.nexo.security.TokenManager
 import com.nexo.ui.theme.AppStrings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 
 class TrailDetailsViewModel(
     private val trailApiService: TrailApiService,
@@ -27,7 +28,6 @@ class TrailDetailsViewModel(
         loadTrailDetails()
     }
 
-    // Loads complete study trail information and nested topics
     fun loadTrailDetails() {
         viewModelScope.launch {
             _uiState.value = TrailDetailsUiState.Loading
@@ -36,15 +36,16 @@ class TrailDetailsViewModel(
                 if (response.isSuccessful && response.body() != null) {
                     val trail = response.body()!!
                     val progress = calculateProgress(trail)
-                    _uiState.value = TrailDetailsUiState.Success(
-                        trail = trail,
-                        progressFraction = progress
-                    )
+                    _uiState.value = TrailDetailsUiState.Success(trail = trail, progressFraction = progress)
                 } else {
-                    _uiState.value = TrailDetailsUiState.Error(" (${response.code()})")
+                    _uiState.value = TrailDetailsUiState.Error("${AppStrings.errLoadTrailDetails} (${response.code()})")
                 }
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
+            } catch (e: HttpException) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errServer)
+            } catch (e: Exception) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errUnexpected)
             }
         }
     }
@@ -52,19 +53,25 @@ class TrailDetailsViewModel(
     fun completeTopic(topicId: Long) {
         viewModelScope.launch {
             try {
-                val response = trailApiService.completeTopic(
-                    topicId = topicId,
-                    request = UpdateTopicProgressRequest(completed = true)
-                )
-
+                val response = trailApiService.completeTopic(topicId)
                 if (response.isSuccessful) {
-                    loadTrailDetails()
+                    val userId = tokenManager.getUserId() ?: 1L
+                    val achievementResponse = achievementApiService.completeActivity(userId)
+
+                    if (achievementResponse.isSuccessful) {
+                        loadTrailDetails()
+                    } else {
+                        _uiState.value = TrailDetailsUiState.Error(AppStrings.errLoadXp)
+                    }
                 } else {
-                    _uiState.value = TrailDetailsUiState.Error(" (${response.code()})")
+                    _uiState.value = TrailDetailsUiState.Error("${AppStrings.errConcludeTopic} (${response.code()})")
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (e: IOException) {
                 _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
+            } catch (e: HttpException) {
+                _uiState.value = TrailDetailsUiState.Error(AppStrings.errServer)
+            } catch (e: Exception) {
+                _uiState.value = TrailDetailsUiState.Error(e.message ?: AppStrings.errUnexpected)
             }
         }
     }

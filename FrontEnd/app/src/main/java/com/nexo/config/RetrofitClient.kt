@@ -33,10 +33,11 @@ object RetrofitClient {
             // OkHttpClient configured with Timeouts and a JWT Interceptor
             val okHttpClient = OkHttpClient.Builder()
                 .addInterceptor(AuthInterceptor(tokenManager))
+                .authenticator(TokenAuthenticator(appContext, tokenManager)) // <--- Faz o refresh automático em 401
                 .addInterceptor(loggingInterceptor)
-                .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(90, TimeUnit.SECONDS)
-                .writeTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .build()
 
             retrofit = Retrofit.Builder()

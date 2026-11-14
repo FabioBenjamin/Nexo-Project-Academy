@@ -25,9 +25,12 @@ object AppStrings {
     // Login & Register Screens
     val loginGreetingTitle get() = if (isEn) "Hello, welcome back!" else "Olá, bem-vindo de volta!"
     val loginGreetingSubtitle get() = if (isEn) "Great to see you here." else "Que bom te ver por aqui."
+    val loginEmailLabel get() = if (isEn) "Email" else "E-mail"
     val loginEmailPlaceholder get() = if (isEn) "your@email.com" else "seu@email.com"
     val loginPasswordPlaceholder get() = if (isEn) "••••••••" else "••••••••"
     val loginForgotPassword get() = if (isEn) "Forgot your password?" else "Esqueceu sua senha?"
+    val errEmailBlankLogin get() = if (isEn) "Please enter your email." else "Por favor, informe seu e-mail."
+    val errPasswordBlankLogin get() = if (isEn) "Please enter your password." else "Por favor, informe sua senha."
     val loginBtnSubmit get() = if (isEn) "Sign In" else "Entrar"
     val loginBtnGoogle get() = if (isEn) "Sign in with Google" else "Entrar com Google"
     val loginNoAccountPrompt get() = if (isEn) "Don't have an account? " else "Não tem uma conta? "
@@ -60,6 +63,7 @@ object AppStrings {
     val createTrailInputPlaceholder get() = if (isEn) "Ex: I want to learn Spring Boot with Kotlin..." else "Ex: Quero aprender Spring Boot com Kotlin..."
     val createTrailDateLabel get() = if (isEn) "Completion deadline (YYYY-MM-DD)" else "Data limite de conclusão (YYYY-MM-DD)"
     val createTrailSelectDate get() = if (isEn) "Select Date" else "Selecionar Data"
+    val errSubjectLength get() = if (isEn) "Subject must be at least 3 characters long." else "O assunto deve ter pelo menos 3 caracteres."
     val createTrailBtnSubmit get() = if (isEn) "Generate Trail with AI" else "Gerar Trilha com IA"
     val createTrailLoadingText get() = if (isEn) "Gemini is creating your trail..." else "O Gemini está criando sua trilha..."
 
@@ -99,12 +103,15 @@ object AppStrings {
     val settingsNotificationsSubtitle get() = if (isEn) "Receive friendly study reminders" else "Receber lembretes amigáveis para estudar"
     val settingsWeekendsTitle get() = if (isEn) "Study on Weekends" else "Estudar nos Finais de Semana"
     val settingsWeekendsSubtitle get() = if (isEn) "Include Saturdays and Sundays in your goals" else "Incluir sábados e domingos nas suas metas"
+    val editProfileTitle get() = if (isEn) "Edit Profile" else "Editar Perfil"
+    val editProfileHeader get() = if (isEn) "Update your account details" else "Atualize os dados da sua conta"
+    val editProfileSuccessMsg get() = if (isEn) "Profile updated successfully!" else "Perfil atualizado com sucesso!"
+    val editProfileBtnSubmit get() = if (isEn) "Save Changes" else "Salvar Alterações"
 
     // Error Messages & Alerts
     val errFillFields get() = if (isEn) "Please fill in all fields" else "Preencha todos os campos"
     val errInvalidCredentials get() = if (isEn) "Invalid username or password" else "Usuário ou senha inválidos"
     val errServerConn get() = if (isEn) "Error connecting to the server" else "Erro ao conectar com o servidor"
-    val errPassMismatch get() = if (isEn) "Passwords do not match" else "As senhas não coincidem"
     val errSessionExpired get() = if (isEn) "Session expired. Please log in again." else "Sessão expirada. Por favor, faça login novamente."
     val errNetwork get() = if (isEn) "Network failure. Check your connection." else "Falha de rede. Verifique sua conexão com a internet."
     val errServer get() = if (isEn) "Server error. Please try again later." else "Erro no servidor. Tente novamente mais tarde."
@@ -113,9 +120,21 @@ object AppStrings {
     val errMissingDate get() = if (isEn) "Provide the desired completion date." else "Informe a data de término desejada."
     val errLoadTrails get() = if (isEn) "Error loading trails" else "Erro ao carregar as trilhas"
     val errLoadTrailDetails get() = if (isEn) "Error loading trail details" else "Erro ao carregar os detalhes da trilha"
-     val errLoadProfile get() = if (isEn) "Error loading profile" else "Erro ao carregar o perfil"
+    val errLoadProfile get() = if (isEn) "Error loading profile" else "Erro ao carregar o perfil"
     val errLoadTopics get() = if (isEn) "Error loading topics" else "Erro ao carregar os tópicos"
+    val errConcludeTopic get() = if (isEn) "Error completing topic" else "Erro ao concluir o tópico"
+    val errLoadXp get() = if (isEn) "Error loading XP" else "Erro ao carregar XP"
 
+    // Specific register validations
+    val errUsernameBlank get() = if (isEn) "Please enter a username." else "Por favor, informe um nome de usuário."
+    val errUsernameLength get() = if (isEn) "Username must be at least 3 characters long." else "O nome de usuário deve ter pelo menos 3 caracteres."
+    val errEmailBlank get() = if (isEn) "Email field cannot be empty." else "O campo de e-mail não pode estar vazio."
+    val errEmailInvalid get() = if (isEn) "The email address appears to be invalid." else "O e-mail informado parece inválido."
+    val errPasswordBlank get() = if (isEn) "Please create a password." else "Por favor, crie uma senha de acesso."
+    val errPasswordLength get() = if (isEn) "Password is too short. It must be at least 6 characters." else "A senha é muito curta. Ela precisa ter pelo menos 6 caracteres."
+    val errConfirmPasswordBlank get() = if (isEn) "Please confirm your password." else "Por favor, confirme a sua senha digitando-a novamente."
+    val labelConfirmPassword get() = if (isEn) "Confirm Password" else "Confirmar Senha"
+    val errPasswordMismatchSpecific get() = if (isEn) "Passwords do not match. Please check." else "As senhas não coincidem. Confira os campos de senha."
 
     // Content Descriptions (Accessibility)
     val cdMascotDefault get() = if (isEn) "Nexo Mascot" else "Mascote Nexo"

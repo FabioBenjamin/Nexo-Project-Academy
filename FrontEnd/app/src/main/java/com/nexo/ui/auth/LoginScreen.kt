@@ -1,5 +1,7 @@
 package com.nexo.ui.auth
 
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,8 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -31,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.nexo.R
 import com.nexo.ui.theme.*
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
@@ -38,7 +41,7 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
-    val username by viewModel.username.collectAsState()
+    val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
@@ -66,7 +69,7 @@ fun LoginScreen(
                 actions = {
                     IconButton(onClick = { /* Handle help modal */ }) {
                         Icon(
-                            imageVector = Icons.Default.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Filled.HelpOutline,
                             contentDescription = AppStrings.btnHelp,
                             tint = MaterialTheme.colorScheme.onBackground
                         )
@@ -124,17 +127,17 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Email / Username Input
+                // Email Input
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { viewModel.updateUsername(it) },
-                    label = { Text(AppStrings.labelEmail) },
+                    value = email,
+                    onValueChange = { viewModel.updateEmail(it) },
+                    label = { Text(AppStrings.loginEmailLabel) },
                     placeholder = { Text(AppStrings.loginEmailPlaceholder) },
                     singleLine = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.Email,
-                            contentDescription = AppStrings.labelEmail,
+                            contentDescription = AppStrings.loginEmailLabel,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
@@ -213,14 +216,16 @@ fun LoginScreen(
                 // Primary Filled Button (Entrar)
                 Button(
                     onClick = { viewModel.login() },
-                    enabled = uiState !is LoginUiState.Loading,
+                    enabled = viewModel.isFormValid && uiState !is LoginUiState.Loading,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(54.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
                 ) {
                     if (uiState is LoginUiState.Loading) {
