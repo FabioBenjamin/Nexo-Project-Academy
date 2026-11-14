@@ -1,11 +1,14 @@
 package com.nexo.ui.settings
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,6 +30,7 @@ import com.nexo.ui.theme.*
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
+    onNavigateToEditProfile: (String, String) -> Unit = { _, _ -> },
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -35,7 +39,11 @@ fun SettingsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = AppStrings.settingsTitle, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
+                    Text(
+                        text = AppStrings.settingsTitle,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -70,6 +78,7 @@ fun SettingsScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
                 is SettingsUiState.Error -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
@@ -89,10 +98,16 @@ fun SettingsScreen(
                         }
                     }
                 }
+
                 is SettingsUiState.Success -> {
                     SettingsContent(
                         settings = state.settings,
-                        onSettingsChanged = { updated -> viewModel.updateSettings(updated) }
+                        onSettingsChanged = { updated -> viewModel.updateSettings(updated) },
+                        onNavigateToEditProfile = {
+                            // UserSettingsDTO não possui o campo username.
+                            // Passamos string vazia no username e o e-mail real de settings.
+                            onNavigateToEditProfile("", state.settings.email)
+                        }
                     )
                 }
             }
@@ -103,13 +118,14 @@ fun SettingsScreen(
 @Composable
 fun SettingsContent(
     settings: UserSettingsDTO,
-    onSettingsChanged: (UserSettingsDTO) -> Unit
+    onSettingsChanged: (UserSettingsDTO) -> Unit,
+    onNavigateToEditProfile: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Real Mascot Calm Pose Image Header
+        // Card do Mascote Nexo Calma
         Card(
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -124,13 +140,15 @@ fun SettingsContent(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.mascote_calma),
-                    contentDescription = "Mascote Calma",
+                    contentDescription = AppStrings.cdMascotCalm,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(65.dp)
                         .clip(CircleShape)
                 )
+
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Column {
                     Text(
                         text = AppStrings.settingsHeaderTitle,
@@ -146,6 +164,56 @@ fun SettingsContent(
             }
         }
 
+        // Card "Alterar seus dados"
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateToEditProfile() }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = AppStrings.editProfileTitle,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            text = AppStrings.editProfileTitle,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = AppStrings.editProfileHeader,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
+        // Itens de Alternância (Switches)
         SettingSwitchItem(
             title = AppStrings.settingsNotificationsTitle,
             subtitle = AppStrings.settingsNotificationsSubtitle,
@@ -208,7 +276,9 @@ fun SettingSwitchItem(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+
             Spacer(modifier = Modifier.width(16.dp))
+
             Switch(
                 checked = checked,
                 onCheckedChange = onCheckedChange,

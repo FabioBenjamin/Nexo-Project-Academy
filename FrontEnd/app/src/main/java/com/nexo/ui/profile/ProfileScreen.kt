@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.nexo.dto.AchievementDTO
+import com.nexo.dto.UserAchievementDTO
 import com.nexo.dto.UserProfileResponse
 import com.nexo.ui.theme.*
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +35,7 @@ import com.nexo.ui.theme.*
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onBackClick: () -> Unit,
-    onNavigateToEditProfile: () -> Unit = {},
+    onNavigateToEditProfile: (String, String) -> Unit = { _, _ -> },
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -103,7 +103,7 @@ fun ProfileScreen(
                 is ProfileUiState.Success -> {
                     ProfileContent(
                         profile = state.profile,
-                        onNavigateToEditProfile = onNavigateToEditProfile
+                        onNavigateToEditProfile = { onNavigateToEditProfile(state.profile.username, state.profile.email) }
                     )
                 }
             }
@@ -234,7 +234,7 @@ fun ProfileContent(
 }
 
 @Composable
-fun AchievementCard(achievement: AchievementDTO) {
+fun AchievementCard(achievement: UserAchievementDTO) {
     val unlocked = achievement.unlocked
 
     // Paleta vibrante para desbloqueadas vs. cinza neutro para bloqueadas

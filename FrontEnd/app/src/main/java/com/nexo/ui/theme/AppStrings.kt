@@ -10,10 +10,14 @@ object AppStrings {
     val navSettings get() = if (isEn) "Settings" else "Ajustes"
     val btnBack get() = if (isEn) "Back" else "Voltar"
     val btnHelp get() = if (isEn) "Help" else "Ajuda"
+    val btnCancel get() = if (isEn) "Cancel" else "Cancelar"
     val btnTryAgain get() = if (isEn) "Try Again" else "Tentar Novamente"
     val labelEmail get() = if (isEn) "E-mail" else "E-mail"
     val labelPassword get() = if (isEn) "Password" else "Senha"
     val labelUsername get() = if (isEn) "Username" else "Nome de usuário"
+    val labelOldPassword get() = if (isEn) "Old Password" else "Senha Atual"
+    val labelNewPassword get() = if (isEn) "New Password" else "Nova Senha"
+    val labelConfirmPassword get() = if (isEn) "Confirm Password" else "Confirmar Senha"
     val statusCompleted get() = if (isEn) "Completed" else "Concluído"
     val statusInProgress get() = if (isEn) "In Progress" else "Em Andamento"
     val statusPending get() = if (isEn) "Pending" else "Pendente"
@@ -124,6 +128,12 @@ object AppStrings {
     val errLoadTopics get() = if (isEn) "Error loading topics" else "Erro ao carregar os tópicos"
     val errConcludeTopic get() = if (isEn) "Error completing topic" else "Erro ao concluir o tópico"
     val errLoadXp get() = if (isEn) "Error loading XP" else "Erro ao carregar XP"
+    val errUpdateXp get() = if (isEn) "Error updating XP" else "Erro ao atualizar XP"
+    val errDeleteAccount get() = if (isEn) "Error deleting account" else "Erro ao excluir a conta"
+    val errUsernameChange get() = if (isEn) "Error changing username" else "Erro ao alterar o nome de usuário"
+    val errEmailChange get() = if (isEn) "Error changing email" else "Erro ao alterar o e-mail"
+    val errPasswordChange get() = if (isEn) "Error changing password" else "Erro ao alterar a senha"
+
 
     // Specific register validations
     val errUsernameBlank get() = if (isEn) "Please enter a username." else "Por favor, informe um nome de usuário."
@@ -133,7 +143,6 @@ object AppStrings {
     val errPasswordBlank get() = if (isEn) "Please create a password." else "Por favor, crie uma senha de acesso."
     val errPasswordLength get() = if (isEn) "Password is too short. It must be at least 6 characters." else "A senha é muito curta. Ela precisa ter pelo menos 6 caracteres."
     val errConfirmPasswordBlank get() = if (isEn) "Please confirm your password." else "Por favor, confirme a sua senha digitando-a novamente."
-    val labelConfirmPassword get() = if (isEn) "Confirm Password" else "Confirmar Senha"
     val errPasswordMismatchSpecific get() = if (isEn) "Passwords do not match. Please check." else "As senhas não coincidem. Confira os campos de senha."
 
     // Content Descriptions (Accessibility)
@@ -141,8 +150,22 @@ object AppStrings {
     val cdMascotStudying get() = if (isEn) "Mascot Studying" else "Mascote Estudando"
     val cdMascotSupport get() = if (isEn) "Support Mascot" else "Mascote de Apoio"
     val cdMascotCalm get() = if (isEn) "Calm Mascot" else "Mascote Calma"
+    val cdMascotChampion get() = if (isEn) "Champion Mascot" else "Mascote Campeão"
+    val cdLevel get() = if (isEn) "Level" else "Nível"
     val cdTarget get() = if (isEn) "Focus Target" else "Alvo de Foco"
     val cdMission get() = if (isEn) "Mission" else "Missão"
     val cdXP get() = if (isEn) "Experience Points" else "Pontos de Experiência"
     val cdTopicStatus get() = if (isEn) "Topic Status" else "Status do Tópico"
+    val cdSelected get() = if (isEn) "Selected" else "Selecionado"
+    val cdDangerZone get() = if (isEn) "Danger Zone" else "Zona de Perigo"
+
+    val editAvatarTitle get() = if (isEn) "Choose your Avatar" else "Escolha o seu Avatar"
+    val alertDangerZoneTitle get() = if (isEn) "Danger Zone" else "Zona de Perigo"
+    val alertDangerZone get() = if (isEn) "" else "Ações sensíveis relacionadas à segurança da sua conta."
+    val confirmLogout get() = if (isEn) "Confirm Logout" else "Confirmar Saída de Todas as Contas"
+    val confirmDeleteAccount get() = if (isEn) "Confirm Delete Account" else "Confirmar Exclusão da Conta"
+    val confirmDeleteAccountMessage get() = if (isEn) " " else "Atenção: esta ação é irreversível! Todas as suas trilhas, conquistas, pontuação de XP e progresso de estudos serão apagados para sempre."
+    val confirmDeleteAccountTitle get() = if (isEn) "Delete Account" else "Excluir Conta permanentemente"
+    val confirmLogoutMessage get() = if (isEn) " " else "Você será desconectado de todos os seus dispositivos e precisará fazer login novamente.\""
+    val confirmLogoutTitle get() = if (isEn) "Logout" else "Sair de Todas as Contas"
 }

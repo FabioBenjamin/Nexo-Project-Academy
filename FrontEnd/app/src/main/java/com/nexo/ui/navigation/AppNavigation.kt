@@ -1,6 +1,10 @@
 package com.nexo.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -11,7 +15,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nexo.config.RetrofitClient
 import com.nexo.data.api.SettingsApiService
-import com.nexo.data.api.UserApiService
 import com.nexo.security.TokenManager
 import com.nexo.ui.auth.LoginScreen
 import com.nexo.ui.auth.LoginViewModel
@@ -41,9 +44,11 @@ object Routes {
     const val TRAIL_DETAILS = "trail_details/{trailId}"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
-    const val EDIT_PROFILE = "edit_profile"
+    const val EDIT_PROFILE = "edit_profile?username={username}&email={email}"
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
@@ -68,7 +73,7 @@ fun AppNavigation(
         navController = navController,
         startDestination = Routes.SPLASH
     ) {
-        // Splash Screen Route
+        // Rota: Splash Screen
         composable(Routes.SPLASH) {
             val splashViewModel = viewModel { SplashViewModel(tokenManager) }
             SplashScreen(
@@ -86,7 +91,7 @@ fun AppNavigation(
             )
         }
 
-        // Login Screen Route
+        // Rota: Login Screen
         composable(Routes.LOGIN) {
             val loginViewModel = viewModel { LoginViewModel(authApiService, tokenManager) }
             LoginScreen(
@@ -100,7 +105,7 @@ fun AppNavigation(
             )
         }
 
-        // Register Screen Route
+        // Rota: Register Screen
         composable(Routes.REGISTER) {
             val registerViewModel = viewModel { RegisterViewModel(authApiService) }
             RegisterScreen(
@@ -114,12 +119,16 @@ fun AppNavigation(
             )
         }
 
-        // Home Screen Route
+        // Rota: Home Screen (Com refresh automático na entrada/retorno)
         composable(Routes.HOME) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
-            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
+            val userApiService = RetrofitClient.getUserApiService(context)
             val homeViewModel = viewModel {
                 HomeViewModel(trailApiService, authApiService, userApiService, tokenManager)
+            }
+
+            LaunchedEffect(Unit) {
+                homeViewModel.loadTrails()
             }
 
             HomeScreen(
@@ -132,20 +141,17 @@ fun AppNavigation(
                 onSettingsClick = { handleBottomNavigation(Routes.SETTINGS) },
                 onLogoutClick = {
                     navController.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.HOME) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 },
                 onNavigateBottom = handleBottomNavigation
             )
         }
 
-        // Create Trail Screen Route
+        // Rota: Create Trail Screen
         composable(Routes.CREATE_TRAIL) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
-            val createTrailViewModel = viewModel {
-                CreateTrailViewModel(trailApiService)
-            }
-
+            val createTrailViewModel = viewModel { CreateTrailViewModel(trailApiService) }
             CreateTrailScreen(
                 viewModel = createTrailViewModel,
                 onBackClick = { navController.popBackStack() },
@@ -155,7 +161,7 @@ fun AppNavigation(
             )
         }
 
-        // Trail Details Screen Route
+        // Rota: Trail Details Screen
         composable(
             route = Routes.TRAIL_DETAILS,
             arguments = listOf(navArgument("trailId") { type = NavType.LongType })
@@ -163,7 +169,6 @@ fun AppNavigation(
             val trailId = backStackEntry.arguments?.getLong("trailId") ?: 0L
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val achievementApiService = RetrofitClient.getAchievementApiService(context)
-
             val trailDetailsViewModel = viewModel {
                 TrailDetailsViewModel(
                     trailApiService = trailApiService,
@@ -179,19 +184,26 @@ fun AppNavigation(
             )
         }
 
-        // Profile Screen Route
+        // Rota: Profile Screen (Com refresh automático na entrada/retorno)
         composable(Routes.PROFILE) {
-            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
+            val userApiService = RetrofitClient.getUserApiService(context)
             val profileViewModel = viewModel { ProfileViewModel(userApiService) }
+
+            LaunchedEffect(Unit) {
+                profileViewModel.loadProfile()
+            }
+
             ProfileScreen(
                 viewModel = profileViewModel,
                 onBackClick = { navController.popBackStack() },
-                onNavigateToEditProfile = { navController.navigate(Routes.EDIT_PROFILE) },
+                onNavigateToEditProfile = { username, email ->
+                    navController.navigate("edit_profile?username=$username&email=$email")
+                },
                 onNavigateBottom = handleBottomNavigation
             )
         }
 
-        // Settings Screen Route
+        // Rota: Settings Screen
         composable(Routes.SETTINGS) {
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }
@@ -199,25 +211,45 @@ fun AppNavigation(
             SettingsScreen(
                 viewModel = settingsViewModel,
                 onBackClick = { navController.popBackStack() },
+                onNavigateToEditProfile = { username, email ->
+                    navController.navigate("edit_profile?username=$username&email=$email")
+                },
                 onNavigateBottom = handleBottomNavigation
             )
         }
 
-        // Edit Profile Screen Route
-        composable(Routes.EDIT_PROFILE) {
-            val userApiService = RetrofitClient.getClient(context).create(UserApiService::class.java)
-            val editViewModel = viewModel {
+        // Rota: Edit Profile Screen
+        composable(
+            route = Routes.EDIT_PROFILE,
+            arguments = listOf(
+                navArgument("username") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+                navArgument("email") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username") ?: ""
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            val userApiService = RetrofitClient.getUserApiService(context)
+
+            val editProfileViewModel = viewModel {
                 EditProfileViewModel(
-                    userApiService,
-                    initialUsername = "Nexo",
-                    initialEmail = "nexo@email.com"
+                    userApiService = userApiService,
+                    initialUsername = username,
+                    initialEmail = email
                 )
             }
 
             EditProfileScreen(
-                viewModel = editViewModel,
+                viewModel = editProfileViewModel,
                 onBackClick = { navController.popBackStack() },
-                onSaveSuccess = { navController.popBackStack() }
+                onSaveSuccess = {
+                    navController.popBackStack()
+                }
             )
         }
     }
