@@ -30,6 +30,8 @@ import com.nexo.ui.settings.SettingsScreen
 import com.nexo.ui.settings.SettingsViewModel
 import com.nexo.ui.splash.SplashScreen
 import com.nexo.ui.splash.SplashViewModel
+import com.nexo.ui.test.StudyTestScreen
+import com.nexo.ui.test.StudyTestViewModel
 import com.nexo.ui.trail.CreateTrailScreen
 import com.nexo.ui.trail.CreateTrailViewModel
 import com.nexo.ui.trail.TrailDetailsScreen
@@ -42,9 +44,12 @@ object Routes {
     const val HOME = "home"
     const val CREATE_TRAIL = "create_trail"
     const val TRAIL_DETAILS = "trail_details/{trailId}"
+    const val STUDY_TEST = "study_test/{testId}/{passingScore}"
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
     const val EDIT_PROFILE = "edit_profile?username={username}&email={email}"
+
+    fun studyTestRoute(testId: Long, passingScore: Int) = "study_test/$testId/$passingScore"
 }
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -181,9 +186,48 @@ fun AppNavigation(
                 )
             }
 
+            LaunchedEffect(Unit) {
+                trailDetailsViewModel.loadTrailDetails()
+            }
+
             TrailDetailsScreen(
                 viewModel = trailDetailsViewModel,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onStartTest = { testId, passingScore ->
+                    navController.navigate(Routes.studyTestRoute(testId, passingScore))
+                }
+            )
+        }
+
+        // Rota: Study Test Screen
+        composable(
+            route = Routes.STUDY_TEST,
+            arguments = listOf(
+                navArgument("testId") { type = NavType.LongType },
+                navArgument("passingScore") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val testId = backStackEntry.arguments?.getLong("testId") ?: 0L
+            val passingScore = backStackEntry.arguments?.getInt("passingScore") ?: 0
+            val studyTestApiService = RetrofitClient.getStudyTestApiService(context)
+
+            val studyTestViewModel = viewModel {
+                StudyTestViewModel(
+                    testId = testId,
+                    passingScore = passingScore,
+                    studyTestApiService = studyTestApiService,
+                    tokenManager = tokenManager
+                )
+            }
+
+            StudyTestScreen(
+                viewModel = studyTestViewModel,
+                onBackClick = { navController.popBackStack() },
+                onUnauthorized = {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 

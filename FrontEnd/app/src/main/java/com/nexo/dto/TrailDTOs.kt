@@ -23,7 +23,8 @@ data class StudyTrailResponse(
     val startDate: String?,
     val targetDate: String,
     val status: String,
-    val topics: List<TopicResponse>
+    val topics: List<TopicResponse>,
+    val studyTestPreviewResponse: StudyTestPreviewResponse? = null
 )
 
 // Topic and subtopic hierarchy response
