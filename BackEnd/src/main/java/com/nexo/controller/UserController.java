@@ -75,4 +75,11 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(jwt.getSubject());
+        userService.deleteUserAccount(userId);
+        return ResponseEntity.noContent().build();
+    }
 }

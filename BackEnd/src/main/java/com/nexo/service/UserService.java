@@ -125,4 +125,19 @@ public class UserService {
         user.setPassword(hashPassword);
         userRepository.save(user);
     }
+
+    @Transactional
+    public void deleteUserAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Remove trilhas do usuário (StudyTest, Topics e TopicProgress já possuem OnDelete CASCADE)
+        studyTrailRepository.deleteAll(studyTrailRepository.findByUser_Id(userId, Pageable.unpaged()).getContent());
+
+        // Remove refresh tokens e conquistas vinculadas (caso o banco não tenha ON DELETE CASCADE)
+        refreshTokenRepository.deleteByUser_Id(userId);
+        userRepository.deleteUserAchievementsByUserId(userId);
+
+        userRepository.delete(user);
+    }
 }

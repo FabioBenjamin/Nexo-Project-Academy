@@ -37,4 +37,7 @@ interface UserApiService {
      */
     @PATCH("user/me/password")
     suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
+
+    @retrofit2.http.DELETE("user/me")
+    suspend fun deleteAccount(): Response<Unit>
 }

@@ -93,7 +93,8 @@ fun AppNavigation(
 
         // Rota: Login Screen
         composable(Routes.LOGIN) {
-            val loginViewModel = viewModel { LoginViewModel(authApiService, tokenManager) }
+            val userApiService = RetrofitClient.getUserApiService(context)
+            val loginViewModel = viewModel { LoginViewModel(authApiService, userApiService, tokenManager) }
             LoginScreen(
                 viewModel = loginViewModel,
                 onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
@@ -168,10 +169,12 @@ fun AppNavigation(
         ) { backStackEntry ->
             val trailId = backStackEntry.arguments?.getLong("trailId") ?: 0L
             val trailApiService = RetrofitClient.getTrailApiService(context)
+            val userApiService = RetrofitClient.getUserApiService(context)
             val achievementApiService = RetrofitClient.getAchievementApiService(context)
             val trailDetailsViewModel = viewModel {
                 TrailDetailsViewModel(
                     trailApiService = trailApiService,
+                    userApiService = userApiService,
                     achievementApiService = achievementApiService,
                     tokenManager = tokenManager,
                     trailId = trailId
