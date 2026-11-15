@@ -29,7 +29,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.nexo.dto.UserAchievementDTO
 import com.nexo.dto.UserProfileResponse
+import com.nexo.ui.navigation.NexoBottomBar
+import com.nexo.ui.navigation.Routes
 import com.nexo.ui.theme.*
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -39,6 +42,7 @@ fun ProfileScreen(
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.loadProfile()
@@ -66,49 +70,62 @@ fun ProfileScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
         },
+        bottomBar = {
+            NexoBottomBar(
+                currentRoute = Routes.PROFILE,
+                onNavigate = onNavigateBottom
+            )
+        },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(
+        NexoPullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
         ) {
-            when (val state = uiState) {
-                is ProfileUiState.Loading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                is ProfileUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 20.dp)
+            ) {
+                when (val state = uiState) {
+                    is ProfileUiState.Loading -> {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadProfile() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    }
+                    is ProfileUiState.Error -> {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            Text(
+                                text = state.message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { viewModel.loadProfile() },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
+                                Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            }
                         }
                     }
-                }
-                is ProfileUiState.Success -> {
-                    ProfileContent(
-                        profile = state.profile,
-                        onNavigateToEditProfile = { onNavigateToEditProfile(state.profile.username, state.profile.email) }
-                    )
+                    is ProfileUiState.Success -> {
+                        ProfileContent(
+                            profile = state.profile,
+                            onNavigateToEditProfile = { onNavigateToEditProfile(state.profile.username, state.profile.email) }
+                        )
+                    }
                 }
             }
-        }
-    }
+    }   }
 }
 
 @Composable

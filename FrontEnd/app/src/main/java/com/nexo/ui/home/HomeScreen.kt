@@ -47,6 +47,7 @@ fun HomeScreen(
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     // Recarrega trilhas, nível e XP sempre que voltar para a Home
     LaunchedEffect(Unit) {
@@ -125,68 +126,76 @@ fun HomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(
+        NexoPullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
         ) {
-            when (val state = uiState) {
-                is HomeUiState.Loading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                is HomeUiState.Unauthorized -> Unit
-                is HomeUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 20.dp)
+            ) {
+                when (val state = uiState) {
+                    is HomeUiState.Loading -> {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadTrails() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    }
+                    is HomeUiState.Unauthorized -> Unit
+                    is HomeUiState.Error -> {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            Text(
+                                text = state.message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { viewModel.loadTrails() },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
+                                Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            }
                         }
                     }
-                }
-                is HomeUiState.Success -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item {
-                            DashboardWelcomeCard(
-                                profile = state.profile,
-                                onProfileClick = onProfileClick
-                            )
-                        }
-
-                        if (state.trails.isEmpty()) {
+                    is HomeUiState.Success -> {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(vertical = 16.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
                             item {
-                                EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
-                            }
-                        } else {
-                            item {
-                                Text(
-                                    text = AppStrings.homeActiveTrailsHeader,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.padding(top = 8.dp)
+                                DashboardWelcomeCard(
+                                    profile = state.profile,
+                                    onProfileClick = onProfileClick
                                 )
                             }
-                            items(state.trails) { trail ->
-                                TrailCard(trail = trail, onClick = { onTrailClick(trail.id) })
+
+                            if (state.trails.isEmpty()) {
+                                item {
+                                    EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
+                                }
+                            } else {
+                                item {
+                                    Text(
+                                        text = AppStrings.homeActiveTrailsHeader,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+                                items(state.trails) { trail ->
+                                    TrailCard(trail = trail, onClick = { onTrailClick(trail.id) })
+                                }
                             }
                         }
                     }

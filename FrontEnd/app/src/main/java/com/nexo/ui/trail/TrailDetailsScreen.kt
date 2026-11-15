@@ -33,6 +33,7 @@ fun TrailDetailsScreen(
     onBackClick: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
     // State holding the currently inspected topic for the detail modal
     var selectedTopicForModal by remember { mutableStateOf<TopicResponse?>(null) }
 
@@ -60,58 +61,66 @@ fun TrailDetailsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(
+        NexoPullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
         ) {
-            when (val state = uiState) {
-                is TrailDetailsUiState.Loading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                is TrailDetailsUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 20.dp)
+            ) {
+                when (val state = uiState) {
+                    is TrailDetailsUiState.Loading -> {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadTrailDetails() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    }
+
+                    is TrailDetailsUiState.Error -> {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            Text(
+                                text = state.message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { viewModel.loadTrailDetails() },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
+                                Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            }
                         }
                     }
+
+                    is TrailDetailsUiState.Success -> {
+                        TrailDetailsContent(
+                            trail = state.trail,
+                            onTopicClick = { topic -> selectedTopicForModal = topic },
+                            progressFraction = state.progressFraction
+                        )
+                    }
                 }
 
-                is TrailDetailsUiState.Success -> {
-                    TrailDetailsContent(
-                        trail = state.trail,
-                        onTopicClick = { topic -> selectedTopicForModal = topic },
-                        progressFraction = state.progressFraction
+                // Display Topic Detail Modal when a topic is tapped
+                selectedTopicForModal?.let { topic ->
+                    TopicDetailModal(
+                        topic = topic,
+                        onDismiss = { selectedTopicForModal = null },
+                        onCompleteTopic = { targetTopic ->
+                            viewModel.completeTopic(targetTopic.id)
+                        }
                     )
                 }
-            }
-
-            // Display Topic Detail Modal when a topic is tapped
-            selectedTopicForModal?.let { topic ->
-                TopicDetailModal(
-                    topic = topic,
-                    onDismiss = { selectedTopicForModal = null },
-                    onCompleteTopic = { targetTopic ->
-                        viewModel.completeTopic(targetTopic.id)
-                    }
-                )
             }
         }
     }

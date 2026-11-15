@@ -88,4 +88,38 @@ class HomeViewModel(
             }
         }
     }
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    fun refresh(page: Int = 0) {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                val trailsDeferred = async { trailApiService.getTrails(page) }
+                val profileDeferred = async { userApiService.getUserProfile() }
+
+                val trailsResponse = trailsDeferred.await()
+                val profileResponse = profileDeferred.await()
+
+                if (trailsResponse.code() == 401 || profileResponse.code() == 401) {
+                    tokenManager.clearTokens()
+                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
+                    return@launch
+                }
+
+                if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
+                    val trails = trailsResponse.body()!!.content ?: emptyList()
+                    val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
+                    if (profile != null) tokenManager.saveUserId(profile.id)
+
+                    _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
+                }
+            } catch (_: Exception) {
+                // Em caso de falha no refresh manual, mantém os dados atuais na tela
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
+    }
 }

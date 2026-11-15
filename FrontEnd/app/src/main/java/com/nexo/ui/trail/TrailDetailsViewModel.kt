@@ -85,4 +85,24 @@ class TrailDetailsViewModel(
         }
         return if (allTopicsCount > 0) completedCount.toFloat() / allTopicsCount else 0f
     }
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    fun refresh() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            try {
+                val response = trailApiService.getTrailDetails(trailId)
+                if (response.isSuccessful && response.body() != null) {
+                    val trail = response.body()!!
+                    val progress = calculateProgress(trail)
+                    _uiState.value = TrailDetailsUiState.Success(trail = trail, progressFraction = progress)
+                }
+            } catch (_: Exception) {
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
+    }
 }

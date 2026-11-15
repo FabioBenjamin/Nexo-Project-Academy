@@ -3,8 +3,10 @@ package com.nexo.ui.settings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -34,6 +36,7 @@ fun SettingsScreen(
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
     Scaffold(
         topBar = {
@@ -65,54 +68,61 @@ fun SettingsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(
+        NexoPullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(20.dp)
         ) {
-            when (val state = uiState) {
-                is SettingsUiState.Loading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-
-                is SettingsUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(20.dp)
+            ) {
+                when (val state = uiState) {
+                    is SettingsUiState.Loading -> {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadSettings() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    }
+
+                    is SettingsUiState.Error -> {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            Text(
+                                text = state.message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { viewModel.loadSettings() },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
+                                Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                            }
                         }
                     }
-                }
 
-                is SettingsUiState.Success -> {
-                    SettingsContent(
-                        settings = state.settings,
-                        onSettingsChanged = { updated -> viewModel.updateSettings(updated) },
-                        onNavigateToEditProfile = {
-                            // UserSettingsDTO não possui o campo username.
-                            // Passamos string vazia no username e o e-mail real de settings.
-                            onNavigateToEditProfile("", state.settings.email)
-                        }
-                    )
+                    is SettingsUiState.Success -> {
+                        SettingsContent(
+                            settings = state.settings,
+                            onSettingsChanged = { updated -> viewModel.updateSettings(updated) },
+                            onNavigateToEditProfile = {
+                                // UserSettingsDTO não possui o campo username.
+                                // Passamos string vazia no username e o e-mail real de settings.
+                                onNavigateToEditProfile("", state.settings.email)
+                            }
+                        )
+                    }
                 }
             }
-        }
-    }
+    }   }
 }
 
 @Composable
@@ -122,7 +132,9 @@ fun SettingsContent(
     onNavigateToEditProfile: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Card do Mascote Nexo Calma
