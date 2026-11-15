@@ -34,6 +34,8 @@ fun TrailDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val rewardEvent by viewModel.rewardEvent.collectAsState()
+
     // State holding the currently inspected topic for the detail modal
     var selectedTopicForModal by remember { mutableStateOf<TopicResponse?>(null) }
 
@@ -119,6 +121,14 @@ fun TrailDetailsScreen(
                         onCompleteTopic = { targetTopic ->
                             viewModel.completeTopic(targetTopic.id)
                         }
+                    )
+                }
+
+                // Modal comemorativo de XP, Level Up e Conquistas com o Mascote
+                rewardEvent?.let { event ->
+                    GamificationRewardDialog(
+                        event = event,
+                        onDismiss = { viewModel.dismissRewardEvent() }
                     )
                 }
             }

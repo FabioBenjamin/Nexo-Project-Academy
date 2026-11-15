@@ -30,18 +30,12 @@ class EditProfileViewModel(
     private val authApiService: AuthApiService,
     private val tokenManager: TokenManager,
     private val initialUsername: String,
-    private val initialEmail: String,
-    initialAvatarResId: Int = R.drawable.mascote_default
+    private val initialEmail: String
 ) : ViewModel() {
 
-    // Lista de poses do Mascote disponíveis para seleção
-    val mascotAvatars = listOf(
-        MascotAvatarOption("default", R.drawable.mascote_default, AppStrings.cdMascotDefault),
-        MascotAvatarOption("focado", R.drawable.mascote_focado, AppStrings.cdMascotStudying),
-        MascotAvatarOption("calma", R.drawable.mascote_calma, AppStrings.cdMascotCalm),
-        MascotAvatarOption("campeao", R.drawable.mascote_campeao, AppStrings.cdMascotChampion),
-        MascotAvatarOption("apoio", R.drawable.mascote_apoio, AppStrings.cdMascotSupport)
-    )
+    val mascotAvatars = MascotAvatarHelper.getOptions()
+
+    private val initialAvatarResId = MascotAvatarHelper.getResIdById(tokenManager.cachedAvatarId)
 
     private val _selectedAvatar = MutableStateFlow(initialAvatarResId)
     val selectedAvatar: StateFlow<Int> = _selectedAvatar.asStateFlow()
@@ -73,7 +67,7 @@ class EditProfileViewModel(
 
     // Validation flags
     val hasAvatarChange: Boolean
-        get() = selectedAvatar.value != mascotAvatars.first().resId
+        get() = selectedAvatar.value != initialAvatarResId
 
     val hasUsernameChange: Boolean
         get() = username.value.trim() != initialUsername
@@ -162,6 +156,11 @@ class EditProfileViewModel(
                     }
                 }
 
+                if (hasAvatarChange) {
+                    val chosenId = MascotAvatarHelper.getIdByResId(selectedAvatar.value)
+                    tokenManager.saveAvatarId(chosenId)
+                }
+
                 _uiState.value = EditProfileUiState.Success
             } catch (e: IOException) {
                 _uiState.value = EditProfileUiState.Error(AppStrings.errNetwork)
@@ -193,8 +192,15 @@ class EditProfileViewModel(
         viewModelScope.launch {
             _uiState.value = EditProfileUiState.Loading
             try {
-                tokenManager.clearTokens()
-                onSuccess()
+                val response = userApiService.deleteAccount()
+                if (response.isSuccessful) {
+                    tokenManager.clearTokens()
+                    onSuccess()
+                } else {
+                    _uiState.value = EditProfileUiState.Error("${AppStrings.errDeleteAccount} (${response.code()})")
+                }
+            } catch (e: IOException) {
+                _uiState.value = EditProfileUiState.Error(AppStrings.errNetwork)
             } catch (e: Exception) {
                 _uiState.value = EditProfileUiState.Error("${AppStrings.errDeleteAccount}: ${e.message}")
             }

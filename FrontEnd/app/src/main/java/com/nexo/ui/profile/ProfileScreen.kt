@@ -123,6 +123,7 @@ fun ProfileScreen(
                             onNavigateToEditProfile = { onNavigateToEditProfile(state.profile.username, state.profile.email) }
                         )
                     }
+
                 }
             }
     }   }
@@ -132,7 +133,12 @@ fun ProfileScreen(
 fun ProfileContent(
     profile: UserProfileResponse,
     onNavigateToEditProfile: () -> Unit = {}
-    ) {
+) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val tokenManager = androidx.compose.runtime.remember { com.nexo.security.TokenManager(context) }
+    val avatarId by tokenManager.avatarIdFlow.collectAsState(initial = tokenManager.cachedAvatarId)
+    val avatarResId = MascotAvatarHelper.getResIdById(avatarId)
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -154,15 +160,18 @@ fun ProfileContent(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(80.dp)
+                        .size(88.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primary),
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = profile.username.take(1).uppercase(),
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
+                    androidx.compose.foundation.Image(
+                        painter = androidx.compose.ui.res.painterResource(id = avatarResId),
+                        contentDescription = AppStrings.cdMascotDefault,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier
+                            .size(78.dp)
+                            .clip(CircleShape)
                     )
                 }
 

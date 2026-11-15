@@ -3,6 +3,7 @@ package com.nexo.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexo.data.api.AuthApiService
+import com.nexo.data.api.UserApiService
 import com.nexo.dto.LoginUserDTO
 import com.nexo.security.TokenManager
 import com.nexo.ui.theme.AppStrings
@@ -15,6 +16,7 @@ import java.io.IOException
 
 class LoginViewModel(
     private val authApiService: AuthApiService,
+    private val userApiService: UserApiService,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
@@ -83,15 +85,15 @@ class LoginViewModel(
                     val loginResponse = response.body()!!
                     tokenManager.saveTokens(
                         access = loginResponse.accessToken,
-                        refresh = loginResponse.refreshToken,
+                        refresh = loginResponse.refreshToken
                     )
-                    _uiState.value = LoginUiState.Success
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    val errorMessage = errorBody?.takeIf { it.isNotBlank() }
-                        ?: AppStrings.errInvalidCredentials
 
-                    _uiState.value = LoginUiState.Error(errorMessage)
+                    val profileResponse = userApiService.getUserProfile()
+                    if (profileResponse.isSuccessful && profileResponse.body() != null) {
+                        tokenManager.saveUserId(profileResponse.body()!!.id)
+                    }
+
+                    _uiState.value = LoginUiState.Success
                 }
             } catch (e: IOException) {
                 _uiState.value = LoginUiState.Error(AppStrings.errNetwork)
