@@ -13,7 +13,6 @@ import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -169,6 +168,7 @@ fun HomeScreen(
                             modifier = Modifier.align(Alignment.Center)
                         )
                     }
+
                     is HomeUiState.Unauthorized -> Unit
                     is HomeUiState.Error -> {
                         Column(
@@ -186,17 +186,47 @@ fun HomeScreen(
                                 onClick = { viewModel.loadTrails() },
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                             ) {
-                                Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
+                                Text(
+                                    AppStrings.btnTryAgain,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
                             }
                         }
                     }
+
                     is HomeUiState.Success -> {
+                        val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+
+                        val shouldLoadMore by remember(
+                            state.trails.size,
+                            state.isLastPage,
+                            state.isLoadingMore
+                        ) {
+                            derivedStateOf {
+                                val layoutInfo = listState.layoutInfo
+                                val totalItems = layoutInfo.totalItemsCount
+                                val lastVisibleIndex =
+                                    layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                totalItems > 0 &&
+                                        !state.isLastPage &&
+                                        !state.isLoadingMore &&
+                                        lastVisibleIndex >= totalItems - 2
+                            }
+                        }
+
+                        LaunchedEffect(shouldLoadMore) {
+                            if (shouldLoadMore) {
+                                viewModel.loadNextPage()
+                            }
+                        }
+
                         LazyColumn(
+                            state = listState,
                             verticalArrangement = Arrangement.spacedBy(16.dp),
-                            contentPadding = PaddingValues(vertical = 16.dp),
+                            contentPadding = PaddingValues(top = 16.dp, bottom = 88.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            item {
+                            item(key = "welcome_card") {
                                 DashboardWelcomeCard(
                                     profile = state.profile,
                                     onProfileClick = onProfileClick
@@ -204,11 +234,11 @@ fun HomeScreen(
                             }
 
                             if (state.trails.isEmpty()) {
-                                item {
+                                item(key = "empty_state") {
                                     EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
                                 }
                             } else {
-                                item {
+                                item(key = "trails_header") {
                                     Text(
                                         text = AppStrings.homeActiveTrailsHeader,
                                         style = MaterialTheme.typography.titleLarge,
@@ -216,8 +246,28 @@ fun HomeScreen(
                                         modifier = Modifier.padding(top = 8.dp)
                                     )
                                 }
-                                items(state.trails) { trail ->
+                                items(
+                                    items = state.trails,
+                                    key = { it.id }
+                                ) { trail ->
                                     TrailCard(trail = trail, onClick = { onTrailClick(trail.id) })
+                                }
+
+                                if (state.isLoadingMore) {
+                                    item(key = "loading_more_footer") {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 12.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(28.dp),
+                                                strokeWidth = 3.dp
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -227,7 +277,6 @@ fun HomeScreen(
         }
     }
 }
-
 @Composable
 fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
     Card(
@@ -347,7 +396,8 @@ fun TrailCard(
     }
 }
 
-@Composable
+
+    @Composable
 fun StatusBadge(status: String) {
     val (backgroundColor, textColor, textLabel) = when (status.uppercase()) {
         "COMPLETED" -> Triple(

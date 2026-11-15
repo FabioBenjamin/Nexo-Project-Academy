@@ -19,57 +19,121 @@ import java.io.IOException
 
 class HomeViewModel(
     private val trailApiService: TrailApiService,
-    private val authApiService: AuthApiService,
     private val userApiService: UserApiService,
+    private val authApiService: AuthApiService,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    fun loadTrails(page: Int = 0) {
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    private var currentPage = 0
+    private var isLastPage = false
+    private var isFetchingNextPage = false
+
+    init {
+        loadTrails()
+    }
+
+    fun loadTrails() {
         viewModelScope.launch {
-            _uiState.value = HomeUiState.Loading
+            currentPage = 0
+            isLastPage = false
+            isFetchingNextPage = false
+
+            if (_uiState.value !is HomeUiState.Success) {
+                _uiState.value = HomeUiState.Loading
+            }
+            fetchFirstPage(isPullToRefresh = false)
+        }
+    }
+
+    fun refresh() {
+        viewModelScope.launch {
+            currentPage = 0
+            isLastPage = false
+            isFetchingNextPage = false
+            _isRefreshing.value = true
+            fetchFirstPage(isPullToRefresh = true)
+            _isRefreshing.value = false
+        }
+    }
+
+    private suspend fun fetchFirstPage(isPullToRefresh: Boolean) {
+        try {
+            val trailsResponse = trailApiService.getTrails(page = 0)
+            val profileResponse = try {
+                userApiService.getUserProfile()
+            } catch (_: Exception) {
+                null
+            }
+
+            if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
+                val pageBody = trailsResponse.body()!!
+                val profile = if (profileResponse?.isSuccessful == true) profileResponse.body() else null
+
+                if (profile != null) {
+                    tokenManager.saveUserId(profile.id)
+                }
+
+                currentPage = pageBody.number
+                isLastPage = pageBody.last
+
+                _uiState.value = HomeUiState.Success(
+                    trails = pageBody.content,
+                    profile = profile,
+                    isLoadingMore = false,
+                    isLastPage = isLastPage
+                )
+            } else if (trailsResponse.code() == 401) {
+                tokenManager.clearTokens()
+                _uiState.value = HomeUiState.Unauthorized
+            } else if (!isPullToRefresh) {
+                _uiState.value = HomeUiState.Error("${AppStrings.errLoadTrails} (${trailsResponse.code()})")
+            }
+        } catch (e: IOException) {
+            if (!isPullToRefresh) _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
+        } catch (e: HttpException) {
+            if (!isPullToRefresh) _uiState.value = HomeUiState.Error(AppStrings.errServer)
+        } catch (e: Exception) {
+            if (!isPullToRefresh) _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
+        }
+    }
+
+    fun loadNextPage() {
+        val currentState = _uiState.value as? HomeUiState.Success ?: return
+        if (isLastPage || isFetchingNextPage || currentState.isLoadingMore) return
+
+        viewModelScope.launch {
+            isFetchingNextPage = true
+            _uiState.value = currentState.copy(isLoadingMore = true)
+
             try {
-                val trailsDeferred = async { trailApiService.getTrails(page) }
-                val profileDeferred = async { userApiService.getUserProfile() }
+                val nextPage = currentPage + 1
+                val response = trailApiService.getTrails(page = nextPage)
 
-                val trailsResponse = trailsDeferred.await()
-                val profileResponse = profileDeferred.await()
+                if (response.isSuccessful && response.body() != null) {
+                    val pageBody = response.body()!!
+                    currentPage = pageBody.number
+                    isLastPage = pageBody.last
 
-                if (trailsResponse.code() == 401 || profileResponse.code() == 401) {
-                    tokenManager.clearTokens()
-                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
-                    return@launch
-                }
+                    val updatedTrails = (currentState.trails + pageBody.content).distinctBy { it.id }
 
-                if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
-                    val trails = trailsResponse.body()!!.content ?: emptyList()
-                    val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
-
-                    if (profile != null) {
-                        tokenManager.saveUserId(profile.id)
-                    }
-
-                    _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
+                    _uiState.value = currentState.copy(
+                        trails = updatedTrails,
+                        isLoadingMore = false,
+                        isLastPage = isLastPage
+                    )
                 } else {
-                    val errorMsg = trailsResponse.errorBody()?.string()
-                    val finalMessage = errorMsg?.takeIf { it.isNotBlank() }
-                        ?: "${AppStrings.errLoadTrails} (${trailsResponse.code()})"
-
-                    _uiState.value = HomeUiState.Error(finalMessage)
+                    _uiState.value = currentState.copy(isLoadingMore = false)
                 }
-            } catch (e: IOException) {
-                _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
-            } catch (e: HttpException) {
-                if (e.code() == 401) {
-                    tokenManager.clearTokens()
-                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
-                } else {
-                    _uiState.value = HomeUiState.Error(AppStrings.errServer)
-                }
-            } catch (e: Exception) {
-                _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
+            } catch (_: Exception) {
+                _uiState.value = currentState.copy(isLoadingMore = false)
+            } finally {
+                isFetchingNextPage = false
             }
         }
     }
@@ -85,40 +149,6 @@ class HomeViewModel(
             } finally {
                 tokenManager.clearTokens()
                 onLoggedOut()
-            }
-        }
-    }
-
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
-
-    fun refresh(page: Int = 0) {
-        viewModelScope.launch {
-            _isRefreshing.value = true
-            try {
-                val trailsDeferred = async { trailApiService.getTrails(page) }
-                val profileDeferred = async { userApiService.getUserProfile() }
-
-                val trailsResponse = trailsDeferred.await()
-                val profileResponse = profileDeferred.await()
-
-                if (trailsResponse.code() == 401 || profileResponse.code() == 401) {
-                    tokenManager.clearTokens()
-                    _uiState.value = HomeUiState.Error(AppStrings.errSessionExpired)
-                    return@launch
-                }
-
-                if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
-                    val trails = trailsResponse.body()!!.content ?: emptyList()
-                    val profile = if (profileResponse.isSuccessful) profileResponse.body() else null
-                    if (profile != null) tokenManager.saveUserId(profile.id)
-
-                    _uiState.value = HomeUiState.Success(trails = trails, profile = profile)
-                }
-            } catch (_: Exception) {
-                // Em caso de falha no refresh manual, mantém os dados atuais na tela
-            } finally {
-                _isRefreshing.value = false
             }
         }
     }
