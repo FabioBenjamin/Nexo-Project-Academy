@@ -1,6 +1,7 @@
 package com.nexo.ui.trail
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,14 +14,20 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.nexo.R
+import com.nexo.dto.StudyTestPreviewResponse
 import com.nexo.dto.StudyTrailResponse
 import com.nexo.dto.TopicResponse
 import com.nexo.ui.home.StatusBadge
@@ -30,7 +37,8 @@ import com.nexo.ui.theme.*
 @Composable
 fun TrailDetailsScreen(
     viewModel: TrailDetailsViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onStartTest: (Long, Int) -> Unit = { _, _ -> }
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
@@ -73,7 +81,6 @@ fun TrailDetailsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .padding(horizontal = 20.dp)
             ) {
                 when (val state = uiState) {
@@ -108,7 +115,8 @@ fun TrailDetailsScreen(
                         TrailDetailsContent(
                             trail = state.trail,
                             onTopicClick = { topic -> selectedTopicForModal = topic },
-                            progressFraction = state.progressFraction
+                            progressFraction = state.progressFraction,
+                            onStartTest = onStartTest
                         )
                     }
                 }
@@ -140,9 +148,9 @@ fun TrailDetailsScreen(
 fun TrailDetailsContent(
     trail: StudyTrailResponse,
     progressFraction: Float,
-    onTopicClick: (TopicResponse) -> Unit
+    onTopicClick: (TopicResponse) -> Unit,
+    onStartTest: (Long, Int) -> Unit
 ) {
-
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
@@ -247,6 +255,150 @@ fun TrailDetailsContent(
                 onTopicClick = onTopicClick
             )
         }
+
+        // Card da Avaliação Final da Trilha
+        item {
+            StudyTestSectionCard(
+                preview = trail.studyTestPreviewResponse,
+                onStartTest = onStartTest
+            )
+        }
+    }
+}
+
+@Composable
+fun StudyTestSectionCard(
+    preview: StudyTestPreviewResponse?,
+    onStartTest: (Long, Int) -> Unit
+) {
+    if (preview == null) return
+
+    val isBlocked = preview.studyTestStatus.equals("BLOCKED", ignoreCase = true)
+    val isCompleted = preview.studyTestStatus.equals("COMPLETED", ignoreCase = true)
+    val isOpen = preview.studyTestStatus.equals("OPEN", ignoreCase = true)
+
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Avaliação Final",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = when {
+                            isBlocked -> "Conclua todos os tópicos acima para liberar a prova."
+                            isCompleted -> "Avaliação concluída! Nota final: ${preview.userScore ?: 0} (mínimo: ${preview.passingScore})."
+                            else -> "Todos os tópicos concluídos! Acerte pelo menos ${preview.passingScore} questões para finalizar a trilha."
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Image(
+                    painter = painterResource(
+                        id = when {
+                            isBlocked -> R.drawable.mascote_apoio
+                            isCompleted -> R.drawable.mascote_default
+                            else -> R.drawable.mascote_focado
+                        }
+                    ),
+                    contentDescription = "Mascote Avaliação",
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(72.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            when {
+                isBlocked -> {
+                    Button(
+                        onClick = {},
+                        enabled = false,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Lock,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Prova Bloqueada",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
+                isOpen -> {
+                    Button(
+                        onClick = { onStartTest(preview.id, preview.passingScore) },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Text(
+                            text = "Iniciar Avaliação",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
+                }
+                isCompleted -> {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = Color(0xFFE8F5E9),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = Color(0xFF2E7D32),
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Trilha Aprovada • ${preview.userScore ?: 0} acertos",
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF2E7D32)
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -269,7 +421,6 @@ fun ExpandableTopicCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Checkbox icon directly opens topic detail modal
                 Icon(
                     imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                     contentDescription = "Status do Tópico",
@@ -281,7 +432,6 @@ fun ExpandableTopicCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // Clicking topic title opens modal
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -294,7 +444,6 @@ fun ExpandableTopicCard(
                     )
                 }
 
-                // Info Button opens detail modal explicitly
                 IconButton(onClick = { onTopicClick(topic) }) {
                     Icon(
                         imageVector = Icons.Default.Info,

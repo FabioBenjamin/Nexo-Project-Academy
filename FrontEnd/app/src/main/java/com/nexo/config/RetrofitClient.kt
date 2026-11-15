@@ -3,6 +3,7 @@ package com.nexo.config
 import android.content.Context
 import com.nexo.data.api.AchievementApiService
 import com.nexo.data.api.AuthApiService
+import com.nexo.data.api.StudyTestApiService
 import com.nexo.data.api.TrailApiService
 import com.nexo.data.api.UserApiService
 import com.nexo.security.AuthInterceptor
@@ -78,4 +79,8 @@ object RetrofitClient {
 
     fun getAchievementApiService(context: Context): AchievementApiService =
         getClient(context).create(AchievementApiService::class.java)
+
+    fun getStudyTestApiService(context: Context): StudyTestApiService {
+        return getClient(context).create(StudyTestApiService::class.java)
+    }
 }

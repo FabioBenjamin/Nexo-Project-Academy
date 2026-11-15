@@ -3,8 +3,12 @@ package com.nexo.service;
 import com.nexo.dto.*;
 import com.nexo.exceptions.*;
 import com.nexo.models.classes.User;
+import com.nexo.repository.RefreshTokenRepository;
+import com.nexo.repository.StudyTrailRepository;
 import com.nexo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +21,22 @@ public class UserService {
     private final AchievementService achievementService;
     private final PasswordEncoder passwordEncoder;
     private final EmailValidator emailValidator;
+    private final StudyTrailRepository studyTrailRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public UserService(
             UserRepository userRepository,
             AchievementService achievementService,
-            PasswordEncoder passwordEncoder
-
+            PasswordEncoder passwordEncoder,
+            StudyTrailRepository studyTrailRepository,
+            RefreshTokenRepository refreshTokenRepository
     ){
         this.userRepository = userRepository;
         this.achievementService = achievementService;
         this.passwordEncoder = passwordEncoder;
         this.emailValidator = EmailValidator.getInstance();
+        this.studyTrailRepository = studyTrailRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public UserProfileResponseDTO getUserProfile(Long userId){
