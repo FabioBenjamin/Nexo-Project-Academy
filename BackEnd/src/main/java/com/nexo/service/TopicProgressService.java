@@ -88,9 +88,7 @@ public class TopicProgressService {
         // Verify if the completed topic was the remaining one
         if(shouldOpenStudyTest(topic.getStudyTrail())){
             // open studyTest
-            topic.getStudyTrail().setStatus(StudyTrailStatus.COMPLETED);
             topic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
-            achievementService.processActivityCompletion(userId);
         }
     }
 
@@ -125,7 +123,6 @@ public class TopicProgressService {
             if(shouldOpenStudyTest(parentTopic.getStudyTrail())){
                 // open studyTest
                 parentTopic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
-                achievementService.processActivityCompletion(userId);
             }
         }
     }
