@@ -78,7 +78,6 @@ fun SettingsScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .padding(20.dp)
             ) {
                 when (val state = uiState) {

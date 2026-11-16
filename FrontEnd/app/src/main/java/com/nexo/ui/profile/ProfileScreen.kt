@@ -88,7 +88,6 @@ fun ProfileScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .padding(horizontal = 20.dp)
             ) {
                 when (val state = uiState) {
