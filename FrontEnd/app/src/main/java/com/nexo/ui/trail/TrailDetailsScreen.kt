@@ -44,7 +44,6 @@ fun TrailDetailsScreen(
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val rewardEvent by viewModel.rewardEvent.collectAsState()
 
-    // State holding the currently inspected topic for the detail modal
     var selectedTopicForModal by remember { mutableStateOf<TopicResponse?>(null) }
 
     Scaffold(
@@ -121,7 +120,6 @@ fun TrailDetailsScreen(
                     }
                 }
 
-                // Display Topic Detail Modal when a topic is tapped
                 selectedTopicForModal?.let { topic ->
                     TopicDetailModal(
                         topic = topic,
@@ -132,11 +130,11 @@ fun TrailDetailsScreen(
                     )
                 }
 
-                // Modal comemorativo de XP, Level Up e Conquistas com o Mascote
                 rewardEvent?.let { event ->
                     GamificationRewardDialog(
                         event = event,
-                        onDismiss = { viewModel.dismissRewardEvent() }
+                        onDismiss = { viewModel.dismissRewardEvent() },
+                        onStartUnlockedTest = onStartTest
                     )
                 }
             }
@@ -156,7 +154,6 @@ fun TrailDetailsContent(
         contentPadding = PaddingValues(vertical = 16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        // Trail Header Card
         item {
             Card(
                 shape = RoundedCornerShape(24.dp),
@@ -256,7 +253,6 @@ fun TrailDetailsContent(
             )
         }
 
-        // Card da Avaliação Final da Trilha
         item {
             StudyTestSectionCard(
                 preview = trail.studyTestPreviewResponse,
@@ -292,16 +288,19 @@ fun StudyTestSectionCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Avaliação Final",
+                        text = AppStrings.testSectionTitle,
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = when {
-                            isBlocked -> "Conclua todos os tópicos acima para liberar a prova."
-                            isCompleted -> "Avaliação concluída! Nota final: ${preview.userScore ?: 0} (mínimo: ${preview.passingScore})."
-                            else -> "Todos os tópicos concluídos! Acerte pelo menos ${preview.passingScore} questões para finalizar a trilha."
+                            isBlocked -> AppStrings.testSectionBlockedDesc
+                            isCompleted -> AppStrings.testSectionCompletedDesc(
+                                score = preview.userScore ?: 0,
+                                passingScore = preview.passingScore
+                            )
+                            else -> AppStrings.testSectionOpenDesc(passingScore = preview.passingScore)
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -318,7 +317,7 @@ fun StudyTestSectionCard(
                             else -> R.drawable.mascote_focado
                         }
                     ),
-                    contentDescription = "Mascote Avaliação",
+                    contentDescription = AppStrings.testSectionTitle,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.size(72.dp)
                 )
@@ -347,7 +346,7 @@ fun StudyTestSectionCard(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Prova Bloqueada",
+                            text = AppStrings.testBtnLocked,
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -365,7 +364,7 @@ fun StudyTestSectionCard(
                             .height(50.dp)
                     ) {
                         Text(
-                            text = "Iniciar Avaliação",
+                            text = AppStrings.testBtnStart,
                             style = MaterialTheme.typography.labelLarge
                         )
                     }
@@ -389,7 +388,7 @@ fun StudyTestSectionCard(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Trilha Aprovada • ${preview.userScore ?: 0} acertos",
+                                text = AppStrings.testApprovedChip(preview.userScore ?: 0),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF2E7D32)
@@ -423,7 +422,7 @@ fun ExpandableTopicCard(
             ) {
                 Icon(
                     imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                    contentDescription = "Status do Tópico",
+                    contentDescription = topic.title,
                     tint = if (isCompleted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .size(24.dp)
@@ -499,7 +498,7 @@ fun SubTopicItem(
     ) {
         Icon(
             imageVector = if (isSubCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-            contentDescription = "Status do Subtópico",
+            contentDescription = subTopic.title,
             tint = if (isSubCompleted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp)
         )

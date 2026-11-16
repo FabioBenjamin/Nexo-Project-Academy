@@ -205,12 +205,14 @@ fun AppNavigation(
             val testId = backStackEntry.arguments?.getLong("testId") ?: 0L
             val passingScore = backStackEntry.arguments?.getInt("passingScore") ?: 0
             val studyTestApiService = RetrofitClient.getStudyTestApiService(context)
+            val userApiService = RetrofitClient.getUserApiService(context)
 
             val studyTestViewModel = viewModel {
                 StudyTestViewModel(
                     testId = testId,
                     passingScore = passingScore,
                     studyTestApiService = studyTestApiService,
+                    userApiService = userApiService,
                     tokenManager = tokenManager
                 )
             }

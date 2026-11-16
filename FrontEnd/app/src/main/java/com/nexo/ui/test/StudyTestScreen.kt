@@ -33,6 +33,7 @@ import com.nexo.R
 import com.nexo.dto.QuestionExplanationResponse
 import com.nexo.dto.QuestionResponse
 import com.nexo.ui.theme.AppStrings
+import com.nexo.ui.trail.GamificationRewardDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +43,7 @@ fun StudyTestScreen(
     onUnauthorized: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val rewardEvent by viewModel.rewardEvent.collectAsState()
 
     LaunchedEffect(uiState) {
         if (uiState is StudyTestUiState.Unauthorized) {
@@ -64,7 +66,7 @@ fun StudyTestScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "Avaliação da Trilha",
+                            text = AppStrings.testScreenTitle,
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onBackground
                         )
@@ -190,7 +192,7 @@ fun StudyTestScreen(
                                     )
                                 } else {
                                     Text(
-                                        text = "Finalizar Prova",
+                                        text = AppStrings.testSubmitBtn,
                                         style = MaterialTheme.typography.labelLarge,
                                         fontSize = 16.sp
                                     )
@@ -240,7 +242,7 @@ fun StudyTestScreen(
                                         .height(54.dp)
                                 ) {
                                     Text(
-                                        text = "Voltar para a Trilha",
+                                        text = AppStrings.testBackToTrailBtn,
                                         style = MaterialTheme.typography.labelLarge,
                                         fontSize = 16.sp
                                     )
@@ -264,7 +266,7 @@ fun StudyTestScreen(
                                             .height(54.dp)
                                     ) {
                                         Text(
-                                            text = "Revisar Trilha",
+                                            text = AppStrings.testReviewTrailBtn,
                                             style = MaterialTheme.typography.labelLarge,
                                             color = MaterialTheme.colorScheme.onBackground
                                         )
@@ -290,6 +292,13 @@ fun StudyTestScreen(
                         }
                     }
                 }
+            }
+
+            rewardEvent?.let { event ->
+                GamificationRewardDialog(
+                    event = event,
+                    onDismiss = { viewModel.dismissRewardEvent() }
+                )
             }
         }
     }
@@ -321,13 +330,13 @@ private fun TestHeaderCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Hora do Desafio!",
+                    text = AppStrings.testHeaderTitle,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Responda todas as questões para concluir sua trilha.",
+                    text = AppStrings.testHeaderSubtitle,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     lineHeight = 18.sp
@@ -338,13 +347,13 @@ private fun TestHeaderCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Star,
-                        contentDescription = "Meta",
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.secondary,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Mínimo: $passingScore acertos",
+                        text = AppStrings.testMinScoreLabel(passingScore),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -372,7 +381,7 @@ private fun TestHeaderCard(
 
             Image(
                 painter = painterResource(id = R.drawable.mascote_focado),
-                contentDescription = "Mascote Fazendo Prova",
+                contentDescription = AppStrings.testHeaderTitle,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(86.dp)
             )
@@ -413,7 +422,7 @@ private fun TestResultBanner(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = if (approved) "Trilha Concluída!" else "Quase lá!",
+                        text = if (approved) AppStrings.testResultApprovedTitle else AppStrings.testResultFailedTitle,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = accentColor
@@ -421,7 +430,7 @@ private fun TestResultBanner(
                 }
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Você acertou $score de $total questões (mínimo: $passingScore).",
+                    text = AppStrings.testResultSummary(score = score, total = total, passingScore = passingScore),
                     style = MaterialTheme.typography.bodyMedium,
                     color = accentColor
                 )
@@ -431,7 +440,7 @@ private fun TestResultBanner(
 
             Image(
                 painter = painterResource(id = mascotRes),
-                contentDescription = "Mascote Resultado",
+                contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.size(84.dp)
             )
@@ -468,7 +477,7 @@ private fun QuestionCard(
                         .padding(horizontal = 10.dp, vertical = 4.dp)
                 ) {
                     Text(
-                        text = "Questão $index",
+                        text = AppStrings.testQuestionBadge(index),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
@@ -485,7 +494,7 @@ private fun QuestionCard(
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
-                            text = if (explanation.isCorrect) "Correta" else "Incorreta",
+                            text = if (explanation.isCorrect) AppStrings.testCorrectBadge else AppStrings.testIncorrectBadge,
                             style = MaterialTheme.typography.labelMedium,
                             color = badgeText,
                             fontWeight = FontWeight.Bold

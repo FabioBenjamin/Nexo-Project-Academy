@@ -100,15 +100,20 @@ class TrailDetailsViewModel(
 
                 // 3. Recarrega a trilha para verificar se atingiu 100%
                 val updatedTrailResp = trailApiService.getTrailDetails(trailId)
-                var isTrailNowCompleted = false
+                var isTestNowUnlocked = false
+                var unlockedTestId: Long? = null
+                var unlockedTestPassingScore = 7
 
                 if (updatedTrailResp.isSuccessful && updatedTrailResp.body() != null) {
                     val updatedTrail = updatedTrailResp.body()!!
                     val newProgress = calculateProgress(updatedTrail)
                     _uiState.value = TrailDetailsUiState.Success(trail = updatedTrail, progressFraction = newProgress)
 
-                    if (newProgress >= 1.0f && userId != null) {
-                        isTrailNowCompleted = true
+                    val testPreview = updatedTrail.studyTestPreviewResponse
+                    if (newProgress >= 1.0f && testPreview != null && testPreview.studyTestStatus.equals("OPEN", ignoreCase = true)) {
+                        isTestNowUnlocked = true
+                        unlockedTestId = testPreview.id
+                        unlockedTestPassingScore = testPreview.passingScore
                     }
                 }
 
@@ -134,7 +139,10 @@ class TrailDetailsViewModel(
                         xpGained = xpGained,
                         leveledUp = afterProfile.level > beforeProfile.level,
                         newLevel = afterProfile.level,
-                        trailCompleted = isTrailNowCompleted,
+                        trailCompleted = false,
+                        testUnlocked = isTestNowUnlocked,
+                        unlockedTestId = unlockedTestId,
+                        unlockedTestPassingScore = unlockedTestPassingScore,
                         unlockedAchievements = newlyUnlocked
                     )
                 }

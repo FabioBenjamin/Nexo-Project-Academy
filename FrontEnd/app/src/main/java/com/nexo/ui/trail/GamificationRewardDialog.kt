@@ -1,5 +1,6 @@
 package com.nexo.ui.trail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -23,17 +24,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.nexo.R
+import com.nexo.ui.theme.AppStrings
 
 @Composable
 fun GamificationRewardDialog(
     event: GamificationRewardEvent,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onStartUnlockedTest: ((Long, Int) -> Unit)? = null
 ) {
     val headline = when {
-        event.trailCompleted -> "Trilha Concluída! 🎉"
-        event.leveledUp -> "Você subiu para o Nível ${event.newLevel}! 🚀"
-        event.unlockedAchievements.isNotEmpty() -> "Nova Conquista Desbloqueada! 🏆"
-        else -> "Mandou muito bem! ✨"
+        event.trailCompleted -> AppStrings.rewardTrailCompletedTitle
+        event.testUnlocked -> AppStrings.rewardTestUnlockedTitle
+        event.leveledUp -> AppStrings.rewardLevelUpTitle(event.newLevel)
+        event.unlockedAchievements.isNotEmpty() -> AppStrings.rewardAchievementTitle
+        else -> AppStrings.rewardDefaultTitle
+    }
+
+    val subtitle = when {
+        event.trailCompleted -> AppStrings.rewardTrailCompletedSubtitle
+        event.testUnlocked -> AppStrings.rewardTestUnlockedSubtitle
+        else -> null
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -51,7 +61,6 @@ fun GamificationRewardDialog(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Avatar do Mascote Campeão em destaque
                 Box(
                     modifier = Modifier
                         .size(110.dp)
@@ -61,8 +70,10 @@ fun GamificationRewardDialog(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.mascote_campeao),
-                        contentDescription = "Mascote Campeão Nexo",
+                        painter = painterResource(
+                            id = if (event.testUnlocked && !event.trailCompleted) R.drawable.mascote_focado else R.drawable.mascote_campeao
+                        ),
+                        contentDescription = "Mascote Nexo",
                         contentScale = ContentScale.Fit,
                         modifier = Modifier.size(96.dp)
                     )
@@ -77,13 +88,22 @@ fun GamificationRewardDialog(
                     textAlign = TextAlign.Center
                 )
 
+                if (subtitle != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Badge de XP Ganho
                 Surface(
                     shape = RoundedCornerShape(50),
                     color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.secondary)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -105,14 +125,13 @@ fun GamificationRewardDialog(
                     }
                 }
 
-                // Lista de Conquistas Desbloqueadas neste evento (se houver)
                 if (event.unlockedAchievements.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     event.unlockedAchievements.forEach { achievement ->
                         Card(
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
-                            border = androidx.compose.foundation.BorderStroke(1.5.dp, Color(0xFFFFB300)),
+                            border = BorderStroke(1.5.dp, Color(0xFFFFB300)),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -144,7 +163,7 @@ fun GamificationRewardDialog(
                                         color = Color(0xFF5D4037)
                                     )
                                     Text(
-                                        text = "+${achievement.xpReward} XP bônus",
+                                        text = "+${achievement.xpReward} XP",
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF2E7D32)
@@ -157,22 +176,49 @@ fun GamificationRewardDialog(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = onDismiss,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                ) {
-                    Text(
-                        text = "Continuar Aprendendo",
-                        style = MaterialTheme.typography.labelLarge,
-                        fontSize = 16.sp
-                    )
+                if (event.testUnlocked && event.unlockedTestId != null && onStartUnlockedTest != null) {
+                    Button(
+                        onClick = {
+                            onDismiss()
+                            onStartUnlockedTest(event.unlockedTestId, event.unlockedTestPassingScore)
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Text(
+                            text = AppStrings.rewardTakeTestNowBtn,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontSize = 16.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(onClick = onDismiss) {
+                        Text(AppStrings.rewardDoLaterBtn)
+                    }
+                } else {
+                    Button(
+                        onClick = onDismiss,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp)
+                    ) {
+                        Text(
+                            text = AppStrings.rewardContinueBtn,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontSize = 16.sp
+                        )
+                    }
                 }
             }
         }
