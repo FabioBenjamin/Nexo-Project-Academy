@@ -11,11 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,6 +35,7 @@ import com.nexo.dto.StudyTrailResponse
 import com.nexo.dto.TopicResponse
 import com.nexo.ui.home.StatusBadge
 import com.nexo.ui.theme.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +48,22 @@ fun TrailDetailsScreen(
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val rewardEvent by viewModel.rewardEvent.collectAsState()
 
+    val isActionLoading by viewModel.isActionLoading.collectAsState()
+    val trailDeleted by viewModel.trailDeleted.collectAsState()
+    val actionError by viewModel.actionError.collectAsState()
+
     var selectedTopicForModal by remember { mutableStateOf<TopicResponse?>(null) }
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(trailDeleted) {
+        if (trailDeleted) {
+            onBackClick()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -64,9 +83,42 @@ fun TrailDetailsScreen(
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
+                },actions = {
+                    if (uiState is TrailDetailsUiState.Success) {
+                        IconButton(onClick = {
+                            viewModel.clearActionError()
+                            showEditDialog = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = AppStrings.cdEditTrail,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        IconButton(onClick = {
+                            viewModel.clearActionError()
+                            showDeleteDialog = true
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = AppStrings.cdDeleteTrail,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -117,6 +169,76 @@ fun TrailDetailsScreen(
                             progressFraction = state.progressFraction,
                             onStartTest = onStartTest
                         )
+
+                        // Modal de Edição da Trilha
+                        if (showEditDialog) {
+                            EditTrailDialog(
+                                initialTitle = state.trail.title,
+                                initialDescription = state.trail.description.orEmpty(),
+                                isLoading = isActionLoading,
+                                errorMessage = actionError,
+                                onDismiss = { if (!isActionLoading) showEditDialog = false },
+                                onConfirm = { newTitle, newDesc ->
+                                    viewModel.updateTrail(newTitle, newDesc) {
+                                        showEditDialog = false
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(AppStrings.editTrailSuccessMsg)
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                        if (showDeleteDialog) {
+                            AlertDialog(
+                                onDismissRequest = { if (!isActionLoading) showDeleteDialog = false },
+                                icon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Warning,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.error
+                                    )
+                                },
+                                title = { Text(AppStrings.deleteTrailTitle) },
+                                text = {
+                                    Column {
+                                        Text(AppStrings.deleteTrailMessage)
+                                        if (actionError != null) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                text = actionError!!,
+                                                color = MaterialTheme.colorScheme.error,
+                                                style = MaterialTheme.typography.bodySmall
+                                            )
+                                        }
+                                    }
+                                },
+                                confirmButton = {
+                                    Button(
+                                        onClick = { viewModel.deleteTrail() },
+                                        enabled = !isActionLoading,
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                    ) {
+                                        if (isActionLoading) {
+                                            CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.onError,
+                                                modifier = Modifier.size(18.dp),
+                                                strokeWidth = 2.dp
+                                            )
+                                        } else {
+                                            Text(AppStrings.deleteTrailConfirmBtn, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(
+                                        onClick = { showDeleteDialog = false },
+                                        enabled = !isActionLoading
+                                    ) {
+                                        Text(AppStrings.btnCancel)
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
 
@@ -140,6 +262,85 @@ fun TrailDetailsScreen(
             }
         }
     }
+}
+
+@Composable
+private fun EditTrailDialog(
+    initialTitle: String,
+    initialDescription: String,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onDismiss: () -> Unit,
+    onConfirm: (String, String) -> Unit
+) {
+    var title by remember { mutableStateOf(initialTitle) }
+    var description by remember { mutableStateOf(initialDescription) }
+    val hasChanges = title.trim() != initialTitle.trim() || description.trim() != initialDescription.trim()
+    val isFormValid = title.isNotBlank() && description.isNotBlank() && hasChanges
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = AppStrings.editTrailTitle,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(AppStrings.editTrailTitleLabel) },
+                    singleLine = true,
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                OutlinedTextField(
+                    value = description,
+                    onValueChange = { description = it },
+                    label = { Text(AppStrings.editTrailDescLabel) },
+                    minLines = 3,
+                    maxLines = 5,
+                    enabled = !isLoading,
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                if (errorMessage != null) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onConfirm(title, description) },
+                enabled = !isLoading && isFormValid,
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(AppStrings.editTrailSaveBtn)
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss, enabled = !isLoading) {
+                Text(AppStrings.btnCancel)
+            }
+        }
+    )
 }
 
 @Composable

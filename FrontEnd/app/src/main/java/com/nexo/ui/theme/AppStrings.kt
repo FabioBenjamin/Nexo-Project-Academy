@@ -310,4 +310,39 @@ object AppStrings {
         else -> if (isEn) "Less than 30 minutes left! The Nexo is begging you to do 1 topic NOW!"
         else "Faltam menos de 30 minutos! O Nexo está implorando: faça 1 tópico AGORA!"
     }
+
+    // Edição e Exclusão de Trilhas
+    val editTrailTitle: String
+        get() = if (isEn) "Edit Study Trail" else "Editar Trilha"
+
+    val editTrailTitleLabel: String
+        get() = if (isEn) "Trail Title" else "Título da Trilha"
+
+    val editTrailDescLabel: String
+        get() = if (isEn) "Description" else "Descrição"
+
+    val editTrailSaveBtn: String
+        get() = if (isEn) "Save Changes" else "Salvar Alterações"
+
+    val editTrailSuccessMsg: String
+        get() = if (isEn) "Trail updated successfully!" else "Trilha atualizada com sucesso!"
+
+    val editTrailEmptyError: String
+        get() = if (isEn) "Title and description cannot be empty." else "O título e a descrição não podem ficar em branco."
+
+    val deleteTrailTitle: String
+        get() = if (isEn) "Delete Trail?" else "Excluir Trilha?"
+
+    val deleteTrailMessage: String
+        get() = if (isEn) "This action cannot be undone. All topics, progress, and assessments for this trail will be permanently removed."
+        else "Esta ação não pode ser desfeita. Todos os tópicos, progresso e avaliações desta trilha serão removidos permanentemente."
+
+    val deleteTrailConfirmBtn: String
+        get() = if (isEn) "Delete Trail" else "Excluir Trilha"
+
+    val cdEditTrail: String
+        get() = if (isEn) "Edit Trail" else "Editar Trilha"
+
+    val cdDeleteTrail: String
+        get() = if (isEn) "Delete Trail" else "Excluir Trilha"
 }

@@ -32,6 +32,19 @@ class TrailDetailsViewModel(
     private val _rewardEvent = MutableStateFlow<GamificationRewardEvent?>(null)
     val rewardEvent: StateFlow<GamificationRewardEvent?> = _rewardEvent.asStateFlow()
 
+    private val _isActionLoading = MutableStateFlow(false)
+    val isActionLoading: StateFlow<Boolean> = _isActionLoading.asStateFlow()
+
+    private val _trailDeleted = MutableStateFlow(false)
+    val trailDeleted: StateFlow<Boolean> = _trailDeleted.asStateFlow()
+
+    private val _actionError = MutableStateFlow<String?>(null)
+    val actionError: StateFlow<String?> = _actionError.asStateFlow()
+
+    fun clearActionError() {
+        _actionError.value = null
+    }
+
     init {
         loadTrailDetails()
     }
@@ -164,5 +177,71 @@ class TrailDetailsViewModel(
             mainCompleted + subCompleted
         }
         return if (allTopicsCount > 0) completedCount.toFloat() / allTopicsCount else 0f
+    }
+
+    fun updateTrail(newTitle: String, newDescription: String, onUpdated: () -> Unit) {
+        val trimmedTitle = newTitle.trim()
+        val trimmedDescription = newDescription.trim()
+
+        if (trimmedTitle.isEmpty() || trimmedDescription.isEmpty()) {
+            _actionError.value = AppStrings.editTrailEmptyError
+            return
+        }
+
+        viewModelScope.launch {
+            _isActionLoading.value = true
+            _actionError.value = null
+            try {
+                val response = trailApiService.updateTrail(
+                    trailId = trailId,
+                    request = com.nexo.dto.UpdateStudyTrailRequest(
+                        title = trimmedTitle,
+                        description = trimmedDescription
+                    )
+                )
+
+                if (response.isSuccessful) {
+                    // Atualiza os dados na tela
+                    val refreshed = trailApiService.getTrailDetails(trailId)
+                    if (refreshed.isSuccessful && refreshed.body() != null) {
+                        val trail = refreshed.body()!!
+                        _uiState.value = TrailDetailsUiState.Success(
+                            trail = trail,
+                            progressFraction = calculateProgress(trail)
+                        )
+                    }
+                    onUpdated()
+                } else {
+                    _actionError.value = "${AppStrings.errServer} (${response.code()})"
+                }
+            } catch (e: IOException) {
+                _actionError.value = AppStrings.errNetwork
+            } catch (e: Exception) {
+                _actionError.value = e.message ?: AppStrings.errUnexpected
+            } finally {
+                _isActionLoading.value = false
+            }
+        }
+    }
+
+    fun deleteTrail() {
+        viewModelScope.launch {
+            _isActionLoading.value = true
+            _actionError.value = null
+            try {
+                val response = trailApiService.deleteTrail(trailId)
+                if (response.isSuccessful) {
+                    _trailDeleted.value = true
+                } else {
+                    _actionError.value = "${AppStrings.errServer} (${response.code()})"
+                }
+            } catch (e: IOException) {
+                _actionError.value = AppStrings.errNetwork
+            } catch (e: Exception) {
+                _actionError.value = e.message ?: AppStrings.errUnexpected
+            } finally {
+                _isActionLoading.value = false
+            }
+        }
     }
 }

@@ -50,3 +50,8 @@ data class PageResponse<T>(
 data class UpdateTopicProgressRequest(
     val completed: Boolean
 )
+
+data class UpdateStudyTrailRequest(
+    val title: String? = null,
+    val description: String? = null
+)
