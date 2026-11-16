@@ -23,6 +23,9 @@ class TokenManager(private val context: Context) {
         private val USERNAME_KEY = stringPreferencesKey("username")
         private val AVATAR_ID_KEY = stringPreferencesKey("avatar_id")
         private val LAST_STUDIED_DATE_KEY = stringPreferencesKey("last_studied_date")
+        private val NOTIFICATIONS_ENABLED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("notifications_enabled")
+        private val STUDY_WEEKENDS_ENABLED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("study_weekends_enabled")
+
     }
 
     @Volatile
@@ -119,6 +122,8 @@ class TokenManager(private val context: Context) {
             preferences.remove(USERNAME_KEY)
             preferences.remove(AVATAR_ID_KEY)
             preferences.remove(LAST_STUDIED_DATE_KEY)
+            preferences.remove(NOTIFICATIONS_ENABLED_KEY)
+            preferences.remove(STUDY_WEEKENDS_ENABLED_KEY)
         }
     }
 
@@ -133,6 +138,20 @@ class TokenManager(private val context: Context) {
         }
     }
 
+    suspend fun saveNotificationPreferences(notificationsEnabled: Boolean, studyWeekendsEnabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[NOTIFICATIONS_ENABLED_KEY] = notificationsEnabled
+            prefs[STUDY_WEEKENDS_ENABLED_KEY] = studyWeekendsEnabled
+        }
+    }
+
+    suspend fun areNotificationsEnabled(): Boolean {
+        return context.dataStore.data.firstOrNull()?.get(NOTIFICATIONS_ENABLED_KEY) ?: true
+    }
+
+    suspend fun isStudyWeekendsEnabled(): Boolean {
+        return context.dataStore.data.firstOrNull()?.get(STUDY_WEEKENDS_ENABLED_KEY) ?: true
+    }
     suspend fun hasStudiedToday(): Boolean {
         val todayStr = java.time.LocalDate.now().toString()
         val saved = context.dataStore.data.firstOrNull()?.get(LAST_STUDIED_DATE_KEY)

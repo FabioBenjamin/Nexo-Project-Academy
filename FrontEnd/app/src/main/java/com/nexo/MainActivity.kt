@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.nexo.notifications.StreakNotificationScheduler
 import com.nexo.notifications.StreakReminderWorker
 import com.nexo.ui.navigation.AppNavigation
 import com.nexo.ui.theme.NexoAcademyTheme
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        askNotificationPermissionIfNeeded()
+        StreakNotificationScheduler.scheduleAll(this)
 
         setContent {
             NexoAcademyTheme {

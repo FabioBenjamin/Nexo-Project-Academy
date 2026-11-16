@@ -270,4 +270,44 @@ object AppStrings {
 
     val rewardContinueBtn: String
         get() = if (isEn) "Keep Learning" else "Continuar Aprendendo"
+
+    // Notificações e Permissão
+    val notificationChannelName: String
+        get() = if (isEn) "Streak Reminders" else "Lembretes de Ofensiva"
+
+    val notificationStreakTitle: String
+        get() = if (isEn) "Don't let your streak flame go out! 🔥" else "Não deixe seu foguinho apagar! 🔥"
+
+    val notificationStreakBody: String
+        get() = if (isEn) "Complete a quick topic today on Nexo Academy to keep your streak alive."
+        else "Conclua um tópico rápido hoje no Nexo Academy para manter sua ofensiva."
+
+    val notificationPermissionDialogTitle: String
+        get() = if (isEn) "Notifications Disabled" else "Notificações Desativadas"
+
+    val notificationPermissionDialogMessage: String
+        get() = if (isEn) "To receive study reminders, enable notification permission in your device settings."
+        else "Para receber lembretes de estudo, ative a permissão de notificações nas configurações do aparelho."
+
+    val notificationOpenSettingsBtn: String
+        get() = if (isEn) "Open Settings" else "Abrir Configurações"
+
+    // Escala de urgência das notificações (estilo Duolingo)
+    fun notificationStreakTitle(urgencyLevel: Int): String = when (urgencyLevel) {
+        1 -> if (isEn) "Time to study! 📚" else "Hora de estudar! 📚"
+        2 -> if (isEn) "Don't forget your streak! 🔥" else "Não esqueça sua ofensiva! 🔥"
+        3 -> if (isEn) "Your streak is in danger! ⚠️" else "Sua ofensiva está em perigo! ⚠️"
+        else -> if (isEn) "LAST CHANCE BEFORE MIDNIGHT! 🚨🔥" else "ÚLTIMA CHANCE ANTES DA MEIA-NOITE! 🚨🔥"
+    }
+
+    fun notificationStreakBody(urgencyLevel: Int): String = when (urgencyLevel) {
+        1 -> if (isEn) "A quick topic keeps your Nexo Academy progress moving."
+        else "Um tópico rápido já garante seu progresso hoje no Nexo Academy."
+        2 -> if (isEn) "Your flame is still grey today. Complete one topic to light it up!"
+        else "Seu foguinho ainda está cinza hoje. Conclua um tópico para acendê-lo!"
+        3 -> if (isEn) "Only 2 hours left! Don't throw away your hard-earned streak."
+        else "Faltam só 2 horas! Não jogue fora os dias de ofensiva que você conquistou."
+        else -> if (isEn) "Less than 30 minutes left! The Nexo is begging you to do 1 topic NOW!"
+        else "Faltam menos de 30 minutos! O Nexo está implorando: faça 1 tópico AGORA!"
+    }
 }
