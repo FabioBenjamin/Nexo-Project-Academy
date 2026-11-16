@@ -171,103 +171,103 @@ object AppStrings {
 
     // Avaliação Final & Comemoração em 2 Etapas
     val testScreenTitle: String
-        get() = if (isEnglish) "Trail Assessment" else "Avaliação da Trilha"
+        get() = if (isEn) "Trail Assessment" else "Avaliação da Trilha"
 
     val testHeaderTitle: String
-        get() = if (isEnglish) "Challenge Time!" else "Hora do Desafio!"
+        get() = if (isEn) "Challenge Time!" else "Hora do Desafio!"
 
     val testHeaderSubtitle: String
-        get() = if (isEnglish) "Answer all questions to complete your trail." else "Responda todas as questões para concluir sua trilha."
+        get() = if (isEn) "Answer all questions to complete your trail." else "Responda todas as questões para concluir sua trilha."
 
     fun testMinScoreLabel(passingScore: Int): String =
-        if (isEnglish) "Minimum: $passingScore correct" else "Mínimo: $passingScore acertos"
+        if (isEn) "Minimum: $passingScore correct" else "Mínimo: $passingScore acertos"
 
     val testSubmitBtn: String
-        get() = if (isEnglish) "Submit Test" else "Finalizar Prova"
+        get() = if (isEn) "Submit Test" else "Finalizar Prova"
 
     val testErrUnanswered: String
-        get() = if (isEnglish) "Please answer all questions before submitting." else "Responda todas as questões antes de enviar."
+        get() = if (isEn) "Please answer all questions before submitting." else "Responda todas as questões antes de enviar."
 
     val testResultApprovedTitle: String
-        get() = if (isEnglish) "Trail Completed!" else "Trilha Concluída!"
+        get() = if (isEn) "Trail Completed!" else "Trilha Concluída!"
 
     val testResultFailedTitle: String
-        get() = if (isEnglish) "Almost there!" else "Quase lá!"
+        get() = if (isEn) "Almost there!" else "Quase lá!"
 
     fun testResultSummary(score: Int, total: Int, passingScore: Int): String =
-        if (isEnglish) "You got $score out of $total questions right (minimum: $passingScore)."
+        if (isEn) "You got $score out of $total questions right (minimum: $passingScore)."
         else "Você acertou $score de $total questões (mínimo: $passingScore)."
 
     val testBackToTrailBtn: String
-        get() = if (isEnglish) "Back to Trail" else "Voltar para a Trilha"
+        get() = if (isEn) "Back to Trail" else "Voltar para a Trilha"
 
     val testReviewTrailBtn: String
-        get() = if (isEnglish) "Review Trail" else "Revisar Trilha"
+        get() = if (isEn) "Review Trail" else "Revisar Trilha"
 
     fun testQuestionBadge(index: Int): String =
-        if (isEnglish) "Question $index" else "Questão $index"
+        if (isEn) "Question $index" else "Questão $index"
 
     val testCorrectBadge: String
-        get() = if (isEnglish) "Correct" else "Correta"
+        get() = if (isEn) "Correct" else "Correta"
 
     val testIncorrectBadge: String
-        get() = if (isEnglish) "Incorrect" else "Incorreta"
+        get() = if (isEn) "Incorrect" else "Incorreta"
 
     // Card da Prova na TrailDetailsScreen
     val testSectionTitle: String
-        get() = if (isEnglish) "Final Assessment" else "Avaliação Final"
+        get() = if (isEn) "Final Assessment" else "Avaliação Final"
 
     val testSectionBlockedDesc: String
-        get() = if (isEnglish) "Complete all topics above to unlock the test."
+        get() = if (isEn) "Complete all topics above to unlock the test."
         else "Conclua todos os tópicos acima para liberar a prova."
 
     fun testSectionCompletedDesc(score: Int, passingScore: Int): String =
-        if (isEnglish) "Assessment completed! Final score: $score (minimum: $passingScore)."
+        if (isEn) "Assessment completed! Final score: $score (minimum: $passingScore)."
         else "Avaliação concluída! Nota final: $score (mínimo: $passingScore)."
 
     fun testSectionOpenDesc(passingScore: Int): String =
-        if (isEnglish) "All topics completed! Get at least $passingScore right to finish the trail."
+        if (isEn) "All topics completed! Get at least $passingScore right to finish the trail."
         else "Todos os tópicos concluídos! Acerte pelo menos $passingScore questões para finalizar a trilha."
 
     val testBtnLocked: String
-        get() = if (isEnglish) "Test Locked" else "Prova Bloqueada"
+        get() = if (isEn) "Test Locked" else "Prova Bloqueada"
 
     val testBtnStart: String
-        get() = if (isEnglish) "Start Assessment" else "Iniciar Avaliação"
+        get() = if (isEn) "Start Assessment" else "Iniciar Avaliação"
 
     fun testApprovedChip(score: Int): String =
-        if (isEnglish) "Trail Approved • $score correct" else "Trilha Aprovada • $score acertos"
+        if (isEn) "Trail Approved • $score correct" else "Trilha Aprovada • $score acertos"
 
     // Modal Comemorativo (GamificationRewardDialog)
     val rewardTrailCompletedTitle: String
-        get() = if (isEnglish) "Trail Completed! 🎉" else "Trilha Concluída! 🎉"
+        get() = if (isEn) "Trail Completed! 🎉" else "Trilha Concluída! 🎉"
 
     val rewardTrailCompletedSubtitle: String
-        get() = if (isEnglish) "Congratulations! You passed the final assessment and finished this trail."
+        get() = if (isEn) "Congratulations! You passed the final assessment and finished this trail."
         else "Parabéns! Você foi aprovado na avaliação final e finalizou esta trilha com sucesso."
 
     val rewardTestUnlockedTitle: String
-        get() = if (isEnglish) "Topics Completed! Test Unlocked! 📝" else "Tópicos Concluídos! Prova Liberada! 📝"
+        get() = if (isEn) "Topics Completed! Test Unlocked! 📝" else "Tópicos Concluídos! Prova Liberada! 📝"
 
     val rewardTestUnlockedSubtitle: String
-        get() = if (isEnglish) "You completed all topics! Now take the final assessment to earn your approval."
+        get() = if (isEn) "You completed all topics! Now take the final assessment to earn your approval."
         else "Você concluiu todos os tópicos da trilha! Agora faça a avaliação final para conquistar sua aprovação."
 
     fun rewardLevelUpTitle(level: Int): String =
-        if (isEnglish) "You reached Level $level! 🚀" else "Você subiu para o Nível $level! 🚀"
+        if (isEn) "You reached Level $level! 🚀" else "Você subiu para o Nível $level! 🚀"
 
     val rewardAchievementTitle: String
-        get() = if (isEnglish) "New Achievement Unlocked! 🏆" else "Nova Conquista Desbloqueada! 🏆"
+        get() = if (isEn) "New Achievement Unlocked! 🏆" else "Nova Conquista Desbloqueada! 🏆"
 
     val rewardDefaultTitle: String
-        get() = if (isEnglish) "Great job! ✨" else "Mandou muito bem! ✨"
+        get() = if (isEn) "Great job! ✨" else "Mandou muito bem! ✨"
 
     val rewardTakeTestNowBtn: String
-        get() = if (isEnglish) "Take Test Now" else "Fazer Prova Agora"
+        get() = if (isEn) "Take Test Now" else "Fazer Prova Agora"
 
     val rewardDoLaterBtn: String
-        get() = if (isEnglish) "Do it later" else "Fazer depois"
+        get() = if (isEn) "Do it later" else "Fazer depois"
 
     val rewardContinueBtn: String
-        get() = if (isEnglish) "Keep Learning" else "Continuar Aprendendo"
+        get() = if (isEn) "Keep Learning" else "Continuar Aprendendo"
 }
