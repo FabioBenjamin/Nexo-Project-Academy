@@ -1,8 +1,6 @@
 package com.nexo.dto
 
-import com.google.gson.annotations.SerializedName
-
-// User profile response containing level, XP progress, and unlocked achievements
+// User profile response
 data class UserProfileResponse(
     val id: Long,
     val username: String,
@@ -10,21 +8,23 @@ data class UserProfileResponse(
     val level: Int,
     val currentXp: Int,
     val maxXp: Int,
+    val totalXp: Int = 0,
+    val currentStreak: Int = 0,
+    val maxStreak: Int = 0,
+    val completedActivitiesCount: Int = 0,
+    val totalTrailsCount: Int = 0,
     val completedTrailsCount: Int = 0,
-    val achievements: List<AchievementDTO>,
+    val studiedToday: Boolean = false,
+    val achievements: List<UserAchievementDTO>,
     val password: String? = null
 )
 
 
-// DTO representing an individual achievement badge
-data class AchievementDTO(
-    val id: Long,
-    val title: String,
-    val description: String?,
-    val xpReward: Int,
-    @SerializedName(value = "isUnlocked", alternate = ["unlocked"])
-    val unlocked: Boolean = false,
-    val unlockAt: String? = null,
-    val currentProgress: Int = 0,
-    val targetProgress: Int = 1
-)
+// DTOs para alteração individual de dados do usuário (alinhados ao Back-End)
+data class ChangeUsernameRequest(val username: String)
+data class ChangeUserEmailRequest(val email: String)
+data class ChangePasswordRequest(
+        val oldPassword: String,
+        val newPassword: String,
+        val confirmNewPassword: String
+    )

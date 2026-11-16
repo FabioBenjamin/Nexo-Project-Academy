@@ -14,9 +14,26 @@ class TokenAuthenticator(
 ) : Authenticator {
 
     override fun authenticate(route: Route?, response: Response): Request? {
+        val interception = response.request.url.encodedPath
 
-        // Prevent infinite loop if the refresh route itself returns 401
-        if (response.request.url.encodedPath.contains("/refresh")) {
+        // Não intercepta rotas de autentificação (login, registro, refresh, resetar senha)
+
+        // TODO: Senha incorreta no login
+        // devolução do erro 401 para o usuário
+        if (
+            interception.contains("auth/login") ||
+            interception.contains("auth/register") ||
+            interception.contains("auth/refresh") ||
+            interception.contains("auth/forgot-password") ||
+            interception.contains("auth/reset-password")
+        ) {
+            return null
+        }
+
+        // Trava anti-loop
+        // Caso o usuário já tenha tentado e a requisição falhar, limpa a sessão
+        if (responseCount(response) >= 2) {
+            runBlocking { tokenManager.clearTokens() }
             return null
         }
 
@@ -63,5 +80,16 @@ class TokenAuthenticator(
                 null
             }
         }
+    }
+
+    private fun responseCount(response : Response): Int {
+        var result = 1
+        var prior = response.priorResponse
+
+        while (prior != null) {
+            result++
+            prior = prior.priorResponse
+        }
+        return result
     }
 }

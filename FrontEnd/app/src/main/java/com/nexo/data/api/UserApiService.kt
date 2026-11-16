@@ -1,21 +1,43 @@
 package com.nexo.data.api
 
+import com.nexo.dto.ChangePasswordRequest
+import com.nexo.dto.ChangeUserEmailRequest
+import com.nexo.dto.ChangeUsernameRequest
 import com.nexo.dto.UserProfileResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.PUT
+import retrofit2.http.PATCH
 
 interface UserApiService {
-
-      // Fetches the profile data for the currently authenticated user
-      // Endpoint: GET /user/profile
-
+    /**
+     * Fetches the profile data for the currently authenticated user
+     * Endpoint: GET /user/profile
+     */
     @GET("user/profile")
     suspend fun getUserProfile(): Response<UserProfileResponse>
 
-    // Updates the profile data for the currently authenticated user
-    // Endpoint: PUT /user/profile
-    //SUPUS A ROTA, REVER SE FUNCIONA
-    @PUT("user/profile")
-    suspend fun updateProfile(profile: UserProfileResponse): Response<UserProfileResponse>
+    /**
+     * Updates the username of the current user
+     * Endpoint: PATCH /user/me/username
+     */
+    @PATCH("user/me/username")
+    suspend fun changeUsername(@Body request: ChangeUsernameRequest): Response<Unit>
+
+    /**
+     * Updates the email of the current user
+     * Endpoint: PATCH /user/me/email
+     */
+    @PATCH("user/me/email")
+    suspend fun changeEmail(@Body request: ChangeUserEmailRequest): Response<Unit>
+
+    /**
+     * Updates the password of the current user
+     * Endpoint: PATCH /user/me/password
+     */
+    @PATCH("user/me/password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
+
+    @retrofit2.http.DELETE("user/me")
+    suspend fun deleteAccount(): Response<Unit>
 }

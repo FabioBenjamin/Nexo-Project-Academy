@@ -9,7 +9,13 @@ public class UserProfileResponseDTO {
     private Integer level;
     private Integer currentXp;
     private Integer maxXp;
+    private Integer totalXp;
     private Integer currentStreak;
+    private Integer maxStreak;
+    private Integer completedActivitiesCount;
+    private Long totalTrailsCount;
+    private Long completedTrailsCount;
+    private boolean studiedToday;
     private List<AchievementDTO> achievements;
 
     // Construtor
@@ -20,7 +26,13 @@ public class UserProfileResponseDTO {
             Integer level,
             Integer currentXp,
             Integer maxXp,
+            Integer totalXp,
             Integer currentStreak,
+            Integer maxStreak,
+            Integer completedActivitiesCount,
+            Long totalTrailsCount,
+            Long completedTrailsCount,
+            boolean studiedToday,
             List<AchievementDTO> achievements
     ) {
         this.id = id;
@@ -29,7 +41,13 @@ public class UserProfileResponseDTO {
         this.level = level;
         this.currentXp = currentXp;
         this.maxXp = maxXp;
+        this.totalXp = totalXp;
         this.currentStreak = currentStreak;
+        this.maxStreak = maxStreak;
+        this.completedActivitiesCount = completedActivitiesCount;
+        this.totalTrailsCount = totalTrailsCount;
+        this.completedTrailsCount = completedTrailsCount;
+        this.studiedToday = studiedToday;
         this.achievements = achievements;
     }
 
@@ -60,8 +78,32 @@ public class UserProfileResponseDTO {
         return maxXp;
     }
 
+    public Integer getTotalXp() {
+        return totalXp;
+    }
+
     public Integer getCurrentStreak() {
         return currentStreak;
+    }
+
+    public Integer getMaxStreak() {
+        return maxStreak;
+    }
+
+    public Integer getCompletedActivitiesCount() {
+        return completedActivitiesCount;
+    }
+
+    public Long getTotalTrailsCount() {
+        return totalTrailsCount;
+    }
+
+    public Long getCompletedTrailsCount() {
+        return completedTrailsCount;
+    }
+
+    public boolean isStudiedToday() {
+        return studiedToday;
     }
 
     public List<AchievementDTO> getAchievements() {

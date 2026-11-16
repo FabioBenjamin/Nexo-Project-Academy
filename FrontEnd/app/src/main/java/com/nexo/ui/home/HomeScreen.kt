@@ -12,7 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -47,6 +47,12 @@ fun HomeScreen(
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val tokenManager = remember { com.nexo.security.TokenManager(context) }
+    val avatarId by tokenManager.avatarIdFlow.collectAsState(initial = tokenManager.cachedAvatarId)
+    val userAvatarResId = com.nexo.ui.profile.MascotAvatarHelper.getResIdById(avatarId)
 
     // Recarrega trilhas, nível e XP sempre que voltar para a Home
     LaunchedEffect(Unit) {
@@ -65,14 +71,20 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(id = R.drawable.mascote_default),
-                            contentDescription = "Nexo TopBar Icon",
-                            contentScale = ContentScale.Crop,
+                        Box(
                             modifier = Modifier
                                 .size(36.dp)
-                                .clip(CircleShape)
-                        )
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.primary),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = "Nexo Logo",
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
                             text = AppStrings.homeAppTitle,
@@ -83,11 +95,22 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(onClick = onProfileClick) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = AppStrings.homeActionProfile,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = userAvatarResId),
+                                contentDescription = AppStrings.homeActionProfile,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                            )
+                        }
                     }
                     IconButton(onClick = onSettingsClick) {
                         Icon(
@@ -125,68 +148,126 @@ fun HomeScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
-        Box(
+        NexoPullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 20.dp)
         ) {
-            when (val state = uiState) {
-                is HomeUiState.Loading -> {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                is HomeUiState.Unauthorized -> Unit
-                is HomeUiState.Error -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.message,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp)
+            ) {
+                when (val state = uiState) {
+                    is HomeUiState.Loading -> {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = { viewModel.loadTrails() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                        ) {
-                            Text(AppStrings.btnTryAgain, color = MaterialTheme.colorScheme.onPrimary)
-                        }
                     }
-                }
-                is HomeUiState.Success -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item {
-                            DashboardWelcomeCard(
-                                profile = state.profile,
-                                onProfileClick = onProfileClick
-                            )
-                        }
 
-                        if (state.trails.isEmpty()) {
-                            item {
-                                EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
-                            }
-                        } else {
-                            item {
+                    is HomeUiState.Unauthorized -> Unit
+                    is HomeUiState.Error -> {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = state.message,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { viewModel.loadTrails() },
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            ) {
                                 Text(
-                                    text = AppStrings.homeActiveTrailsHeader,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.padding(top = 8.dp)
+                                    AppStrings.btnTryAgain,
+                                    color = MaterialTheme.colorScheme.onPrimary
                                 )
                             }
-                            items(state.trails) { trail ->
-                                TrailCard(trail = trail, onClick = { onTrailClick(trail.id) })
+                        }
+                    }
+
+                    is HomeUiState.Success -> {
+                        val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+
+                        val shouldLoadMore by remember(
+                            state.trails.size,
+                            state.isLastPage,
+                            state.isLoadingMore
+                        ) {
+                            derivedStateOf {
+                                val layoutInfo = listState.layoutInfo
+                                val totalItems = layoutInfo.totalItemsCount
+                                val lastVisibleIndex =
+                                    layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+                                totalItems > 0 &&
+                                        !state.isLastPage &&
+                                        !state.isLoadingMore &&
+                                        lastVisibleIndex >= totalItems - 2
+                            }
+                        }
+
+                        LaunchedEffect(shouldLoadMore) {
+                            if (shouldLoadMore) {
+                                viewModel.loadNextPage()
+                            }
+                        }
+
+                        LazyColumn(
+                            state = listState,
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(top = 16.dp, bottom = 88.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            item(key = "welcome_card") {
+                                DashboardWelcomeCard(
+                                    profile = state.profile,
+                                    onProfileClick = onProfileClick
+                                )
+                            }
+
+                            if (state.trails.isEmpty()) {
+                                item(key = "empty_state") {
+                                    EmptyStateCard(onCreateTrailClick = onCreateTrailClick)
+                                }
+                            } else {
+                                item(key = "trails_header") {
+                                    Text(
+                                        text = AppStrings.homeActiveTrailsHeader,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        modifier = Modifier.padding(top = 8.dp)
+                                    )
+                                }
+                                items(
+                                    items = state.trails,
+                                    key = { it.id }
+                                ) { trail ->
+                                    TrailCard(trail = trail, onClick = { onTrailClick(trail.id) })
+                                }
+
+                                if (state.isLoadingMore) {
+                                    item(key = "loading_more_footer") {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 12.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(28.dp),
+                                                strokeWidth = 3.dp
+                                            )
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -195,7 +276,6 @@ fun HomeScreen(
         }
     }
 }
-
 @Composable
 fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
     Card(
@@ -315,7 +395,8 @@ fun TrailCard(
     }
 }
 
-@Composable
+
+    @Composable
 fun StatusBadge(status: String) {
     val (backgroundColor, textColor, textLabel) = when (status.uppercase()) {
         "COMPLETED" -> Triple(
@@ -406,13 +487,18 @@ fun DashboardWelcomeCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "$currentXp / $maxXp XP",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Spacer(modifier = Modifier.width(10.dp))
+                    StreakBadge(
+                        streakDays = profile?.currentStreak ?: 0,
+                        studiedToday = profile?.studiedToday ?: false
                     )
                 }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "$currentXp / $maxXp XP",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Spacer(modifier = Modifier.height(6.dp))
 

@@ -23,7 +23,8 @@ data class StudyTrailResponse(
     val startDate: String?,
     val targetDate: String,
     val status: String,
-    val topics: List<TopicResponse>
+    val topics: List<TopicResponse>,
+    val studyTestPreviewResponse: StudyTestPreviewResponse? = null
 )
 
 // Topic and subtopic hierarchy response
@@ -48,4 +49,9 @@ data class PageResponse<T>(
 // Request DTO matching backend UpdateTopicProgressRequest
 data class UpdateTopicProgressRequest(
     val completed: Boolean
+)
+
+data class UpdateStudyTrailRequest(
+    val title: String? = null,
+    val description: String? = null
 )

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class SplashViewModel(
     private val tokenManager: TokenManager
@@ -23,7 +24,7 @@ class SplashViewModel(
 
     private fun checkActiveSession() {
         viewModelScope.launch {
-            delay(600) // Tempo breve para exibir a identidade visual do Nexo
+            delay(1000.milliseconds)
             val access = tokenManager.accessToken.firstOrNull()
             val refresh = tokenManager.refreshToken.firstOrNull()
             val hasSession = !access.isNullOrBlank() || !refresh.isNullOrBlank()

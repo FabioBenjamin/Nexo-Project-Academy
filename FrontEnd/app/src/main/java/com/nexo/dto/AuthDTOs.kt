@@ -9,7 +9,7 @@ data class RegisterUserDTO(
 
 // Login DTO sent to POST /auth/login
 data class LoginUserDTO(
-    val email: String,
+    val user: String,
     val password: String
 )
 
@@ -34,4 +34,15 @@ data class ErrorResponseDTO(
     val error: String,
     val message: String,
     val status: Int
+)
+
+data class ForgotPasswordRequest(
+    val email: String
+)
+
+data class ResetPasswordRequest(
+    val email: String,
+    val code: String,
+    val newPassword: String,
+    val confirmNewPassword: String
 )

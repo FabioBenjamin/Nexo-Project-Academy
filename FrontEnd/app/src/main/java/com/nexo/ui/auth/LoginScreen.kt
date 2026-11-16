@@ -1,7 +1,5 @@
 package com.nexo.ui.auth
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,7 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -21,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -31,9 +30,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nexo.R
+import com.nexo.config.RetrofitClient
 import com.nexo.ui.theme.*
+import kotlinx.coroutines.launch
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
@@ -45,6 +45,9 @@ fun LoginScreen(
     val password by viewModel.password.collectAsState()
     val uiState by viewModel.uiState.collectAsState()
     var isPasswordVisible by remember { mutableStateOf(false) }
+    var showForgotPasswordSheet by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(uiState) {
         if (uiState is LoginUiState.Success) {
@@ -77,6 +80,16 @@ fun LoginScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -127,22 +140,22 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Email Input
+                // Email or Username Input
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.updateEmail(it) },
-                    label = { Text(AppStrings.loginEmailLabel) },
-                    placeholder = { Text(AppStrings.loginEmailPlaceholder) },
+                    label = { Text("Email ou Username") },
+                    placeholder = { Text("Digite seu email ou username") },
                     singleLine = true,
                     trailingIcon = {
                         Icon(
-                            imageVector = Icons.Default.Email,
-                            contentDescription = AppStrings.loginEmailLabel,
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Email ou Username",
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
+                        keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
                     modifier = Modifier.fillMaxWidth(),
@@ -198,7 +211,7 @@ fun LoginScreen(
                     textAlign = TextAlign.End,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { /* Handle forgot password flow */ }
+                        .clickable { showForgotPasswordSheet = true }
                 )
 
                 if (uiState is LoginUiState.Error) {
@@ -285,5 +298,23 @@ fun LoginScreen(
                 }
             }
         }
+    }
+
+    if (showForgotPasswordSheet) {
+        val context = LocalContext.current
+        val authApiService = remember { RetrofitClient.getAuthApiService(context) }
+        val prefilledEmail = if (email.contains("@")) email.trim() else ""
+
+        ForgotPasswordBottomSheet(
+            authApiService = authApiService,
+            initialEmail = prefilledEmail,
+            onDismiss = { showForgotPasswordSheet = false },
+            onResetSuccess = {
+                showForgotPasswordSheet = false
+                scope.launch {
+                    snackbarHostState.showSnackbar("Senha redefinida com sucesso! Faça login com a nova senha.")
+                }
+            }
+        )
     }
 }

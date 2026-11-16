@@ -3,11 +3,17 @@ package com.nexo.service;
 import com.nexo.dto.*;
 import com.nexo.exceptions.*;
 import com.nexo.models.classes.User;
+import com.nexo.models.enums.StudyTrailStatus;
+import com.nexo.repository.RefreshTokenRepository;
+import com.nexo.repository.StudyTrailRepository;
 import com.nexo.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -17,17 +23,22 @@ public class UserService {
     private final AchievementService achievementService;
     private final PasswordEncoder passwordEncoder;
     private final EmailValidator emailValidator;
+    private final StudyTrailRepository studyTrailRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public UserService(
             UserRepository userRepository,
             AchievementService achievementService,
-            PasswordEncoder passwordEncoder
-
+            PasswordEncoder passwordEncoder,
+            StudyTrailRepository studyTrailRepository,
+            RefreshTokenRepository refreshTokenRepository
     ){
         this.userRepository = userRepository;
         this.achievementService = achievementService;
         this.passwordEncoder = passwordEncoder;
         this.emailValidator = EmailValidator.getInstance();
+        this.studyTrailRepository = studyTrailRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public UserProfileResponseDTO getUserProfile(Long userId){
@@ -41,8 +52,13 @@ public class UserService {
         int xpPerLevel = 300;
         int level = (totalXp / xpPerLevel) + 1; //
         int currentXpInLevel = totalXp % xpPerLevel; //
-
+        boolean studiedToday = LocalDate.now().equals(user.getLastActiveDate());
         List<AchievementDTO> achievements = achievementService.getUserAchievements(userId);
+        int currentStreak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+        int maxStreak = Math.max(user.getMaxStreak() != null ? user.getMaxStreak() : 0, currentStreak);
+        int completedActivities = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
+        long totalTrails = studyTrailRepository.countByUser_Id(userId);
+        long completedTrails = studyTrailRepository.countByUser_IdAndStatus(userId, StudyTrailStatus.COMPLETED);
 
         return new UserProfileResponseDTO(
                 user.getId(),
@@ -51,8 +67,15 @@ public class UserService {
                 level,
                 currentXpInLevel,
                 xpPerLevel,
-                user.getCurrentStreak() != null ? user.getCurrentStreak() : 0,
+                totalXp,
+                currentStreak,
+                maxStreak,
+                completedActivities,
+                totalTrails,
+                completedTrails,
+                studiedToday,
                 achievements
+
         );
     }
 
@@ -124,5 +147,20 @@ public class UserService {
 
         user.setPassword(hashPassword);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Remove trilhas do usuário (StudyTest, Topics e TopicProgress já possuem OnDelete CASCADE)
+        studyTrailRepository.deleteAll(studyTrailRepository.findByUser_Id(userId, Pageable.unpaged()).getContent());
+
+        // Remove refresh tokens e conquistas vinculadas (caso o banco não tenha ON DELETE CASCADE)
+        refreshTokenRepository.deleteByUser_Id(userId);
+        userRepository.deleteUserAchievementsByUserId(userId);
+
+        userRepository.delete(user);
     }
 }

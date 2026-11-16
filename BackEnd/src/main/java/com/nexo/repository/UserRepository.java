@@ -34,4 +34,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
         OR u.email = :user
     """)
     Optional<User> findUserInLogin(@Param("user") String user);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM userachievement WHERE user_id = :userId", nativeQuery = true)
+    void deleteUserAchievementsByUserId(@Param("userId") Long userId);
 }

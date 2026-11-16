@@ -1,6 +1,6 @@
 package com.nexo.data.api;
 
-import com.nexo.dto.AchievementDTO;
+import com.nexo.dto.UserAchievementDTO;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ interface AchievementApiService {
     @GET("api/achievements/user/{userId}")
     suspend fun getUserAchievement(
         @Path("userId") userId: Long):
-            Response<List<AchievementDTO>>
+            Response<List<UserAchievementDTO>>
 
     // Registra a conclusão de 1 active/topic
     @POST("api/achievements/complete-activity/{userId}")

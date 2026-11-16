@@ -19,7 +19,7 @@ public class LoginUserDTO {
     public void setPassword(String password) {
         this.password = password;
     }
-    public void setUser(String email) {
+    public void setUser(String user) {
         this.user = user;
     }
 }
