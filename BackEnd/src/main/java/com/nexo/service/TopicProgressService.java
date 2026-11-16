@@ -1,6 +1,5 @@
 package com.nexo.service;
 
-import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.dto.UpdateTopicProgressRequest;
 import com.nexo.exceptions.EntityNotFoundException;
 import com.nexo.models.classes.StudyTrail;
@@ -89,9 +88,6 @@ public class TopicProgressService {
         if(shouldOpenStudyTest(topic.getStudyTrail())){
             // open studyTest
             topic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
-            achievementService.processActivityCompletion(userId);
-            achievementService.processTrailCompletion(userId);
-            topic.getStudyTrail().setStatus(StudyTrailStatus.COMPLETED);
         }
     }
 
@@ -116,8 +112,8 @@ public class TopicProgressService {
 
         if(allCompleted){
             // Complete Parent topic
-            parentTopic.getProgress().setCompletedAt(LocalDate.now());
             parentTopic.getProgress().setStatus(TopicProgressStatus.COMPLETED);
+            parentTopic.getProgress().setCompletedAt(LocalDate.now());
 
             // Assign xp for complete a topic
             processCompletionXp(parentTopic, userId);
@@ -126,9 +122,6 @@ public class TopicProgressService {
             if(shouldOpenStudyTest(parentTopic.getStudyTrail())){
                 // open studyTest
                 parentTopic.getStudyTrail().getStudyTest().setStatus(StudyTestStatus.OPEN);
-                achievementService.processActivityCompletion(userId);
-                achievementService.processTrailCompletion(userId);
-                parentTopic.getStudyTrail().setStatus(StudyTrailStatus.COMPLETED);
             }
         }
     }
@@ -170,7 +163,7 @@ public class TopicProgressService {
 
     private boolean shouldOpenStudyTest(StudyTrail studyTrail){
 
-        if(studyTrail.getStudyTest().getStatus() != StudyTestStatus.BLOCKED) {
+        if(studyTrail.getStudyTest() == null || studyTrail.getStudyTest().getStatus() != StudyTestStatus.BLOCKED) {
             return false;
         }
 

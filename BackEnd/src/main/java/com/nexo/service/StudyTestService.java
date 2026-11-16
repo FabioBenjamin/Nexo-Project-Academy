@@ -14,6 +14,7 @@ import com.nexo.models.classes.StudyTest;
 import com.nexo.models.classes.StudyTrail;
 import com.nexo.models.enums.StudyTestStatus;
 import com.nexo.repository.StudyTestRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -121,18 +122,20 @@ public class StudyTestService {
         );
     }
 
-    public boolean completeStudyTest(StudyTest studyTest, int score){
-
-        if(score >= studyTest.getPassingScore()){
-
-            studyTest.setStatus(StudyTestStatus.COMPLETED);
-
-            studyTrailService.completeStudyTrail(studyTest.getStudyTrail());
-
-            return true;
+    @Transactional
+    public boolean completeStudyTest(StudyTest studyTest, int score) {
+        if (score < studyTest.getPassingScore()) {
+            return false;
         }
 
-        return false;
+        studyTest.setStatus(StudyTestStatus.COMPLETED);
 
+        StudyTrail trail = studyTest.getStudyTrail();
+        if (trail != null) {
+            studyTrailService.completeStudyTrail(trail);
+        }
+
+        studyTestRepository.save(studyTest);
+        return true;
     }
 }
