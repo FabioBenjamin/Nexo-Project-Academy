@@ -2,7 +2,6 @@ package com.nexo.ui.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.nexo.R
 import com.nexo.data.api.AuthApiService
 import com.nexo.data.api.UserApiService
 import com.nexo.dto.ChangePasswordRequest
@@ -29,15 +28,17 @@ class EditProfileViewModel(
     private val userApiService: UserApiService,
     private val authApiService: AuthApiService,
     private val tokenManager: TokenManager,
-    private val initialUsername: String,
-    private val initialEmail: String
+    initialUsername: String,
+    initialEmail: String
 ) : ViewModel() {
 
     val mascotAvatars = MascotAvatarHelper.getOptions()
 
-    private val initialAvatarResId = MascotAvatarHelper.getResIdById(tokenManager.cachedAvatarId)
+    private var baselineUsername = initialUsername
+    private var baselineEmail = initialEmail
+    private var baselineAvatarResId = MascotAvatarHelper.getResIdById(tokenManager.cachedAvatarId)
 
-    private val _selectedAvatar = MutableStateFlow(initialAvatarResId)
+    private val _selectedAvatar = MutableStateFlow(baselineAvatarResId)
     val selectedAvatar: StateFlow<Int> = _selectedAvatar.asStateFlow()
 
     private val _username = MutableStateFlow(initialUsername)
@@ -58,6 +59,29 @@ class EditProfileViewModel(
     private val _uiState = MutableStateFlow<EditProfileUiState>(EditProfileUiState.Idle)
     val uiState: StateFlow<EditProfileUiState> = _uiState.asStateFlow()
 
+    init {
+        // Se veio da SettingsScreen com username vazio, carrega os dados reais do perfil
+        if (baselineUsername.isBlank() || baselineEmail.isBlank()) {
+            viewModelScope.launch {
+                try {
+                    val profileResp = userApiService.getUserProfile()
+                    if (profileResp.isSuccessful && profileResp.body() != null) {
+                        val profile = profileResp.body()!!
+                        if (baselineUsername.isBlank()) {
+                            baselineUsername = profile.username
+                            _username.value = profile.username
+                        }
+                        if (baselineEmail.isBlank()) {
+                            baselineEmail = profile.email
+                            _email.value = profile.email
+                        }
+                    }
+                } catch (_: Exception) {
+                }
+            }
+        }
+    }
+
     fun updateSelectedAvatar(resId: Int) { _selectedAvatar.value = resId }
     fun updateUsername(value: String) { _username.value = value }
     fun updateEmail(value: String) { _email.value = value }
@@ -65,15 +89,14 @@ class EditProfileViewModel(
     fun updateNewPassword(value: String) { _newPassword.value = value }
     fun updateConfirmPassword(value: String) { _confirmPassword.value = value }
 
-    // Validation flags
     val hasAvatarChange: Boolean
-        get() = selectedAvatar.value != initialAvatarResId
+        get() = selectedAvatar.value != baselineAvatarResId
 
     val hasUsernameChange: Boolean
-        get() = username.value.trim() != initialUsername
+        get() = username.value.trim() != baselineUsername
 
     val hasEmailChange: Boolean
-        get() = email.value.trim() != initialEmail
+        get() = email.value.trim() != baselineEmail
 
     val hasPasswordChange: Boolean
         get() = oldPassword.value.isNotBlank()
@@ -127,23 +150,37 @@ class EditProfileViewModel(
         }
 
         _uiState.value = EditProfileUiState.Loading
+        var usernameSavedInThisAttempt = false
 
         viewModelScope.launch {
             try {
                 if (hasUsernameChange) {
                     val resp = userApiService.changeUsername(ChangeUsernameRequest(trimmedUsername))
                     if (!resp.isSuccessful) {
-                        _uiState.value = EditProfileUiState.Error("${AppStrings.errUsernameChange}: ${resp.message()} (${resp.code()})")
+                        val serverErr = resp.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                        _uiState.value = EditProfileUiState.Error(
+                            serverErr ?: "${AppStrings.errUsernameChange} (${resp.code()})"
+                        )
                         return@launch
                     }
+                    baselineUsername = trimmedUsername
+                    usernameSavedInThisAttempt = true
                 }
 
                 if (hasEmailChange) {
                     val resp = userApiService.changeEmail(ChangeUserEmailRequest(trimmedEmail))
                     if (!resp.isSuccessful) {
-                        _uiState.value = EditProfileUiState.Error("${AppStrings.errEmailChange}: ${resp.message()} (${resp.code()})")
+                        val serverErr = resp.errorBody()?.string()?.takeIf { it.isNotBlank() }
+                        val baseMsg = serverErr ?: "${AppStrings.errEmailChange} (${resp.code()})"
+                        val finalMsg = if (usernameSavedInThisAttempt) {
+                            "${AppStrings.editProfilePartialSavePrefix}$baseMsg"
+                        } else {
+                            baseMsg
+                        }
+                        _uiState.value = EditProfileUiState.Error(finalMsg)
                         return@launch
                     }
+                    baselineEmail = trimmedEmail
                 }
 
                 if (hasPasswordChange) {
@@ -151,14 +188,24 @@ class EditProfileViewModel(
                         ChangePasswordRequest(oldPassword = op, newPassword = np, confirmNewPassword = cp)
                     )
                     if (!resp.isSuccessful) {
-                        _uiState.value = EditProfileUiState.Error(AppStrings.errInvalidCredentials)
+                        val baseMsg = AppStrings.errInvalidCredentials
+                        val finalMsg = if (usernameSavedInThisAttempt) {
+                            "${AppStrings.editProfilePartialSavePrefix}$baseMsg"
+                        } else {
+                            baseMsg
+                        }
+                        _uiState.value = EditProfileUiState.Error(finalMsg)
                         return@launch
                     }
+                    _oldPassword.value = ""
+                    _newPassword.value = ""
+                    _confirmPassword.value = ""
                 }
 
                 if (hasAvatarChange) {
                     val chosenId = MascotAvatarHelper.getIdByResId(selectedAvatar.value)
                     tokenManager.saveAvatarId(chosenId)
+                    baselineAvatarResId = selectedAvatar.value
                 }
 
                 _uiState.value = EditProfileUiState.Success
@@ -172,7 +219,6 @@ class EditProfileViewModel(
         }
     }
 
-    // --- ZONA DE PERIGO: Funções de Encerramento e Exclusão ---
     fun logoutAllSessions(onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {

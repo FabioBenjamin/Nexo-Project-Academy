@@ -67,13 +67,22 @@ fun EditProfileScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(uiState) {
-        if (uiState is EditProfileUiState.Success) {
-            snackbarHostState.showSnackbar(
-                message = "Dados atualizados com sucesso! 🐻✨",
-                duration = SnackbarDuration.Short
-            )
-            onSaveSuccess()
-            viewModel.resetUiState()
+        when (val state = uiState) {
+            is EditProfileUiState.Success -> {
+                snackbarHostState.showSnackbar(
+                    message = AppStrings.editProfileSuccessMsg,
+                    duration = SnackbarDuration.Short
+                )
+                viewModel.resetUiState()
+                onSaveSuccess()
+            }
+            is EditProfileUiState.Error -> {
+                snackbarHostState.showSnackbar(
+                    message = state.message,
+                    duration = SnackbarDuration.Long
+                )
+            }
+            else -> Unit
         }
     }
 
@@ -101,10 +110,11 @@ fun EditProfileScreen(
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
+                val isError = uiState is EditProfileUiState.Error
                 Snackbar(
                     snackbarData = data,
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary,
+                    containerColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.tertiary,
+                    contentColor = if (isError) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onTertiary,
                     shape = RoundedCornerShape(16.dp)
                 )
             }
