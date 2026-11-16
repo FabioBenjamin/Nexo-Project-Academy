@@ -92,9 +92,17 @@ class LoginViewModel(
                     if (profileResponse.isSuccessful && profileResponse.body() != null) {
                         tokenManager.saveUserId(profileResponse.body()!!.id)
                     }
-
                     _uiState.value = LoginUiState.Success
-                }
+
+                    } else {
+                        val erroMsg= when (response.code()) {
+                            401, 403 -> "E-mail/usuário ou senha incorretos"
+                            404 -> "Conta não encontrada"
+                            else -> "Erro ao fazer login (${response.code()})"
+                        }
+                        _uiState.value = LoginUiState.Error(erroMsg)
+                    }
+
             } catch (e: IOException) {
                 _uiState.value = LoginUiState.Error(AppStrings.errNetwork)
             } catch (e: HttpException) {

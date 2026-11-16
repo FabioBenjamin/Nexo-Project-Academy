@@ -2,6 +2,10 @@ package com.nexo.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -34,7 +38,7 @@ import com.nexo.ui.trail.CreateTrailScreen
 import com.nexo.ui.trail.CreateTrailViewModel
 import com.nexo.ui.trail.TrailDetailsScreen
 import com.nexo.ui.trail.TrailDetailsViewModel
-
+import kotlinx.coroutines.launch
 object Routes {
     const val SPLASH = "splash"
     const val LOGIN = "login"
@@ -56,8 +60,21 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
-    val authApiService = RetrofitClient.getAuthApiService(context)
-    val tokenManager = TokenManager(context)
+    val scope = rememberCoroutineScope()
+    val tokenManager = remember { TokenManager(context.applicationContext) }
+    val authApiService = remember { RetrofitClient.getAuthApiService(context.applicationContext) }
+
+    val accessToken by tokenManager.accessToken.collectAsState(initial = "INITIALIZING")
+
+    val performLogout: () -> Unit = {
+        scope.launch {
+            tokenManager.clearTokens()
+            navController.navigate(Routes.LOGIN) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
 
     val handleBottomNavigation: (String) -> Unit = { route ->
         if (navController.currentBackStackEntry?.destination?.route != route) {
@@ -151,7 +168,7 @@ fun AppNavigation(
             )
         }
 
-        // Rota: Create Trail Screen
+        // Route: Create Trail Screen
         composable(Routes.CREATE_TRAIL) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val createTrailViewModel = viewModel { CreateTrailViewModel(trailApiService) }

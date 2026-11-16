@@ -43,7 +43,7 @@ class RegisterViewModel(
 
             return u.length >= 3 &&
                     android.util.Patterns.EMAIL_ADDRESS.matcher(e).matches() &&
-                    p.length >= 3 &&
+                    p.length >= 6 &&
                     p == cp
         }
     fun register() {
