@@ -77,6 +77,7 @@ class HomeViewModel(
 
                 if (profile != null) {
                     tokenManager.saveUserId(profile.id)
+                    tokenManager.updateStudiedToday(profile.studiedToday)
                 }
 
                 currentPage = pageBody.number

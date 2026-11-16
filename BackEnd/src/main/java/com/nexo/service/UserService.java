@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -50,7 +51,7 @@ public class UserService {
         int xpPerLevel = 300;
         int level = (totalXp / xpPerLevel) + 1; //
         int currentXpInLevel = totalXp % xpPerLevel; //
-
+        boolean studiedToday = LocalDate.now().equals(user.getLastActiveDate());
         List<AchievementDTO> achievements = achievementService.getUserAchievements(userId);
 
         return new UserProfileResponseDTO(
@@ -61,7 +62,9 @@ public class UserService {
                 currentXpInLevel,
                 xpPerLevel,
                 user.getCurrentStreak() != null ? user.getCurrentStreak() : 0,
+                studiedToday,
                 achievements
+
         );
     }
 

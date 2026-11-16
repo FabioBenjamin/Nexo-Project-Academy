@@ -1,7 +1,5 @@
 package com.nexo.ui.auth
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,7 +34,6 @@ import com.nexo.config.RetrofitClient
 import com.nexo.ui.theme.*
 import kotlinx.coroutines.launch
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(

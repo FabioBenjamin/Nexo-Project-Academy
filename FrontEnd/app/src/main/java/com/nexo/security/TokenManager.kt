@@ -22,6 +22,7 @@ class TokenManager(private val context: Context) {
         private val USER_ID_KEY = longPreferencesKey("user_id")
         private val USERNAME_KEY = stringPreferencesKey("username")
         private val AVATAR_ID_KEY = stringPreferencesKey("avatar_id")
+        private val LAST_STUDIED_DATE_KEY = stringPreferencesKey("last_studied_date")
     }
 
     @Volatile
@@ -117,6 +118,24 @@ class TokenManager(private val context: Context) {
             preferences.remove(USER_ID_KEY)
             preferences.remove(USERNAME_KEY)
             preferences.remove(AVATAR_ID_KEY)
+            preferences.remove(LAST_STUDIED_DATE_KEY)
         }
+    }
+
+    suspend fun updateStudiedToday(studiedToday: Boolean) {
+        val todayStr = java.time.LocalDate.now().toString()
+        context.dataStore.edit { prefs ->
+            if (studiedToday) {
+                prefs[LAST_STUDIED_DATE_KEY] = todayStr
+            } else if (prefs[LAST_STUDIED_DATE_KEY] == todayStr) {
+                prefs.remove(LAST_STUDIED_DATE_KEY)
+            }
+        }
+    }
+
+    suspend fun hasStudiedToday(): Boolean {
+        val todayStr = java.time.LocalDate.now().toString()
+        val saved = context.dataStore.data.firstOrNull()?.get(LAST_STUDIED_DATE_KEY)
+        return saved == todayStr
     }
 }

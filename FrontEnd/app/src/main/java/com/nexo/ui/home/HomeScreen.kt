@@ -488,13 +488,18 @@ fun DashboardWelcomeCard(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "$currentXp / $maxXp XP",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Spacer(modifier = Modifier.width(10.dp))
+                    StreakBadge(
+                        streakDays = profile?.currentStreak ?: 0,
+                        studiedToday = profile?.studiedToday ?: false
                     )
                 }
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = "$currentXp / $maxXp XP",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Spacer(modifier = Modifier.height(6.dp))
 

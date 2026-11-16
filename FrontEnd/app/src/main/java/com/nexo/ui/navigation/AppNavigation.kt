@@ -1,8 +1,5 @@
 package com.nexo.ui.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -52,8 +49,6 @@ object Routes {
     fun studyTestRoute(testId: Long, passingScore: Int) = "study_test/$testId/$passingScore"
 }
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController()
@@ -130,7 +125,7 @@ fun AppNavigation(
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val userApiService = RetrofitClient.getUserApiService(context)
             val homeViewModel = viewModel {
-                HomeViewModel(trailApiService, authApiService, userApiService, tokenManager)
+                HomeViewModel(trailApiService, userApiService, authApiService, tokenManager)
             }
 
             LaunchedEffect(Unit) {

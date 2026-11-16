@@ -10,6 +10,7 @@ public class UserProfileResponseDTO {
     private Integer currentXp;
     private Integer maxXp;
     private Integer currentStreak;
+    private boolean studiedToday;
     private List<AchievementDTO> achievements;
 
     // Construtor
@@ -21,6 +22,7 @@ public class UserProfileResponseDTO {
             Integer currentXp,
             Integer maxXp,
             Integer currentStreak,
+            boolean studiedToday,
             List<AchievementDTO> achievements
     ) {
         this.id = id;
@@ -30,6 +32,7 @@ public class UserProfileResponseDTO {
         this.currentXp = currentXp;
         this.maxXp = maxXp;
         this.currentStreak = currentStreak;
+        this.studiedToday = studiedToday;
         this.achievements = achievements;
     }
 
@@ -62,6 +65,10 @@ public class UserProfileResponseDTO {
 
     public Integer getCurrentStreak() {
         return currentStreak;
+    }
+
+    public boolean isStudiedToday() {
+        return studiedToday;
     }
 
     public List<AchievementDTO> getAchievements() {

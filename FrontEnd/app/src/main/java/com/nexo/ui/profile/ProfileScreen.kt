@@ -189,6 +189,12 @@ fun ProfileContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
+                Spacer(modifier = Modifier.height(10.dp))
+                StreakBadge(
+                    streakDays = profile.currentStreak,
+                    studiedToday = profile.studiedToday
+                )
+
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
