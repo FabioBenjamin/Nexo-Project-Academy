@@ -130,7 +130,7 @@ fun AppNavigation(
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val userApiService = RetrofitClient.getUserApiService(context)
             val homeViewModel = viewModel {
-                HomeViewModel(trailApiService, authApiService, userApiService, tokenManager)
+                HomeViewModel(trailApiService, userApiService ,authApiService, tokenManager)
             }
 
             LaunchedEffect(Unit) {
