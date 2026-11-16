@@ -27,20 +27,23 @@ public class AuthService {
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final EmailService emailService;
 
     public AuthService(
             UserRepository userRepository,
             JwtService jwtService,
             RefreshTokenService refreshTokenService,
             PasswordEncoder passwordEncoder,
-            PasswordResetTokenRepository passwordResetTokenRepository) {
-
+            PasswordResetTokenRepository passwordResetTokenRepository,
+            EmailService emailService) 
+            {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailValidator = EmailValidator.getInstance();
         this.jwtService = jwtService;
         this.refreshTokenService = refreshTokenService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.emailService = emailService;
     }
 
     public void register(RegisterUserDTO dto){
@@ -118,7 +121,6 @@ public class AuthService {
         }
 
         userRepository.findByEmail(dto.email().trim()).ifPresent(user -> {
-            // Gera código numérico de 6 dígitos
             String code = String.format("%06d", new java.security.SecureRandom().nextInt(1_000_000));
 
             PasswordResetToken resetToken = new PasswordResetToken();
@@ -129,8 +131,14 @@ public class AuthService {
 
             passwordResetTokenRepository.save(resetToken);
 
-            // Loga no console (substituir/complementar com JavaMailSender se houver SMTP configurado)
+            // Printa no console para testes locais
             System.out.println("[NEXO RECOVERY] Código de recuperação para " + user.getEmail() + ": " + code);
+
+            try {
+                emailService.sendPasswordResetCode(user.getEmail(), user.getUsername(), code);
+            } catch (Exception e) {
+                System.err.println("[NEXO RECOVERY] Falha ao enviar e-mail SMTP (verifique o .env): " + e.getMessage());
+            }
         });
     }
 
