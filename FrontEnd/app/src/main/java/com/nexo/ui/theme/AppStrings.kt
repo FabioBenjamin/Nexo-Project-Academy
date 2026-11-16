@@ -164,11 +164,45 @@ object AppStrings {
     val rewardContinueBtn get() = if (isEn) "Keep Learning" else "Continuar Aprendendo"
 
     // =========================================================================
-    // 8. PERFIL, EDIÇÃO DE CONTA & ZONA DE PERIGO
+    // 8. PERFIL & TELA DE CONQUISTAS (ESTILO DUOLINGO)
     // =========================================================================
+
     val profileTitle get() = if (isEn) "My Profile" else "Meu Perfil"
     val profileLevelLabel get() = if (isEn) "Level " else "Nível "
     val profileAchievementsHeader get() = if (isEn) "Achievements" else "Conquistas"
+    val profileOverviewHeader get() = if (isEn) "Overview" else "Visão Geral"
+    val profileStatStreakTitle get() = if (isEn) "Day Streak" else "Ofensiva Atual"
+    val profileStatTotalXpTitle get() = if (isEn) "Total XP" else "XP Total"
+    val profileStatBestStreakTitle get() = if (isEn) "Best Streak" else "Recorde de Dias"
+    val profileStatTrailsTitle get() = if (isEn) "Completed Trails" else "Trilhas Concluídas"
+    fun profileDaysUnit(days: Int) = if (isEn) "$days days" else if (days == 1) "1 dia" else "$days dias"
+
+    val profileAchievementsCardTitle get() = if (isEn) "Achievements & Records" else "Conquistas e Recordes"
+    fun profileAchievementsProgressSummary(unlocked: Int, total: Int) =
+        if (isEn) "$unlocked of $total unlocked" else "$unlocked de $total desbloqueadas"
+    val profileViewAllAchievementsBtn get() = if (isEn) "View All Achievements" else "Ver Todas as Conquistas"
+
+    val achievementsScreenTitle get() = if (isEn) "Achievements" else "Conquistas"
+    val achievementsPersonalRecordsHeader get() = if (isEn) "Personal Records" else "Recordes Pessoais"
+    val achievementsTriumphsHeader get() = if (isEn) "Triumphs" else "Triunfos"
+
+    val recordLongestStreak get() = if (isEn) "Longest Streak" else "Maior Ofensiva"
+    val recordTotalXp get() = if (isEn) "Accumulated XP" else "XP Acumulado"
+    val recordTopicsCompleted get() = if (isEn) "Topics Completed" else "Tópicos Concluídos"
+    val recordTrailsFinished get() = if (isEn) "Trails Finished" else "Trilhas Finalizadas"
+
+    val filterAll get() = if (isEn) "All" else "Todas"
+    val filterUnlocked get() = if (isEn) "Unlocked" else "Desbloqueadas"
+    val filterInProgress get() = if (isEn) "In Progress" else "Em Progresso"
+
+    val badgeUnlocked get() = if (isEn) "UNLOCKED" else "DESBLOQUEADA"
+    val badgeLocked get() = if (isEn) "LOCKED" else "BLOQUEADA"
+    fun achievementProgressRatio(current: Int, target: Int) =
+        if (isEn) "$current of $target" else "$current de $target"
+
+    // =========================================================================
+    // 8.5. EDIÇÃO DE CONTA & ZONA DE PERIGO
+    // =========================================================================
 
     val editAvatarTitle get() = if (isEn) "Choose your Avatar" else "Escolha o seu Avatar"
     val editProfileTitle get() = if (isEn) "Edit Profile" else "Editar Perfil"

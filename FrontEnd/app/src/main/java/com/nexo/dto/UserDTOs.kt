@@ -8,8 +8,12 @@ data class UserProfileResponse(
     val level: Int,
     val currentXp: Int,
     val maxXp: Int,
-    val completedTrailsCount: Int = 0,
+    val totalXp: Int = 0,
     val currentStreak: Int = 0,
+    val maxStreak: Int = 0,
+    val completedActivitiesCount: Int = 0,
+    val totalTrailsCount: Int = 0,
+    val completedTrailsCount: Int = 0,
     val studiedToday: Boolean = false,
     val achievements: List<UserAchievementDTO>,
     val password: String? = null

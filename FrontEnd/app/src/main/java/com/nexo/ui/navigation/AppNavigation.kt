@@ -19,6 +19,7 @@ import com.nexo.ui.auth.RegisterScreen
 import com.nexo.ui.auth.RegisterViewModel
 import com.nexo.ui.home.HomeScreen
 import com.nexo.ui.home.HomeViewModel
+import com.nexo.ui.profile.AchievementsScreen
 import com.nexo.ui.profile.EditProfileScreen
 import com.nexo.ui.profile.EditProfileViewModel
 import com.nexo.ui.profile.ProfileScreen
@@ -43,6 +44,7 @@ object Routes {
     const val TRAIL_DETAILS = "trail_details/{trailId}"
     const val STUDY_TEST = "study_test/{testId}/{passingScore}"
     const val PROFILE = "profile"
+    const val ACHIEVEMENTS = "achievements"
     const val SETTINGS = "settings"
     const val EDIT_PROFILE = "edit_profile?username={username}&email={email}"
 
@@ -228,7 +230,7 @@ fun AppNavigation(
             )
         }
 
-        // Rota: Profile Screen (Com refresh automático na entrada/retorno)
+        // Rota: Profile Screen
         composable(Routes.PROFILE) {
             val userApiService = RetrofitClient.getUserApiService(context)
             val profileViewModel = viewModel { ProfileViewModel(userApiService) }
@@ -243,7 +245,24 @@ fun AppNavigation(
                 onNavigateToEditProfile = { username, email ->
                     navController.navigate("edit_profile?username=$username&email=$email")
                 },
+                onNavigateToAchievements = {
+                    navController.navigate(Routes.ACHIEVEMENTS)
+                },
+                onNavigateToSettings = {
+                    handleBottomNavigation(Routes.SETTINGS)
+                },
                 onNavigateBottom = handleBottomNavigation
+            )
+        }
+
+        // Rota: Achievements Screen (Conquistas & Recordes Pessoais)
+        composable(Routes.ACHIEVEMENTS) {
+            val userApiService = RetrofitClient.getUserApiService(context)
+            val profileViewModel = viewModel { ProfileViewModel(userApiService) }
+
+            AchievementsScreen(
+                viewModel = profileViewModel,
+                onBackClick = { navController.popBackStack() }
             )
         }
 

@@ -3,6 +3,7 @@ package com.nexo.service;
 import com.nexo.dto.*;
 import com.nexo.exceptions.*;
 import com.nexo.models.classes.User;
+import com.nexo.models.enums.StudyTrailStatus;
 import com.nexo.repository.RefreshTokenRepository;
 import com.nexo.repository.StudyTrailRepository;
 import com.nexo.repository.UserRepository;
@@ -53,6 +54,11 @@ public class UserService {
         int currentXpInLevel = totalXp % xpPerLevel; //
         boolean studiedToday = LocalDate.now().equals(user.getLastActiveDate());
         List<AchievementDTO> achievements = achievementService.getUserAchievements(userId);
+        int currentStreak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+        int maxStreak = Math.max(user.getMaxStreak() != null ? user.getMaxStreak() : 0, currentStreak);
+        int completedActivities = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
+        long totalTrails = studyTrailRepository.countByUser_Id(userId);
+        long completedTrails = studyTrailRepository.countByUser_IdAndStatus(userId, StudyTrailStatus.COMPLETED);
 
         return new UserProfileResponseDTO(
                 user.getId(),
@@ -61,7 +67,12 @@ public class UserService {
                 level,
                 currentXpInLevel,
                 xpPerLevel,
-                user.getCurrentStreak() != null ? user.getCurrentStreak() : 0,
+                totalXp,
+                currentStreak,
+                maxStreak,
+                completedActivities,
+                totalTrails,
+                completedTrails,
                 studiedToday,
                 achievements
 
