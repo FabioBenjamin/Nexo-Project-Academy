@@ -38,8 +38,7 @@ public class SettingsController {
         return ResponseEntity.ok(settingsService.update(userId, settingsDTO));
     }
 
-    // Adicione dentro do seu SettingsController.java (com @RequestMapping("/settings"))
-    @PatchMapping("/learning-profile")
+    @PatchMapping("/learning/profile")
     public ResponseEntity<Void> updateLearningProfile(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody LearningProfileRequestDTO request) {

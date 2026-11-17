@@ -4,6 +4,8 @@ import com.nexo.dto.AchievementDTO;
 import com.nexo.service.AchievementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +19,11 @@ public class AchievementController {
     private AchievementService achievementService;
 
     // Retrieves all achievements with unlock status for a specific user
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<AchievementDTO>> getAchievements(@PathVariable Long userId) {
+    @GetMapping
+    public ResponseEntity<List<AchievementDTO>> getAchievements(
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long userId = Long.valueOf(jwt.getSubject());
         List<AchievementDTO> achievements = achievementService.getUserAchievements(userId);
         return ResponseEntity.ok(achievements);
     }
