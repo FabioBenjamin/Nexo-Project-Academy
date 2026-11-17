@@ -38,18 +38,18 @@ interface TrailApiService {
      * Retrieves full trail details with its complete topic hierarchy
      * Endpoint: GET /trail/{id}
      */
-    @GET("trail/{id}")
+    @GET("trails/{id}")
     suspend fun getTrailDetails(
         @Path("id") trailId: Long):
             Response<StudyTrailResponse>
 
-    @PATCH("trail/{id}")
+    @PATCH("trails/{id}")
     suspend fun updateTrail(
         @Path("id") trailId: Long,
         @Body request: UpdateStudyTrailRequest
     ): Response<Unit>
 
-    @DELETE("trail/{id}")
+    @DELETE("trails/{id}")
     suspend fun deleteTrail(
         @Path("id") trailId: Long
     ): Response<Unit>

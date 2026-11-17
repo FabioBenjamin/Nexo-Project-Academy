@@ -23,7 +23,7 @@ interface SettingsApiService {
         @PUT("settings")
         suspend fun updateSettings(@Body settings: UserSettingsDTO): Response<UserSettingsDTO>
 
-        @PATCH("settings/learning-profile")
+        @PATCH("settings/learning/profile")
         suspend fun updateLearningProfile(@Body request: LearningProfileRequest): Response<Unit>
 
         @PATCH("settings/onboarding/skip")
