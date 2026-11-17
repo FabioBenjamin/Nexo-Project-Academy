@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.*
@@ -44,6 +45,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
     onNavigateToEditProfile: (String, String) -> Unit = { _, _ -> },
+    onNavigateToLearningQuiz: () -> Unit = {},
     onNavigateBottom: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -80,7 +82,6 @@ fun SettingsScreen(
         }
     }
 
-    // Sincroniza preferências locais sempre que carregar os ajustes do BackEnd
     LaunchedEffect(uiState) {
         val currentSuccess = uiState as? SettingsUiState.Success ?: return@LaunchedEffect
         val hasSystemPermission = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || ContextCompat.checkSelfPermission(
@@ -88,7 +89,6 @@ fun SettingsScreen(
             Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
 
-        // Se estava ativo no BackEnd, mas o usuário revogou nas configurações do Android, sincroniza como false
         if (currentSuccess.settings.notifications && !hasSystemPermission) {
             viewModel.updateSettings(currentSuccess.settings.copy(notifications = false))
             tokenManager.saveNotificationPreferences(
@@ -221,7 +221,8 @@ fun SettingsScreen(
                             },
                             onNavigateToEditProfile = {
                                 onNavigateToEditProfile("", state.settings.email)
-                            }
+                            },
+                            onNavigateToLearningQuiz = onNavigateToLearningQuiz
                         )
                     }
                 }
@@ -267,8 +268,11 @@ fun SettingsScreen(
 fun SettingsContent(
     settings: UserSettingsDTO,
     onSettingsChanged: (UserSettingsDTO, Boolean) -> Unit,
-    onNavigateToEditProfile: () -> Unit
+    onNavigateToEditProfile: () -> Unit,
+    onNavigateToLearningQuiz: () -> Unit
 ) {
+    val hasLearningProfile = !settings.learningProfile.isNullOrBlank()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -313,6 +317,7 @@ fun SettingsContent(
             }
         }
 
+        // Card: Editar Perfil
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -361,6 +366,59 @@ fun SettingsContent(
             }
         }
 
+        // Card: Perfil de Aprendizagem (Quiz Opcional / Refazer)
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onNavigateToLearningQuiz() }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = "Perfil de Aprendizagem",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            text = "Perfil de Aprendizagem (Quiz)",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = if (hasLearningProfile) {
+                                "Configurado • Toque para refazer ou ajustar suas preferências"
+                            } else {
+                                "Pendente • Personalize como a IA estrutura suas trilhas"
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+
         // Switch 1: Notificações diárias
         SettingSwitchItem(
             title = AppStrings.settingsNotificationsTitle,
@@ -371,7 +429,7 @@ fun SettingsContent(
             }
         )
 
-        // Switch 2: Estudar nos fins de semana (respeitado pelo StreakReminderWorker)
+        // Switch 2: Estudar nos fins de semana
         SettingSwitchItem(
             title = AppStrings.settingsWeekendsTitle,
             subtitle = AppStrings.settingsWeekendsSubtitle,
