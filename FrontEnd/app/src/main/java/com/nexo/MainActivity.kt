@@ -8,14 +8,13 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.lifecycle.lifecycleScope
 import com.nexo.notifications.StreakNotificationScheduler
-import com.nexo.notifications.StreakReminderWorker
+import com.nexo.security.TokenManager
 import com.nexo.ui.navigation.AppNavigation
+import com.nexo.ui.theme.AppPreferencesState
 import com.nexo.ui.theme.NexoAcademyTheme
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -26,24 +25,33 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val tokenManager = TokenManager(this)
+
+        // Hidrata imediatamente o cache local de tema e idioma antes da primeira renderização
+        lifecycleScope.launch {
+            tokenManager.getCachedSettings()?.let { cached ->
+                AppPreferencesState.updateFromSettings(cached.theme, cached.language)
+            }
+        }
+
+        // Agenda os horários progressivos de lembrete de ofensiva (14h, 19h, 22h, 23h30)
         StreakNotificationScheduler.scheduleAll(this)
+        askNotificationPermissionIfNeeded()
 
         setContent {
             NexoAcademyTheme {
                 AppNavigation()
             }
         }
-
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            "nexo_daily_streak",
-            ExistingPeriodicWorkPolicy.KEEP,
-            PeriodicWorkRequestBuilder<StreakReminderWorker>(24, TimeUnit.HOURS).build()
-        )
     }
 
     private fun askNotificationPermissionIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
         }

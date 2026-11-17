@@ -233,7 +233,7 @@ fun AppNavigation(
         // Rota: Profile Screen
         composable(Routes.PROFILE) {
             val userApiService = RetrofitClient.getUserApiService(context)
-            val profileViewModel = viewModel { ProfileViewModel(userApiService) }
+            val profileViewModel = viewModel { ProfileViewModel(userApiService, tokenManager) }
 
             LaunchedEffect(Unit) {
                 profileViewModel.loadProfile()
@@ -258,7 +258,7 @@ fun AppNavigation(
         // Rota: Achievements Screen (Conquistas & Recordes Pessoais)
         composable(Routes.ACHIEVEMENTS) {
             val userApiService = RetrofitClient.getUserApiService(context)
-            val profileViewModel = viewModel { ProfileViewModel(userApiService) }
+            val profileViewModel = viewModel { ProfileViewModel(userApiService, tokenManager) }
 
             AchievementsScreen(
                 viewModel = profileViewModel,
@@ -269,7 +269,7 @@ fun AppNavigation(
         // Rota: Settings Screen
         composable(Routes.SETTINGS) {
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
-            val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }
+            val settingsViewModel = viewModel { SettingsViewModel(settingsApiService, tokenManager) }
 
             SettingsScreen(
                 viewModel = settingsViewModel,

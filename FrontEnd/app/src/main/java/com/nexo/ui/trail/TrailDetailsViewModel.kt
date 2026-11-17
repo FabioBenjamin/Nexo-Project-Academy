@@ -6,6 +6,7 @@ import com.nexo.data.api.AchievementApiService
 import com.nexo.data.api.TrailApiService
 import com.nexo.data.api.UserApiService
 import com.nexo.dto.StudyTrailResponse
+import com.nexo.dto.UpdateStudyTrailRequest
 import com.nexo.security.TokenManager
 import com.nexo.ui.theme.AppStrings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,22 +56,36 @@ class TrailDetailsViewModel(
 
     fun loadTrailDetails() {
         viewModelScope.launch {
-            _uiState.value = TrailDetailsUiState.Loading
+            // 1. Cache-First: exibe os detalhes salvos localmente de imediato
+            val cached = tokenManager.getCachedTrailDetails(trailId)
+            if (cached != null) {
+                _uiState.value = TrailDetailsUiState.Success(
+                    trail = cached,
+                    progressFraction = calculateProgress(cached)
+                )
+            } else if (_uiState.value !is TrailDetailsUiState.Success) {
+                _uiState.value = TrailDetailsUiState.Loading
+            }
+
+            // 2. Busca os dados mais recentes da API
             try {
                 val response = trailApiService.getTrailDetails(trailId)
                 if (response.isSuccessful && response.body() != null) {
                     val trail = response.body()!!
-                    val progress = calculateProgress(trail)
-                    _uiState.value = TrailDetailsUiState.Success(trail = trail, progressFraction = progress)
-                } else {
+                    tokenManager.saveCachedTrailDetails(trail)
+                    _uiState.value = TrailDetailsUiState.Success(
+                        trail = trail,
+                        progressFraction = calculateProgress(trail)
+                    )
+                } else if (cached == null) {
                     _uiState.value = TrailDetailsUiState.Error("${AppStrings.errLoadTrailDetails} (${response.code()})")
                 }
             } catch (e: IOException) {
-                _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
+                if (cached == null) _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)
             } catch (e: HttpException) {
-                _uiState.value = TrailDetailsUiState.Error(AppStrings.errServer)
+                if (cached == null) _uiState.value = TrailDetailsUiState.Error(AppStrings.errServer)
             } catch (e: Exception) {
-                _uiState.value = TrailDetailsUiState.Error(AppStrings.errUnexpected)
+                if (cached == null) _uiState.value = TrailDetailsUiState.Error(AppStrings.errUnexpected)
             }
         }
     }
@@ -82,8 +97,11 @@ class TrailDetailsViewModel(
                 val response = trailApiService.getTrailDetails(trailId)
                 if (response.isSuccessful && response.body() != null) {
                     val trail = response.body()!!
-                    val progress = calculateProgress(trail)
-                    _uiState.value = TrailDetailsUiState.Success(trail = trail, progressFraction = progress)
+                    tokenManager.saveCachedTrailDetails(trail)
+                    _uiState.value = TrailDetailsUiState.Success(
+                        trail = trail,
+                        progressFraction = calculateProgress(trail)
+                    )
                 }
             } catch (_: Exception) {
             } finally {
@@ -95,7 +113,6 @@ class TrailDetailsViewModel(
     fun completeTopic(topicId: Long) {
         viewModelScope.launch {
             try {
-                // 1. Estado anterior do usuário (para calcular XP ganho, level up e novas conquistas)
                 val beforeProfileResp = userApiService.getUserProfile()
                 val beforeProfile = if (beforeProfileResp.isSuccessful) beforeProfileResp.body() else null
                 val userId = beforeProfile?.id ?: tokenManager.getUserId()
@@ -104,14 +121,12 @@ class TrailDetailsViewModel(
                     tokenManager.saveUserId(userId)
                 }
 
-                // 2. Marca o tópico como concluído (o BackEnd já processa +50 XP e streak)
                 val response = trailApiService.completeTopic(topicId)
                 if (!response.isSuccessful) {
                     _uiState.value = TrailDetailsUiState.Error("${AppStrings.errConcludeTopic} (${response.code()})")
                     return@launch
                 }
 
-                // 3. Recarrega a trilha para verificar se atingiu 100%
                 val updatedTrailResp = trailApiService.getTrailDetails(trailId)
                 var isTestNowUnlocked = false
                 var unlockedTestId: Long? = null
@@ -119,6 +134,7 @@ class TrailDetailsViewModel(
 
                 if (updatedTrailResp.isSuccessful && updatedTrailResp.body() != null) {
                     val updatedTrail = updatedTrailResp.body()!!
+                    tokenManager.saveCachedTrailDetails(updatedTrail)
                     val newProgress = calculateProgress(updatedTrail)
                     _uiState.value = TrailDetailsUiState.Success(trail = updatedTrail, progressFraction = newProgress)
 
@@ -130,9 +146,13 @@ class TrailDetailsViewModel(
                     }
                 }
 
-                // 4. Compara o perfil atualizado para disparar o feedback visual com o mascote
                 val afterProfileResp = userApiService.getUserProfile()
                 val afterProfile = if (afterProfileResp.isSuccessful) afterProfileResp.body() else null
+
+                if (afterProfile != null) {
+                    tokenManager.saveCachedProfile(afterProfile)
+                    tokenManager.updateStudiedToday(afterProfile.studiedToday)
+                }
 
                 if (beforeProfile != null && afterProfile != null) {
                     val beforeTotalXp = (beforeProfile.level - 1) * beforeProfile.maxXp + beforeProfile.currentXp
@@ -194,17 +214,17 @@ class TrailDetailsViewModel(
             try {
                 val response = trailApiService.updateTrail(
                     trailId = trailId,
-                    request = com.nexo.dto.UpdateStudyTrailRequest(
+                    request = UpdateStudyTrailRequest(
                         title = trimmedTitle,
                         description = trimmedDescription
                     )
                 )
 
                 if (response.isSuccessful) {
-                    // Atualiza os dados na tela
                     val refreshed = trailApiService.getTrailDetails(trailId)
                     if (refreshed.isSuccessful && refreshed.body() != null) {
                         val trail = refreshed.body()!!
+                        tokenManager.saveCachedTrailDetails(trail)
                         _uiState.value = TrailDetailsUiState.Success(
                             trail = trail,
                             progressFraction = calculateProgress(trail)
@@ -231,6 +251,11 @@ class TrailDetailsViewModel(
             try {
                 val response = trailApiService.deleteTrail(trailId)
                 if (response.isSuccessful) {
+                    tokenManager.removeCachedTrailDetails(trailId)
+                    // Remove também do cache da lista da Home para não piscar antes do reload
+                    tokenManager.getCachedHomeTrails()?.let { cachedList ->
+                        tokenManager.saveCachedHomeTrails(cachedList.filterNot { it.id == trailId })
+                    }
                     _trailDeleted.value = true
                 } else {
                     _actionError.value = "${AppStrings.errServer} (${response.code()})"

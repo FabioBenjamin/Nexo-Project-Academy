@@ -382,25 +382,95 @@ fun SettingsContent(
             }
         )
 
-        // Switch 3: Tema escuro
-        SettingSwitchItem(
-            title = AppStrings.settingsThemeTitle,
+        // Seletor 3: Tema (Padrão do Sistema / Claro / Escuro)
+        SegmentedPreferenceCard(
+            title = AppStrings.settingsThemeSectionTitle,
             subtitle = AppStrings.settingsThemeSubtitle,
-            checked = settings.theme.equals("dark", ignoreCase = true),
-            onCheckedChange = { isChecked ->
-                onSettingsChanged(settings.copy(theme = if (isChecked) "dark" else "light"), false)
+            options = listOf(
+                "system" to AppStrings.settingsThemeSystem,
+                "light" to AppStrings.settingsThemeLight,
+                "dark" to AppStrings.settingsThemeDark
+            ),
+            selectedValue = settings.theme,
+            onSelect = { newTheme ->
+                onSettingsChanged(settings.copy(theme = newTheme), false)
             }
         )
 
-        // Switch 4: Idioma
-        SettingSwitchItem(
-            title = AppStrings.settingsLanguageTitle,
+        // Seletor 4: Idioma (Padrão do Sistema / Português / English)
+        SegmentedPreferenceCard(
+            title = AppStrings.settingsLanguageSectionTitle,
             subtitle = AppStrings.settingsLanguageSubtitle,
-            checked = settings.language.equals("en-US", ignoreCase = true),
-            onCheckedChange = { isChecked ->
-                onSettingsChanged(settings.copy(language = if (isChecked) "en-US" else "pt-BR"), false)
+            options = listOf(
+                "system" to AppStrings.settingsLanguageSystem,
+                "pt-BR" to AppStrings.settingsLanguagePt,
+                "en-US" to AppStrings.settingsLanguageEn
+            ),
+            selectedValue = settings.language,
+            onSelect = { newLang ->
+                onSettingsChanged(settings.copy(language = newLang), false)
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SegmentedPreferenceCard(
+    title: String,
+    subtitle: String,
+    options: List<Pair<String, String>>, // Pair(valorApi, labelExibida)
+    selectedValue: String,
+    onSelect: (String) -> Unit
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                options.forEachIndexed { index, (value, label) ->
+                    val isSelected = selectedValue.equals(value, ignoreCase = true) ||
+                            (value == "system" && options.none { it.first.equals(selectedValue, ignoreCase = true) })
+
+                    SegmentedButton(
+                        selected = isSelected,
+                        onClick = { onSelect(value) },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.primary,
+                            activeContentColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
