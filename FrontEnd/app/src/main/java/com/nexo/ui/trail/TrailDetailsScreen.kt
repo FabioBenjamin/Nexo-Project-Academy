@@ -83,7 +83,8 @@ fun TrailDetailsScreen(
                             tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
-                },actions = {
+                },
+                actions = {
                     if (uiState is TrailDetailsUiState.Success) {
                         IconButton(onClick = {
                             viewModel.clearActionError()
@@ -295,6 +296,7 @@ private fun EditTrailDialog(
                     singleLine = true,
                     enabled = !isLoading,
                     shape = RoundedCornerShape(12.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -306,6 +308,7 @@ private fun EditTrailDialog(
                     maxLines = 5,
                     enabled = !isLoading,
                     shape = RoundedCornerShape(12.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
 

@@ -1,6 +1,7 @@
 package com.nexo.ui.theme
 
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -9,30 +10,31 @@ private val NexoLightColorScheme = lightColorScheme(
     primary = RoxoAcolhedor,
     onPrimary = BrancoPuro,
     secondary = AmareloAcolhedor,
-    onSecondary = TextoPrincipal,
+    onSecondary = TextoEscuroFixo,
     tertiary = VerdeEquilibrio,
     onTertiary = BrancoPuro,
     background = CremeSuave,
-    onBackground = TextoPrincipal,
+    onBackground = TextoEscuroFixo,
     surface = BrancoPuro,
-    onSurface = TextoPrincipal,
+    onSurface = TextoEscuroFixo,
     error = VermelhoErro,
     onError = BrancoPuro
 )
 
 private val NexoDarkColorScheme = darkColorScheme(
     primary = RoxoAcolhedor,
-    onPrimary = TextoPrincipal,
+    onPrimary = TextoEscuroFixo,
     secondary = AmareloAcolhedor,
-    onSecondary = TextoPrincipal,
+    onSecondary = TextoEscuroFixo,
     tertiary = VerdeEquilibrio,
-    onTertiary = TextoPrincipal,
+    onTertiary = TextoEscuroFixo,
     background = FundoEscuro,
     onBackground = TextoClaroPrincipal,
     surface = SuperficieEscura,
     onSurface = TextoClaroPrincipal,
     surfaceVariant = BordaEscura,
     onSurfaceVariant = TextoClaroSecundario,
+    outline = BordaEscura,
     error = VermelhoErro,
     onError = BrancoPuro
 )
@@ -56,3 +58,21 @@ fun NexoAcademyTheme(
         content = content
     )
 }
+
+// Não precisar substituir em todos os arquivos Screen o tema
+@Composable
+fun nexoTextFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    disabledTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    disabledContainerColor = MaterialTheme.colorScheme.surface,
+    focusedBorderColor = MaterialTheme.colorScheme.primary,
+    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+    focusedLabelColor = MaterialTheme.colorScheme.primary,
+    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
+)
