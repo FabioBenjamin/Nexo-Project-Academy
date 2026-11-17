@@ -4,9 +4,8 @@ object AppStrings {
     private val isEn: Boolean
         get() = AppPreferencesState.language == "en-US"
 
-    // =========================================================================
+
     // 1. COMUM, NAVEGAÇÃO & STATUS
-    // =========================================================================
     val navHome get() = if (isEn) "Home" else "Início"
     val navProfile get() = if (isEn) "Profile" else "Perfil"
     val navSettings get() = if (isEn) "Settings" else "Ajustes"
@@ -27,9 +26,7 @@ object AppStrings {
     val statusInProgress get() = if (isEn) "In Progress" else "Em Andamento"
     val statusPending get() = if (isEn) "Pending" else "Pendente"
 
-    // =========================================================================
     // 2. SPLASH, LOGIN & CADASTRO
-    // =========================================================================
     val splashProjectAcademy get() = "PROJECT ACADEMY"
     val splashSlogan get() = if (isEn) "Learning today,\ntransforming tomorrow." else "Aprender hoje,\ntransformar o amanhã."
 
@@ -50,9 +47,7 @@ object AppStrings {
     val registerBtnSubmit get() = if (isEn) "Register" else "Cadastrar"
     val registerAlreadyHaveAccountLink get() = if (isEn) "Already have an account? Log in" else "Já tem uma conta? Faça login"
 
-    // =========================================================================
     // 3. HOME SCREEN
-    // =========================================================================
     val homeAppTitle get() = "Nexo Academy"
     val homeActionProfile get() = if (isEn) "Profile" else "Perfil"
     val homeActionSettings get() = if (isEn) "Settings" else "Ajustes"
@@ -67,9 +62,7 @@ object AppStrings {
     val homeEmptyStateSubtitle get() = if (isEn) "How about starting a new mission?" else "Que tal começar uma nova missão?"
     val homeEmptyStateButton get() = if (isEn) "Explore activities" else "Explorar atividades"
 
-    // =========================================================================
     // 4. CRIAÇÃO DE TRILHA (IA)
-    // =========================================================================
     val createTrailTitle get() = if (isEn) "New AI Trail" else "Nova Trilha com IA"
     val createTrailHeader get() = if (isEn) "What would you like to learn?" else "O que você gostaria de aprender?"
     val createTrailDescription get() = if (isEn) "Describe the topic and your goal. Gemini will generate a complete study plan with steps and deadlines." else "Descreva o assunto e o objetivo. O Gemini irá gerar um plano de estudos completo com etapas e prazos."
@@ -79,9 +72,7 @@ object AppStrings {
     val createTrailBtnSubmit get() = if (isEn) "Generate Trail with AI" else "Gerar Trilha com IA"
     val createTrailLoadingText get() = if (isEn) "Gemini is creating your trail..." else "O Gemini está criando sua trilha..."
 
-    // =========================================================================
     // 5. DETALHES, EDIÇÃO E EXCLUSÃO DA TRILHA
-    // =========================================================================
     val trailDetailsTitle get() = if (isEn) "Trail Details" else "Detalhes da Trilha"
     val trailDetailsDeadlineLabel get() = if (isEn) "Deadline: " else "Data Limite: "
     val trailDetailsOverallProgress get() = if (isEn) "Overall Progress" else "Progresso Geral"
@@ -100,9 +91,7 @@ object AppStrings {
     val deleteTrailMessage get() = if (isEn) "This action cannot be undone. All topics, progress, and assessments for this trail will be permanently removed." else "Esta ação não pode ser desfeita. Todos os tópicos, progresso e avaliações desta trilha serão removidos permanentemente."
     val deleteTrailConfirmBtn get() = if (isEn) "Delete Trail" else "Excluir Trilha"
 
-    // =========================================================================
     // 6. MODAL DE TÓPICO
-    // =========================================================================
     val modalClose get() = if (isEn) "Close Modal" else "Fechar Modal"
     val modalWhatYouWillLearn get() = if (isEn) "What you will learn:" else "O que você vai aprender:"
     val modalDefaultDescription get() = if (isEn) "Explore the core concepts of this topic to advance in your study trail." else "Explore os conceitos fundamentais deste tópico para avançar na sua trilha de estudos."
@@ -117,9 +106,7 @@ object AppStrings {
     val topicComplete get() = modalCompleteTopicBtn
     val topicCompleted get() = modalTopicCompletedBtn
 
-    // =========================================================================
     // 7. AVALIAÇÃO FINAL (PROVA) & COMEMORAÇÃO
-    // =========================================================================
     val testSectionTitle get() = if (isEn) "Final Assessment" else "Avaliação Final"
     val testSectionBlockedDesc get() = if (isEn) "Complete all topics above to unlock the test." else "Conclua todos os tópicos acima para liberar a prova."
     fun testSectionCompletedDesc(score: Int, passingScore: Int) =
@@ -163,9 +150,8 @@ object AppStrings {
     val rewardDoLaterBtn get() = if (isEn) "Do it later" else "Fazer depois"
     val rewardContinueBtn get() = if (isEn) "Keep Learning" else "Continuar Aprendendo"
 
-    // =========================================================================
     // 8. PERFIL & TELA DE CONQUISTAS (ESTILO DUOLINGO)
-    // =========================================================================
+
 
     val profileTitle get() = if (isEn) "My Profile" else "Meu Perfil"
     val profileLevelLabel get() = if (isEn) "Level " else "Nível "
@@ -200,9 +186,8 @@ object AppStrings {
     fun achievementProgressRatio(current: Int, target: Int) =
         if (isEn) "$current of $target" else "$current de $target"
 
-    // =========================================================================
+
     // 8.5. EDIÇÃO DE CONTA & ZONA DE PERIGO
-    // =========================================================================
 
     val editAvatarTitle get() = if (isEn) "Choose your Avatar" else "Escolha o seu Avatar"
     val editProfileTitle get() = if (isEn) "Edit Profile" else "Editar Perfil"
@@ -215,25 +200,25 @@ object AppStrings {
     val alertDangerZone get() = if (isEn) "Sensitive actions related to your account security." else "Ações sensíveis relacionadas à segurança da sua conta."
     val confirmLogoutTitle get() = if (isEn) "Log Out Everywhere" else "Sair de Todas as Contas"
     val confirmLogoutMessage get() = if (isEn) "You will be signed out from all your devices and will need to log in again." else "Você será desconectado de todos os seus dispositivos e precisará fazer login novamente."
-    val confirmLogout get() = if (isEn) "Confirm Logout" else "Confirmar Saída de Todas as Contas"
+    val confirmLogout get() = if (isEn) "Confirm Logout" else "Saída de Todas as Contas"
     val confirmDeleteAccountTitle get() = if (isEn) "Delete Account Permanently" else "Excluir Conta Permanentemente"
     val confirmDeleteAccountMessage get() = if (isEn) "Warning: this action is irreversible! All your trails, achievements, XP, and study progress will be permanently deleted." else "Atenção: esta ação é irreversível! Todas as suas trilhas, conquistas, pontuação de XP e progresso de estudos serão apagados para sempre."
     val confirmDeleteAccount get() = if (isEn) "Confirm Delete Account" else "Confirmar Exclusão da Conta"
 
-    // =========================================================================
+
     // 9. CONFIGURAÇÕES & NOTIFICAÇÕES
-    // =========================================================================
+
     val settingsTitle get() = if (isEn) "Settings" else "Configurações"
     val settingsHeaderTitle get() = if (isEn) "Learning Settings" else "Ajustes de Aprendizado"
     val settingsHeaderSubtitle get() = if (isEn) "Customize the pace and reminders of your routine." else "Personalize o ritmo e lembretes da sua rotina."
     val settingsThemeSubtitle get() = if (isEn) "Use dark theme for the interface" else "Usar tema escuro na interface"
     val settingsThemeSectionTitle get() = if (isEn) "App Theme" else "Tema do Aplicativo"
-    val settingsThemeSystem get() = if (isEn) "System Default" else "Padrão do Sistema"
+    val settingsThemeSystem get() = if (isEn) "System Default" else "Padrão"
     val settingsThemeLight get() = if (isEn) "Light" else "Claro"
     val settingsThemeDark get() = if (isEn) "Dark" else "Escuro"
 
     val settingsLanguageSectionTitle get() = if (isEn) "App Language" else "Idioma do Aplicativo"
-    val settingsLanguageSystem get() = if (isEn) "System Default" else "Padrão do Sistema"
+    val settingsLanguageSystem get() = if (isEn) "System Default" else "Padrão"
     val settingsLanguagePt get() = "Português"
     val settingsLanguageEn get() = "English"
     val settingsLanguageSubtitle get() = if (isEn) "Use English as the app language" else "Usar inglês como idioma do aplicativo"
@@ -263,9 +248,8 @@ object AppStrings {
         else -> if (isEn) "Less than 30 minutes left! The Nexo is begging you to do 1 topic NOW!" else "Faltam menos de 30 minutos! O Nexo está implorando: faça 1 tópico AGORA!"
     }
 
-    // =========================================================================
     // 10. VALIDAÇÕES DE FORMULÁRIO & ERROS DE API
-    // =========================================================================
+
     val errEmailBlankLogin get() = if (isEn) "Please enter your email." else "Por favor, informe seu e-mail."
     val errPasswordBlankLogin get() = if (isEn) "Please enter your password." else "Por favor, informe sua senha."
     val errUsernameBlank get() = if (isEn) "Please enter a username." else "Por favor, informe um nome de usuário."
@@ -299,9 +283,8 @@ object AppStrings {
     val errEmailChange get() = if (isEn) "Error changing email" else "Erro ao alterar o e-mail"
     val errPasswordChange get() = if (isEn) "Error changing password" else "Erro ao alterar a senha"
 
-    // =========================================================================
     // 11. ACESSIBILIDADE (CONTENT DESCRIPTIONS)
-    // =========================================================================
+
     val cdMascotDefault get() = if (isEn) "Nexo Mascot" else "Mascote Nexo"
     val cdMascotStudying get() = if (isEn) "Mascot Studying" else "Mascote Estudando"
     val cdMascotSupport get() = if (isEn) "Support Mascot" else "Mascote de Apoio"
