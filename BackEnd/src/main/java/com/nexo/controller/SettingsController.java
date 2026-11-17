@@ -36,4 +36,32 @@ public class SettingsController {
 
         return ResponseEntity.ok(settingsService.update(userId, settingsDTO));
     }
+
+    // Adicione dentro do seu SettingsController.java (com @RequestMapping("/settings"))
+
+    @PatchMapping("/learning-profile")
+    public ResponseEntity<Void> updateLearningProfile(
+            @RequestBody LearningProfileRequestDTO request,
+            Authentication authentication) {
+
+        UserSettings settings = settingsRepository.findByUser_Email(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("Configurações não encontradas"));
+
+        settings.setLearningProfile(request.learningProfile());
+        settings.setHasSeenOnboardingPrompt(true);
+        settingsRepository.save(settings);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/onboarding/skip")
+    public ResponseEntity<Void> skipOnboardingQuiz(Authentication authentication) {
+        UserSettings settings = settingsRepository.findByUser_Email(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException("Configurações não encontradas"));
+
+        settings.setHasSeenOnboardingPrompt(true);
+        settingsRepository.save(settings);
+
+        return ResponseEntity.ok().build();
+    }
 }

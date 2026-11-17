@@ -28,6 +28,12 @@ public class Settings {
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean studyWeekends;
 
+    @Column(columnDefinition = "TEXT")
+    private String learningProfile;
+
+    @Column(nullable = false)
+    private boolean hasSeenOnboardingPrompt = false;
+
     public Long getId() {
         return id;
     }
@@ -67,4 +73,19 @@ public class Settings {
     }
 
     public void setTheme(String theme) { this.theme = theme; }
+
+    public String getLearningProfile() {
+        return learningProfile;
+    }
+    public void setLearningProfile(String learningProfile) {
+        this.learningProfile = learningProfile;
+    }
+
+    public boolean isHasSeenOnboardingPrompt() {
+        return hasSeenOnboardingPrompt;
+    }
+
+    public void setHasSeenOnboardingPrompt(boolean hasSeenOnboardingPrompt) {
+        this.hasSeenOnboardingPrompt = hasSeenOnboardingPrompt;
+    }
 }

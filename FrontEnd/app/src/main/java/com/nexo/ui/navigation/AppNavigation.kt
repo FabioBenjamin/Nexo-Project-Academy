@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,8 +25,11 @@ import com.nexo.ui.home.HomeViewModel
 import com.nexo.ui.profile.AchievementsScreen
 import com.nexo.ui.profile.EditProfileScreen
 import com.nexo.ui.profile.EditProfileViewModel
+import com.nexo.ui.profile.LearningProfileQuizScreen
+import com.nexo.ui.profile.LearningProfileViewModel
 import com.nexo.ui.profile.ProfileScreen
 import com.nexo.ui.profile.ProfileViewModel
+import com.nexo.ui.profile.QuizWelcomeScreen
 import com.nexo.ui.settings.SettingsScreen
 import com.nexo.ui.settings.SettingsViewModel
 import com.nexo.ui.splash.SplashScreen
@@ -39,10 +41,13 @@ import com.nexo.ui.trail.CreateTrailViewModel
 import com.nexo.ui.trail.TrailDetailsScreen
 import com.nexo.ui.trail.TrailDetailsViewModel
 import kotlinx.coroutines.launch
+
 object Routes {
     const val SPLASH = "splash"
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val QUIZ_WELCOME = "quiz_welcome"
+    const val LEARNING_PROFILE_QUIZ = "learning_profile_quiz?fromOnboarding={fromOnboarding}"
     const val HOME = "home"
     const val CREATE_TRAIL = "create_trail"
     const val TRAIL_DETAILS = "trail_details/{trailId}"
@@ -53,6 +58,7 @@ object Routes {
     const val EDIT_PROFILE = "edit_profile?username={username}&email={email}"
 
     fun studyTestRoute(testId: Long, passingScore: Int) = "study_test/$testId/$passingScore"
+    fun learningQuizRoute(fromOnboarding: Boolean) = "learning_profile_quiz?fromOnboarding=$fromOnboarding"
 }
 
 @Composable
@@ -60,21 +66,9 @@ fun AppNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val tokenManager = remember { TokenManager(context.applicationContext) }
-    val authApiService = remember { RetrofitClient.getAuthApiService(context.applicationContext) }
-
-    val accessToken by tokenManager.accessToken.collectAsState(initial = "INITIALIZING")
-
-    val performLogout: () -> Unit = {
-        scope.launch {
-            tokenManager.clearTokens()
-            navController.navigate(Routes.LOGIN) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
+    val authApiService = RetrofitClient.getAuthApiService(context)
+    val tokenManager = TokenManager(context)
+    val coroutineScope = rememberCoroutineScope()
 
     val handleBottomNavigation: (String) -> Unit = { route ->
         if (navController.currentBackStackEntry?.destination?.route != route) {
@@ -113,13 +107,28 @@ fun AppNavigation(
         // Rota: Login Screen
         composable(Routes.LOGIN) {
             val userApiService = RetrofitClient.getUserApiService(context)
+            val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val loginViewModel = viewModel { LoginViewModel(authApiService, userApiService, tokenManager) }
             LoginScreen(
                 viewModel = loginViewModel,
                 onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
                 onLoginSuccess = {
-                    navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    coroutineScope.launch {
+                        val settingsResponse = try {
+                            settingsApiService.getSettings().body()
+                        } catch (_: Exception) {
+                            null
+                        }
+
+                        val nextRoute = if (settingsResponse != null && !settingsResponse.hasSeenOnboardingPrompt) {
+                            Routes.QUIZ_WELCOME
+                        } else {
+                            Routes.HOME
+                        }
+
+                        navController.navigate(nextRoute) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        }
                     }
                 }
             )
@@ -139,7 +148,77 @@ fun AppNavigation(
             )
         }
 
-        // Rota: Home Screen (Com refresh automático na entrada/retorno)
+        // Rota: Quiz Welcome Screen (Convite Opcional Pós-Login)
+        composable(Routes.QUIZ_WELCOME) {
+            val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
+            val learningProfileViewModel = viewModel { LearningProfileViewModel(settingsApiService) }
+
+            QuizWelcomeScreen(
+                onStartQuizNow = {
+                    navController.navigate(Routes.learningQuizRoute(fromOnboarding = true)) {
+                        popUpTo(Routes.QUIZ_WELCOME) { inclusive = true }
+                    }
+                },
+                onDoItLater = {
+                    learningProfileViewModel.skipQuiz {
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(Routes.QUIZ_WELCOME) { inclusive = true }
+                        }
+                    }
+                }
+            )
+        }
+
+        // Rota: Learning Profile Quiz Screen
+        composable(
+            route = Routes.LEARNING_PROFILE_QUIZ,
+            arguments = listOf(
+                navArgument("fromOnboarding") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) { backStackEntry ->
+            val fromOnboarding = backStackEntry.arguments?.getBoolean("fromOnboarding") ?: false
+            val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
+            val learningProfileViewModel = viewModel { LearningProfileViewModel(settingsApiService) }
+            val uiState by learningProfileViewModel.uiState.collectAsState()
+
+            LaunchedEffect(uiState.isCompleted) {
+                if (uiState.isCompleted) {
+                    if (fromOnboarding) {
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(Routes.LEARNING_PROFILE_QUIZ) { inclusive = true }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+            }
+
+            LearningProfileQuizScreen(
+                uiState = uiState,
+                onSelectSingleOption = learningProfileViewModel::onSelectSingleOption,
+                onToggleMultipleOption = learningProfileViewModel::onToggleMultipleOption,
+                onUpdateTextAnswer = learningProfileViewModel::onUpdateTextAnswer,
+                onNextStep = learningProfileViewModel::onNextStep,
+                onPreviousStep = learningProfileViewModel::onPreviousStep,
+                onSubmitQuiz = learningProfileViewModel::submitProfileQuiz,
+                onNavigateBack = {
+                    if (fromOnboarding) {
+                        learningProfileViewModel.skipQuiz {
+                            navController.navigate(Routes.HOME) {
+                                popUpTo(Routes.LEARNING_PROFILE_QUIZ) { inclusive = true }
+                            }
+                        }
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+            )
+        }
+
+        // Rota: Home Screen
         composable(Routes.HOME) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val userApiService = RetrofitClient.getUserApiService(context)
@@ -168,7 +247,7 @@ fun AppNavigation(
             )
         }
 
-        // Route: Create Trail Screen
+        // Rota: Create Trail Screen
         composable(Routes.CREATE_TRAIL) {
             val trailApiService = RetrofitClient.getTrailApiService(context)
             val createTrailViewModel = viewModel { CreateTrailViewModel(trailApiService) }
@@ -272,7 +351,7 @@ fun AppNavigation(
             )
         }
 
-        // Rota: Achievements Screen (Conquistas & Recordes Pessoais)
+        // Rota: Achievements Screen
         composable(Routes.ACHIEVEMENTS) {
             val userApiService = RetrofitClient.getUserApiService(context)
             val profileViewModel = viewModel { ProfileViewModel(userApiService) }
@@ -288,11 +367,18 @@ fun AppNavigation(
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val settingsViewModel = viewModel { SettingsViewModel(settingsApiService) }
 
+            LaunchedEffect(Unit) {
+                settingsViewModel.loadSettings()
+            }
+
             SettingsScreen(
                 viewModel = settingsViewModel,
                 onBackClick = { navController.popBackStack() },
                 onNavigateToEditProfile = { username, email ->
                     navController.navigate("edit_profile?username=$username&email=$email")
+                },
+                onNavigateToLearningQuiz = {
+                    navController.navigate(Routes.learningQuizRoute(fromOnboarding = false))
                 },
                 onNavigateBottom = handleBottomNavigation
             )
