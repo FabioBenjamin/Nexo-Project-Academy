@@ -5,6 +5,8 @@ public class SettingsDTO {
     private String language;
     private String theme;
     private Boolean studyWeekends;
+    private String learningProfile;
+    private boolean hasSeenOnboardingPrompt;
 
     public SettingsDTO() {}
 
@@ -41,4 +43,19 @@ public class SettingsDTO {
         this.studyWeekends = studyWeekends;
     }
 
+    public String getLearningProfile() {
+        return learningProfile;
+    }
+
+    public void setLearningProfile(String learningProfile) {
+        this.learningProfile = learningProfile;
+    }
+
+    public boolean isHasSeenOnboardingPrompt() {
+        return hasSeenOnboardingPrompt;
+    }
+
+    public void setHasSeenOnboardingPrompt(boolean hasSeenOnboardingPrompt) {
+        this.hasSeenOnboardingPrompt = hasSeenOnboardingPrompt;
+    }
 }

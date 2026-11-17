@@ -37,16 +37,21 @@ private val NexoDarkColorScheme = darkColorScheme(
     onError = BrancoPuro
 )
 
-@Composable
 fun NexoAcademyTheme(
-    darkTheme: Boolean = AppPreferencesState.isDarkTheme,
+    themeMode: String = AppPreferencesState.themeMode,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) NexoDarkColorScheme else NexoLightColorScheme
+    val isDark = when {
+        themeMode.equals("dark", ignoreCase = true) -> true
+        themeMode.equals("light", ignoreCase = true) -> false
+        else -> androidx.compose.foundation.isSystemInDarkTheme()
+    }
+
+    val colorScheme = if (isDark) NexoDarkColorScheme else NexoLightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography, // It will be configured with the Nunito font
+        typography = Typography,
         content = content
     )
 }

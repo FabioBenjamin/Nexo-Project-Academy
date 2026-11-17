@@ -8,7 +8,6 @@ import com.nexo.data.api.UserApiService
 import com.nexo.dto.RefreshTokenRequest
 import com.nexo.security.TokenManager
 import com.nexo.ui.theme.AppStrings
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,10 +43,23 @@ class HomeViewModel(
             isLastPage = false
             isFetchingNextPage = false
 
-            if (_uiState.value !is HomeUiState.Success) {
+            // 1. Cache-First: hidrata trilhas e perfil imediatamente se existirem no DataStore
+            val cachedTrails = tokenManager.getCachedHomeTrails()
+            val cachedProfile = tokenManager.getCachedProfile()
+
+            if (cachedTrails != null) {
+                _uiState.value = HomeUiState.Success(
+                    trails = cachedTrails,
+                    profile = cachedProfile,
+                    isLoadingMore = false,
+                    isLastPage = false
+                )
+            } else if (_uiState.value !is HomeUiState.Success) {
                 _uiState.value = HomeUiState.Loading
             }
-            fetchFirstPage(isPullToRefresh = false)
+
+            // 2. Sincroniza com o BackEnd em segundo plano
+            fetchFirstPage(silentFailure = cachedTrails != null)
         }
     }
 
@@ -57,12 +69,16 @@ class HomeViewModel(
             isLastPage = false
             isFetchingNextPage = false
             _isRefreshing.value = true
-            fetchFirstPage(isPullToRefresh = true)
-            _isRefreshing.value = false
+            try {
+                // No pull-to-refresh nunca destrói a tela atual em caso de falha de rede
+                fetchFirstPage(silentFailure = true)
+            } finally {
+                _isRefreshing.value = false
+            }
         }
     }
 
-    private suspend fun fetchFirstPage(isPullToRefresh: Boolean) {
+    private suspend fun fetchFirstPage(silentFailure: Boolean) {
         try {
             val trailsResponse = trailApiService.getTrails(page = 0)
             val profileResponse = try {
@@ -73,34 +89,39 @@ class HomeViewModel(
 
             if (trailsResponse.isSuccessful && trailsResponse.body() != null) {
                 val pageBody = trailsResponse.body()!!
-                val profile = if (profileResponse?.isSuccessful == true) profileResponse.body() else null
+                val remoteProfile = if (profileResponse?.isSuccessful == true) profileResponse.body() else null
+                val finalProfile = remoteProfile ?: tokenManager.getCachedProfile()
 
-                if (profile != null) {
-                    tokenManager.saveUserId(profile.id)
-                    tokenManager.updateStudiedToday(profile.studiedToday)
+                if (remoteProfile != null) {
+                    tokenManager.saveUserId(remoteProfile.id)
+                    tokenManager.updateStudiedToday(remoteProfile.studiedToday)
+                    tokenManager.saveCachedProfile(remoteProfile)
                 }
+
+                // Atualiza o cache local da primeira página
+                tokenManager.saveCachedHomeTrails(pageBody.content)
 
                 currentPage = pageBody.number
                 isLastPage = pageBody.last
 
                 _uiState.value = HomeUiState.Success(
                     trails = pageBody.content,
-                    profile = profile,
+                    profile = finalProfile,
                     isLoadingMore = false,
                     isLastPage = isLastPage
                 )
             } else if (trailsResponse.code() == 401) {
                 tokenManager.clearTokens()
                 _uiState.value = HomeUiState.Unauthorized
-            } else if (!isPullToRefresh) {
+            } else if (!silentFailure) {
                 _uiState.value = HomeUiState.Error("${AppStrings.errLoadTrails} (${trailsResponse.code()})")
             }
         } catch (e: IOException) {
-            if (!isPullToRefresh) _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
+            if (!silentFailure) _uiState.value = HomeUiState.Error(AppStrings.errNetwork)
         } catch (e: HttpException) {
-            if (!isPullToRefresh) _uiState.value = HomeUiState.Error(AppStrings.errServer)
+            if (!silentFailure) _uiState.value = HomeUiState.Error(AppStrings.errServer)
         } catch (e: Exception) {
-            if (!isPullToRefresh) _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
+            if (!silentFailure) _uiState.value = HomeUiState.Error(e.message ?: AppStrings.errUnexpected)
         }
     }
 
@@ -122,6 +143,7 @@ class HomeViewModel(
                     isLastPage = pageBody.last
 
                     val updatedTrails = (currentState.trails + pageBody.content).distinctBy { it.id }
+                    tokenManager.saveCachedHomeTrails(updatedTrails)
 
                     _uiState.value = currentState.copy(
                         trails = updatedTrails,

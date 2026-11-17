@@ -25,7 +25,11 @@ class TokenManager(private val context: Context) {
         private val LAST_STUDIED_DATE_KEY = stringPreferencesKey("last_studied_date")
         private val NOTIFICATIONS_ENABLED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("notifications_enabled")
         private val STUDY_WEEKENDS_ENABLED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("study_weekends_enabled")
-
+        private val CACHED_SETTINGS_JSON_KEY = stringPreferencesKey("cached_settings_json")
+        private val CACHED_PROFILE_JSON_KEY = stringPreferencesKey("cached_profile_json")
+        private val gson = com.google.gson.Gson()
+        private val CACHED_HOME_TRAILS_JSON_KEY = stringPreferencesKey("cached_home_trails_json")
+        private fun trailDetailsCacheKey(trailId: Long) = stringPreferencesKey("cached_trail_details_$trailId")
     }
 
     @Volatile
@@ -116,14 +120,7 @@ class TokenManager(private val context: Context) {
         cachedAvatarId = "default"
 
         context.dataStore.edit { preferences ->
-            preferences.remove(ACCESS_TOKEN_KEY)
-            preferences.remove(REFRESH_TOKEN_KEY)
-            preferences.remove(USER_ID_KEY)
-            preferences.remove(USERNAME_KEY)
-            preferences.remove(AVATAR_ID_KEY)
-            preferences.remove(LAST_STUDIED_DATE_KEY)
-            preferences.remove(NOTIFICATIONS_ENABLED_KEY)
-            preferences.remove(STUDY_WEEKENDS_ENABLED_KEY)
+            preferences.clear()
         }
     }
 
@@ -156,5 +153,74 @@ class TokenManager(private val context: Context) {
         val todayStr = java.time.LocalDate.now().toString()
         val saved = context.dataStore.data.firstOrNull()?.get(LAST_STUDIED_DATE_KEY)
         return saved == todayStr
+    }
+
+    suspend fun saveCachedSettings(settings: com.nexo.dto.UserSettingsDTO) {
+        context.dataStore.edit { prefs ->
+            prefs[CACHED_SETTINGS_JSON_KEY] = gson.toJson(settings)
+            prefs[NOTIFICATIONS_ENABLED_KEY] = settings.notifications
+            prefs[STUDY_WEEKENDS_ENABLED_KEY] = settings.studyWeekends
+        }
+    }
+
+    suspend fun getCachedSettings(): com.nexo.dto.UserSettingsDTO? {
+        val json = context.dataStore.data.firstOrNull()?.get(CACHED_SETTINGS_JSON_KEY) ?: return null
+        return try {
+            gson.fromJson(json, com.nexo.dto.UserSettingsDTO::class.java)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    suspend fun saveCachedProfile(profile: com.nexo.dto.UserProfileResponse) {
+        context.dataStore.edit { prefs ->
+            prefs[CACHED_PROFILE_JSON_KEY] = gson.toJson(profile)
+        }
+    }
+
+    suspend fun getCachedProfile(): com.nexo.dto.UserProfileResponse? {
+        val json = context.dataStore.data.firstOrNull()?.get(CACHED_PROFILE_JSON_KEY) ?: return null
+        return try {
+            gson.fromJson(json, com.nexo.dto.UserProfileResponse::class.java)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    suspend fun saveCachedHomeTrails(trails: List<com.nexo.dto.StudyTrailSummaryResponse>) {
+        context.dataStore.edit { prefs ->
+            prefs[CACHED_HOME_TRAILS_JSON_KEY] = gson.toJson(trails)
+        }
+    }
+
+    suspend fun getCachedHomeTrails(): List<com.nexo.dto.StudyTrailSummaryResponse>? {
+        val json = context.dataStore.data.firstOrNull()?.get(CACHED_HOME_TRAILS_JSON_KEY) ?: return null
+        return try {
+            val type = object : com.google.gson.reflect.TypeToken<List<com.nexo.dto.StudyTrailSummaryResponse>>() {}.type
+            gson.fromJson<List<com.nexo.dto.StudyTrailSummaryResponse>>(json, type)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    suspend fun saveCachedTrailDetails(trail: com.nexo.dto.StudyTrailResponse) {
+        context.dataStore.edit { prefs ->
+            prefs[trailDetailsCacheKey(trail.id)] = gson.toJson(trail)
+        }
+    }
+
+    suspend fun getCachedTrailDetails(trailId: Long): com.nexo.dto.StudyTrailResponse? {
+        val json = context.dataStore.data.firstOrNull()?.get(trailDetailsCacheKey(trailId)) ?: return null
+        return try {
+            gson.fromJson(json, com.nexo.dto.StudyTrailResponse::class.java)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    suspend fun removeCachedTrailDetails(trailId: Long) {
+        context.dataStore.edit { prefs ->
+            prefs.remove(trailDetailsCacheKey(trailId))
+        }
     }
 }
