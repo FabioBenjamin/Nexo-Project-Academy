@@ -1,5 +1,6 @@
 package com.nexo.controller;
 
+import com.nexo.dto.LearningProfileRequestDTO;
 import com.nexo.dto.SettingsDTO;
 import com.nexo.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/settings") // Alterar nome da rota
+@RequestMapping("/settings") //
 @CrossOrigin(origins = "*") // Enable access for frontend/mobile (CORS)
 public class SettingsController {
 
@@ -38,29 +39,24 @@ public class SettingsController {
     }
 
     // Adicione dentro do seu SettingsController.java (com @RequestMapping("/settings"))
-
     @PatchMapping("/learning-profile")
     public ResponseEntity<Void> updateLearningProfile(
-            @RequestBody LearningProfileRequestDTO request,
-            Authentication authentication) {
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody LearningProfileRequestDTO request) {
 
-        UserSettings settings = settingsRepository.findByUser_Email(authentication.getName())
-                .orElseThrow(() -> new EntityNotFoundException("Configurações não encontradas"));
+        Long userId = Long.valueOf(jwt.getSubject());
 
-        settings.setLearningProfile(request.learningProfile());
-        settings.setHasSeenOnboardingPrompt(true);
-        settingsRepository.save(settings);
+        settingsService.updateLearningProfile(userId, request.learningProfile());
 
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/onboarding/skip")
-    public ResponseEntity<Void> skipOnboardingQuiz(Authentication authentication) {
-        UserSettings settings = settingsRepository.findByUser_Email(authentication.getName())
-                .orElseThrow(() -> new EntityNotFoundException("Configurações não encontradas"));
+    public ResponseEntity<Void> skipOnboardingQuiz(
+            @AuthenticationPrincipal Jwt jwt) {
 
-        settings.setHasSeenOnboardingPrompt(true);
-        settingsRepository.save(settings);
+        Long userId = Long.valueOf(jwt.getSubject());
+        settingsService.skipOnboardingQuiz(userId);
 
         return ResponseEntity.ok().build();
     }

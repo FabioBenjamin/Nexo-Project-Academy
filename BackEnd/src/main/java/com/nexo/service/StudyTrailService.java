@@ -7,6 +7,7 @@ import com.nexo.integration.dto.GeminiResponse;
 import com.nexo.integration.gemini.GeminiClient;
 import com.nexo.models.classes.*;
 import com.nexo.models.enums.StudyTrailStatus;
+import com.nexo.repository.SettingsRepository;
 import com.nexo.repository.StudyTrailRepository;
 import com.nexo.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -27,6 +28,7 @@ public class StudyTrailService {
     private final StudyTrailRepository studyTrailRepository;
     private final AchievementService achievementService;
     private final UserRepository userRepository;
+    private final SettingsRepository settingsRepository;
 
     // constructor
     public StudyTrailService(
@@ -34,24 +36,30 @@ public class StudyTrailService {
             StudyTrailRepository studyTrailRepository,
             StudyTrailCreationService studyTrailCreationService,
             AchievementService achievementService,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            SettingsRepository settingsRepository) {
 
         this.geminiClient = geminiClient;
         this.studyTrailRepository = studyTrailRepository;
         this.studyTrailCreationService = studyTrailCreationService;
         this.achievementService = achievementService;
         this.userRepository = userRepository;
+        this.settingsRepository = settingsRepository;
     }
 
     public Long createStudyTrail(StudyTrailRequestDTO dto, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
+        String learningProfile = settingsRepository.findByUserId(userId)
+                .map(Settings::getLearningProfile)
+                .orElse(null);
+
         // Gemini response converted into Java Class com as regras permanentes do perfil do usuário
         GeminiResponse geminiResponse = geminiClient.generateTrail(
                 dto,
                 LocalDate.now(),
-                user.getLearningProfile()
+                learningProfile
         );
 
         return studyTrailCreationService.persistStudyTrail(geminiResponse, dto, userId);

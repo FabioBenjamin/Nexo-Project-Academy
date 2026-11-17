@@ -1,9 +1,11 @@
 package com.nexo.data.api
 
+import com.nexo.dto.LearningProfileRequest
 import com.nexo.dto.UserSettingsDTO
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.PUT
 
 interface SettingsApiService {

@@ -12,4 +12,5 @@ public interface SettingsRepository extends JpaRepository<Settings, Long> {
     Optional<Settings> findByUserId(Long userId);
 
 
+
 }

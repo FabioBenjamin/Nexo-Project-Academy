@@ -6,7 +6,7 @@ data class UserSettingsDTO(
     val notifications: Boolean = false,
     val language: String = "pt-BR",
     val theme: String = "light",
-    val studyWeekends: Boolean = true
+    val studyWeekends: Boolean = true,
     val learningProfile: String? = null,
     val hasSeenOnboardingPrompt: Boolean = false
 )

@@ -37,6 +37,7 @@ private val NexoDarkColorScheme = darkColorScheme(
     onError = BrancoPuro
 )
 
+@Composable
 fun NexoAcademyTheme(
     themeMode: String = AppPreferencesState.themeMode,
     content: @Composable () -> Unit

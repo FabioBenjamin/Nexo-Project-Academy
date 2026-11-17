@@ -57,6 +57,42 @@ public class SettingsService {
         return mapToDTO(update);
     }
 
+    private SettingsDTO mapToDTO(Settings settings) {
+        User user = settings.getUser();
+
+        SettingsDTO settingsDTO =  new SettingsDTO();
+
+        settingsDTO.setLanguage(settings.getLanguage());
+        settingsDTO.setNotifications(settings.getNotifications());
+        settingsDTO.setStudyWeekends(settings.getStudyWeekends());
+        settingsDTO.setTheme(settings.getTheme());
+
+        return settingsDTO;
+    }
+
+    // Updates the user's learning profile and marks the onboarding prompt as complete
+    @Transactional
+    public void updateLearningProfile(Long userId, String learningProfile) {
+        Settings settings = settingsRepository.findByUserId(userId)
+                .orElseGet(() -> createDefaultSettings(userId));
+
+        settings.setLearningProfile(learningProfile);
+        settings.setHasSeenOnboardingPrompt(true);
+
+        // Save config
+        settingsRepository.save(settings);
+    }
+
+    // Marks the onboarding quiz as skipped  so the prompt is not shown again
+    @Transactional
+    public void skipOnboardingQuiz(Long userId) {
+        Settings settings = settingsRepository.findByUserId(userId)
+                .orElseGet(() -> createDefaultSettings(userId));
+
+        settings.setHasSeenOnboardingPrompt(true);
+        settingsRepository.save(settings);
+    }
+
     private Settings createDefaultSettings(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found!"));
@@ -70,19 +106,6 @@ public class SettingsService {
 
         // Saves and returns the created Settings object
         return settingsRepository.save(settings);
-    }
-
-    private SettingsDTO mapToDTO(Settings settings) {
-        User user = settings.getUser();
-
-        SettingsDTO settingsDTO =  new SettingsDTO();
-
-        settingsDTO.setLanguage(settings.getLanguage());
-        settingsDTO.setNotifications(settings.getNotifications());
-        settingsDTO.setStudyWeekends(settings.getStudyWeekends());
-        settingsDTO.setTheme(settings.getTheme());
-
-        return settingsDTO;
     }
 
 }
