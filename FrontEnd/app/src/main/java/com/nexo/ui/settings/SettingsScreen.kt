@@ -472,7 +472,6 @@ fun SettingsContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SegmentedPreferenceCard(
     title: String,
