@@ -66,6 +66,12 @@ public class SettingsService {
         settingsDTO.setNotifications(settings.getNotifications());
         settingsDTO.setStudyWeekends(settings.getStudyWeekends());
         settingsDTO.setTheme(settings.getTheme());
+        settingsDTO.setLearningProfile(settings.getLearningProfile());
+        settingsDTO.setHasSeenOnboardingPrompt(settings.isHasSeenOnboardingPrompt());
+
+        if (user != null) {
+            settingsDTO.setEmail(user.getEmail());
+        }
 
         return settingsDTO;
     }

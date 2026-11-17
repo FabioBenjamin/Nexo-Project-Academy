@@ -8,8 +8,17 @@ public class SettingsDTO {
     private String learningProfile;
     private boolean hasSeenOnboardingPrompt;
 
+    private String email;
+
     public SettingsDTO() {}
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public Boolean getNotifications() {
         return notifications;

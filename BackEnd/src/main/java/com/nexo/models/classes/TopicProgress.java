@@ -33,8 +33,8 @@ public class TopicProgress {
     @Column(name = "completed_at")
     private LocalDate completedAt;
 
-    @Column(name = "xp_awarded", columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean xpAwarded;
+    @Column(name = "xp_awarded", nullable = false)
+    private Boolean xpAwarded = false;
 
     public Long getId() {
         return id;
