@@ -30,7 +30,7 @@ interface TrailApiService {
      * Generates a new study trail via Gemini AI
      * Endpoint: POST /trails/generate
      */
-    @POST("trail")
+    @POST("trails")
     suspend fun generateTrail(
         @Body request: StudyTrailRequestDTO): Response<Long>
 
