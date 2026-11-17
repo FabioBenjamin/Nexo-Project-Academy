@@ -82,12 +82,30 @@ class EditProfileViewModel(
         }
     }
 
-    fun updateSelectedAvatar(resId: Int) { _selectedAvatar.value = resId }
-    fun updateUsername(value: String) { _username.value = value }
-    fun updateEmail(value: String) { _email.value = value }
-    fun updateOldPassword(value: String) { _oldPassword.value = value }
-    fun updateNewPassword(value: String) { _newPassword.value = value }
-    fun updateConfirmPassword(value: String) { _confirmPassword.value = value }
+    fun updateSelectedAvatar(resId: Int) {
+        _selectedAvatar.value = resId
+        if (_uiState.value is EditProfileUiState.Error) _uiState.value = EditProfileUiState.Idle
+    }
+    fun updateUsername(value: String) {
+        _username.value = value
+        if (_uiState.value is EditProfileUiState.Error) _uiState.value = EditProfileUiState.Idle
+    }
+    fun updateEmail(value: String) {
+        _email.value = value
+        if (_uiState.value is EditProfileUiState.Error) _uiState.value = EditProfileUiState.Idle
+    }
+    fun updateOldPassword(value: String) {
+        _oldPassword.value = value
+        if (_uiState.value is EditProfileUiState.Error) _uiState.value = EditProfileUiState.Idle
+    }
+    fun updateNewPassword(value: String) {
+        _newPassword.value = value
+        if (_uiState.value is EditProfileUiState.Error) _uiState.value = EditProfileUiState.Idle
+    }
+    fun updateConfirmPassword(value: String) {
+        _confirmPassword.value = value
+        if (_uiState.value is EditProfileUiState.Error) _uiState.value = EditProfileUiState.Idle
+    }
 
     val hasAvatarChange: Boolean
         get() = selectedAvatar.value != baselineAvatarResId

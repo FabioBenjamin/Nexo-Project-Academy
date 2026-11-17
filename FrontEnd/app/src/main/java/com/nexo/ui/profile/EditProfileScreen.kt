@@ -71,9 +71,8 @@ fun EditProfileScreen(
             is EditProfileUiState.Success -> {
                 snackbarHostState.showSnackbar(
                     message = AppStrings.editProfileSuccessMsg,
-                    duration = SnackbarDuration.Short
+                    duration = SnackbarDuration.Long
                 )
-                viewModel.resetUiState()
                 onSaveSuccess()
             }
             is EditProfileUiState.Error -> {
