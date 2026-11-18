@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nexo.R
 import com.nexo.dto.UserProfileResponse
 import com.nexo.security.TokenManager
 import com.nexo.ui.navigation.NexoBottomBar
@@ -134,6 +135,13 @@ fun ProfileScreen(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mascote_errando),
+                                contentDescription = AppStrings.cdMascotSupport,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(110.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 text = state.message,
                                 style = MaterialTheme.typography.bodyLarge,
@@ -196,7 +204,7 @@ fun ProfileContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(126.dp)
+                        .height(132.dp)
                         .background(
                             Brush.horizontalGradient(
                                 colors = listOf(
@@ -209,7 +217,7 @@ fun ProfileContent(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(98.dp)
+                            .size(104.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surface)
                             .border(3.dp, MaterialTheme.colorScheme.secondary, CircleShape),
@@ -218,10 +226,10 @@ fun ProfileContent(
                         Image(
                             painter = painterResource(id = avatarResId),
                             contentDescription = AppStrings.cdMascotDefault,
-                            contentScale = ContentScale.Crop,
+                            contentScale = ContentScale.Fit,
                             modifier = Modifier
-                                .size(88.dp)
-                                .clip(CircleShape)
+                                .fillMaxSize()
+                                .padding(10.dp)
                         )
                     }
                 }
@@ -347,6 +355,7 @@ fun ProfileContent(
                 )
             }
         }
+
         Card(
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -367,16 +376,18 @@ fun ProfileContent(
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(48.dp)
+                            .size(56.dp)
                             .clip(CircleShape)
                             .background(Color(0xFFFFB300).copy(alpha = 0.18f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.EmojiEvents,
-                            contentDescription = null,
-                            tint = Color(0xFFFFB300),
-                            modifier = Modifier.size(28.dp)
+                        Image(
+                            painter = painterResource(id = R.drawable.mascote_estrela),
+                            contentDescription = AppStrings.cdMascotStar,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(6.dp)
                         )
                     }
 

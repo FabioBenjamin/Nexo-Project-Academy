@@ -2,6 +2,7 @@ package com.nexo.ui.trail
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -171,7 +172,6 @@ fun TrailDetailsScreen(
                             onStartTest = onStartTest
                         )
 
-                        // Modal de Edição da Trilha
                         if (showEditDialog) {
                             EditTrailDialog(
                                 initialTitle = state.trail.title,
@@ -513,18 +513,28 @@ fun StudyTestSectionCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Image(
-                    painter = painterResource(
-                        id = when {
-                            isBlocked -> R.drawable.mascote_apoio
-                            isCompleted -> R.drawable.mascote_default
-                            else -> R.drawable.mascote_focado
-                        }
-                    ),
-                    contentDescription = AppStrings.testSectionTitle,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(72.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(
+                            id = when {
+                                isBlocked -> R.drawable.mascote_apoio
+                                isCompleted -> R.drawable.mascote_default
+                                else -> R.drawable.mascote_focado
+                            }
+                        ),
+                        contentDescription = AppStrings.testSectionTitle,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(6.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))

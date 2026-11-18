@@ -8,6 +8,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,9 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nexo.R
+import com.nexo.ui.theme.AppStrings
 
 @Composable
 fun LearningProfileQuizScreen(
@@ -46,8 +51,8 @@ fun LearningProfileQuizScreen(
         label = "QuizProgressAnimation"
     )
 
-    val primaryIndigo = Color(0xFF3F51B5)
-    val vibrantPurple = Color(0xFF7C4DFF)
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val secondaryAccent = MaterialTheme.colorScheme.tertiary
     val surfaceBackground = MaterialTheme.colorScheme.background
 
     Scaffold(
@@ -71,12 +76,12 @@ fun LearningProfileQuizScreen(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar"
+                            contentDescription = AppStrings.btnBack
                         )
                     }
 
                     Text(
-                        text = "Etapa ${uiState.currentStep + 1} de ${uiState.totalSteps}",
+                        text = AppStrings.quizStepCounter(uiState.currentStep + 1, uiState.totalSteps),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -84,7 +89,7 @@ fun LearningProfileQuizScreen(
 
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = vibrantPurple.copy(alpha = 0.12f)
+                        color = primaryColor.copy(alpha = 0.12f)
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
@@ -93,15 +98,15 @@ fun LearningProfileQuizScreen(
                             Icon(
                                 imageVector = Icons.Default.AutoAwesome,
                                 contentDescription = null,
-                                tint = vibrantPurple,
+                                tint = primaryColor,
                                 modifier = Modifier.size(14.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Perfil IA",
+                                text = AppStrings.quizAiProfileBadge,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = vibrantPurple
+                                color = primaryColor
                             )
                         }
                     }
@@ -115,8 +120,8 @@ fun LearningProfileQuizScreen(
                         .fillMaxWidth()
                         .height(6.dp)
                         .clip(RoundedCornerShape(3.dp)),
-                    color = vibrantPurple,
-                    trackColor = vibrantPurple.copy(alpha = 0.15f)
+                    color = primaryColor,
+                    trackColor = primaryColor.copy(alpha = 0.15f)
                 )
             }
         },
@@ -145,20 +150,21 @@ fun LearningProfileQuizScreen(
                             .height(54.dp),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isLastStep) vibrantPurple else primaryIndigo
+                            containerColor = if (isLastStep) secondaryAccent else primaryColor,
+                            contentColor = if (isLastStep) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
                         if (uiState.isLoading) {
                             CircularProgressIndicator(
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(22.dp),
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text("Salvando perfil...", fontWeight = FontWeight.Bold)
+                            Text(AppStrings.quizSavingBtn, fontWeight = FontWeight.Bold)
                         } else {
                             Text(
-                                text = if (isLastStep) "Salvar Perfil de Aprendizagem" else "Continuar",
+                                text = if (isLastStep) AppStrings.quizSaveProfileBtn else AppStrings.quizContinueBtn,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -190,25 +196,50 @@ fun LearningProfileQuizScreen(
                 label = "QuestionTransition"
             ) { question ->
                 Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        text = question.stepTitle.uppercase(),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = vibrantPurple,
-                        letterSpacing = 1.sp
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(68.dp)
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(primaryColor.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mascote_pensativo),
+                                contentDescription = AppStrings.cdMascotThoughtful,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(6.dp)
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = question.stepTitle.uppercase(),
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = primaryColor,
+                                letterSpacing = 1.sp
+                            )
 
-                    Text(
-                        text = question.question,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = question.question,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
 
                     question.subtitle?.let { subtitle ->
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodyMedium,
@@ -228,7 +259,7 @@ fun LearningProfileQuizScreen(
                                         text = option,
                                         isSelected = selectedOption == option,
                                         isMultiSelect = false,
-                                        accentColor = primaryIndigo,
+                                        accentColor = primaryColor,
                                         onClick = { onSelectSingleOption(question.id, option) }
                                     )
                                 }
@@ -243,7 +274,7 @@ fun LearningProfileQuizScreen(
                                         text = option,
                                         isSelected = selectedOptions.contains(option),
                                         isMultiSelect = true,
-                                        accentColor = vibrantPurple,
+                                        accentColor = secondaryAccent,
                                         onClick = { onToggleMultipleOption(question.id, option) }
                                     )
                                 }
@@ -266,7 +297,7 @@ fun LearningProfileQuizScreen(
                                 },
                                 shape = RoundedCornerShape(16.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = vibrantPurple,
+                                    focusedBorderColor = primaryColor,
                                     unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                                 )
                             )
@@ -281,7 +312,7 @@ fun LearningProfileQuizScreen(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
-                                text = "Essas preferências ficarão salvas no seu perfil e serão aplicadas automaticamente em todas as trilhas que você criar. Você pode alterá-las a qualquer momento nas Configurações.",
+                                text = AppStrings.quizFinalStepHint,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(14.dp),

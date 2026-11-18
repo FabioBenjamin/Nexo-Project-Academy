@@ -1,141 +1,149 @@
-package com.nexo.ui.profile
+package com.nexo.ui.quiz
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nexo.R
+import com.nexo.ui.theme.AppStrings
 
 @Composable
 fun QuizWelcomeScreen(
-    onStartQuizNow: () -> Unit,
-    onDoItLater: () -> Unit
+    onStartQuiz: () -> Unit,
+    onSkipQuiz: () -> Unit
 ) {
-    val vibrantPurple = Color(0xFF7C4DFF)
-    val primaryIndigo = Color(0xFF3F51B5)
-
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background
-    ) { innerPadding ->
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
                     modifier = Modifier
-                        .size(88.dp)
-                        .clip(CircleShape)
-                        .background(vibrantPurple.copy(alpha = 0.12f)),
+                        .size(148.dp)
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                        .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), RoundedCornerShape(32.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = null,
-                        tint = vibrantPurple,
-                        modifier = Modifier.size(44.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.mascote_acolhedor),
+                        contentDescription = AppStrings.cdMascotWelcoming,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(10.dp)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(28.dp))
 
                 Text(
-                    text = "Personalize o seu jeito de aprender",
+                    text = AppStrings.quizWelcomeTitle,
                     style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "Responda a um quiz rápido de 4 perguntas para que o Nexo adapte a estrutura, o ritmo e o tamanho dos tópicos de todas as suas futuras trilhas de estudo.",
+                    text = AppStrings.quizWelcomeSubtitle,
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 24.sp
+                    textAlign = TextAlign.Center,
+                    lineHeight = 23.sp
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                Surface(
-                    shape = RoundedCornerShape(14.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                Card(
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                            tint = primaryIndigo,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            text = "Este quiz é totalmente opcional. Se preferir começar agora, você poderá realizá-lo ou alterá-lo a qualquer momento nas Configurações.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            lineHeight = 18.sp
-                        )
-                    }
+                    Text(
+                        text = AppStrings.quizWelcomeOptionalNote,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
+                    )
                 }
             }
 
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    onClick = onStartQuizNow,
+                    onClick = onStartQuiz,
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = vibrantPurple)
+                        .height(54.dp)
                 ) {
                     Text(
-                        text = "Fazer quiz agora",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
+                        text = AppStrings.quizWelcomeStartBtn,
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
                     )
                 }
 
                 OutlinedButton(
-                    onClick = onDoItLater,
+                    onClick = onSkipQuiz,
+                    shape = RoundedCornerShape(16.dp),
+                    border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.outline),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(14.dp)
+                        .height(52.dp)
                 ) {
                     Text(
-                        text = "Fazer mais tarde",
-                        fontSize = 16.sp,
+                        text = AppStrings.quizWelcomeLaterBtn,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

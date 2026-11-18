@@ -1,7 +1,10 @@
 package com.nexo.ui.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -13,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +31,7 @@ import com.nexo.data.api.AuthApiService
 import com.nexo.dto.ForgotPasswordRequest
 import com.nexo.dto.ResetPasswordRequest
 import com.nexo.ui.theme.AppStrings
+import com.nexo.ui.theme.nexoTextFieldColors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,7 +43,7 @@ fun ForgotPasswordBottomSheet(
     onResetSuccess: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var step by remember { mutableIntStateOf(1) } // 1 = Enviar e-mail, 2 = Validar código + nova senha
+    var step by remember { mutableIntStateOf(1) }
     var email by remember { mutableStateOf(initialEmail) }
     var code by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -60,17 +65,28 @@ fun ForgotPasswordBottomSheet(
                 .padding(bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.mascote_calma),
-                contentDescription = "Mascote Nexo Calmo",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(84.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(92.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.mascote_calma),
+                    contentDescription = AppStrings.cdMascotCalm,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = if (step == 1) "Recuperar Senha" else "Criar Nova Senha",
+                text = if (step == 1) AppStrings.forgotPasswordTitleStep1 else AppStrings.forgotPasswordTitleStep2,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -80,9 +96,9 @@ fun ForgotPasswordBottomSheet(
 
             Text(
                 text = if (step == 1) {
-                    "Digite o e-mail da sua conta para receber um código de verificação de 6 dígitos."
+                    AppStrings.forgotPasswordDescStep1
                 } else {
-                    "Enviamos um código para $email. Insira-o abaixo junto com sua nova senha."
+                    AppStrings.forgotPasswordDescStep2(email)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -106,6 +122,7 @@ fun ForgotPasswordBottomSheet(
                         imeAction = ImeAction.Done
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
             } else {
@@ -115,7 +132,7 @@ fun ForgotPasswordBottomSheet(
                         if (it.length <= 6) code = it.filter { ch -> ch.isDigit() }
                         errorMessage = null
                     },
-                    label = { Text("Código de 6 dígitos") },
+                    label = { Text(AppStrings.forgotPasswordCodeLabel) },
                     singleLine = true,
                     trailingIcon = { Icon(Icons.Default.Key, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
@@ -123,6 +140,7 @@ fun ForgotPasswordBottomSheet(
                         imeAction = ImeAction.Next
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -150,6 +168,7 @@ fun ForgotPasswordBottomSheet(
                         imeAction = ImeAction.Next
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -169,6 +188,7 @@ fun ForgotPasswordBottomSheet(
                         imeAction = ImeAction.Done
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -201,7 +221,7 @@ fun ForgotPasswordBottomSheet(
                                 if (resp.isSuccessful) {
                                     step = 2
                                 } else {
-                                    errorMessage = "Não foi possível enviar o código (${resp.code()})"
+                                    errorMessage = AppStrings.forgotPasswordErrSendFailed(resp.code())
                                 }
                             } catch (e: Exception) {
                                 errorMessage = AppStrings.errNetwork
@@ -211,7 +231,7 @@ fun ForgotPasswordBottomSheet(
                         }
                     } else {
                         if (code.length != 6) {
-                            errorMessage = "Informe o código de 6 dígitos"
+                            errorMessage = AppStrings.forgotPasswordErrCodeLength
                             return@Button
                         }
                         if (newPassword.length < 6) {
@@ -236,7 +256,7 @@ fun ForgotPasswordBottomSheet(
                                 if (resp.isSuccessful) {
                                     onResetSuccess()
                                 } else {
-                                    errorMessage = "Código inválido ou expirado"
+                                    errorMessage = AppStrings.forgotPasswordErrInvalidCode
                                 }
                             } catch (e: Exception) {
                                 errorMessage = AppStrings.errNetwork
@@ -259,7 +279,7 @@ fun ForgotPasswordBottomSheet(
                     )
                 } else {
                     Text(
-                        text = if (step == 1) "Enviar Código" else "Redefinir Senha",
+                        text = if (step == 1) AppStrings.forgotPasswordSendBtn else AppStrings.forgotPasswordResetBtn,
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
@@ -268,7 +288,7 @@ fun ForgotPasswordBottomSheet(
             if (step == 2) {
                 Spacer(modifier = Modifier.height(8.dp))
                 TextButton(onClick = { step = 1; errorMessage = null }) {
-                    Text("Alterar e-mail ou reenviar código")
+                    Text(AppStrings.forgotPasswordResendLink)
                 }
             }
         }

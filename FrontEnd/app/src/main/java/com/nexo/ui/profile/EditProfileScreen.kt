@@ -19,7 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -29,6 +28,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -133,7 +133,6 @@ fun EditProfileScreen(
                     .padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 🐻 SEÇÃO 1: Seletor de Avatar do Mascote
                 Text(
                     text = AppStrings.editAvatarTitle,
                     style = MaterialTheme.typography.titleMedium,
@@ -156,8 +155,12 @@ fun EditProfileScreen(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(72.dp)
+                                    .size(76.dp)
                                     .clip(CircleShape)
+                                    .background(
+                                        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                                        else MaterialTheme.colorScheme.surface
+                                    )
                                     .border(
                                         width = if (isSelected) 3.dp else 1.dp,
                                         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
@@ -168,10 +171,10 @@ fun EditProfileScreen(
                                 Image(
                                     painter = painterResource(id = option.resId),
                                     contentDescription = option.name,
-                                    contentScale = ContentScale.Crop,
+                                    contentScale = ContentScale.Fit,
                                     modifier = Modifier
-                                        .size(64.dp)
-                                        .clip(CircleShape)
+                                        .fillMaxSize()
+                                        .padding(7.dp)
                                 )
                                 if (isSelected) {
                                     Box(
@@ -195,6 +198,7 @@ fun EditProfileScreen(
                             Text(
                                 text = option.name,
                                 style = MaterialTheme.typography.labelSmall,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                                 color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -203,7 +207,6 @@ fun EditProfileScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 📝 SEÇÃO 2: Formulário de Campos
                 OutlinedTextField(
                     value = username,
                     onValueChange = { viewModel.updateUsername(it) },
@@ -258,7 +261,7 @@ fun EditProfileScreen(
                         IconButton(onClick = { isOldPasswordVisible = !isOldPasswordVisible }) {
                             Icon(
                                 imageVector = if (isOldPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = "Mostrar senha atual",
+                                contentDescription = AppStrings.labelOldPassword,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -333,15 +336,14 @@ fun EditProfileScreen(
 
                 Spacer(modifier = Modifier.height(28.dp))
 
-                // Botão Cancelar
                 OutlinedButton(
                     onClick = onBackClick,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),
                     shape = RoundedCornerShape(16.dp),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline)
+                    border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
+                        brush = SolidColor(MaterialTheme.colorScheme.outline)
                     ),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.onBackground
@@ -352,7 +354,6 @@ fun EditProfileScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Botão Salvar
                 Button(
                     onClick = { viewModel.saveChanges() },
                     enabled = viewModel.isFormValid && uiState !is EditProfileUiState.Loading,
@@ -379,7 +380,6 @@ fun EditProfileScreen(
 
                 Spacer(modifier = Modifier.height(36.dp))
 
-                // 🚨 SEÇÃO 3: Zona de Perigo (Danger Zone)
                 Card(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(
@@ -424,7 +424,6 @@ fun EditProfileScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Botão: Sair de todas as sessões
                         OutlinedButton(
                             onClick = { showLogoutDialog = true },
                             modifier = Modifier
@@ -434,12 +433,12 @@ fun EditProfileScreen(
                             colors = ButtonDefaults.outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.error
                             ),
-                            border = ButtonDefaults.outlinedButtonBorder.copy(
-                                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.error)
+                            border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
+                                brush = SolidColor(MaterialTheme.colorScheme.error)
                             )
                         ) {
                             Icon(
-                                imageVector = Icons.Default.ExitToApp,
+                                imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -449,7 +448,6 @@ fun EditProfileScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
-                        // Botão: Excluir conta
                         Button(
                             onClick = { showDeleteAccountDialog = true },
                             modifier = Modifier
@@ -464,9 +462,9 @@ fun EditProfileScreen(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
-                                modifier = Modifier.size(14.dp)
+                                modifier = Modifier.size(16.dp)
                             )
-                            Spacer(modifier = Modifier.width(4.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(AppStrings.confirmDeleteAccount, fontWeight = FontWeight.Bold)
                         }
                     }
@@ -475,7 +473,6 @@ fun EditProfileScreen(
         }
     }
 
-    // 🔴 Modal 1: Confirmação de Logout de Todas as Sessões
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
@@ -500,7 +497,6 @@ fun EditProfileScreen(
         )
     }
 
-    // 🔴 Modal 2: Confirmação de Exclusão Irreversível de Conta
     if (showDeleteAccountDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteAccountDialog = false },

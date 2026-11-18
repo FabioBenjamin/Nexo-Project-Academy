@@ -3,7 +3,6 @@ package com.nexo.ui.trail
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -50,25 +49,25 @@ fun TopicDetailModal(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Modal Header: Top Bar with Mascot Icon and Close Button
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Mascot Studying Pose Header Icon
                     Box(
                         modifier = Modifier
-                            .size(54.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.background),
+                            .size(58.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.mascote_focado),
                             contentDescription = AppStrings.cdMascotStudying,
                             contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(44.dp)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
                         )
                     }
 
@@ -85,7 +84,6 @@ fun TopicDetailModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Topic Title
                 Text(
                     text = topic.title,
                     style = MaterialTheme.typography.titleLarge,
@@ -96,7 +94,6 @@ fun TopicDetailModal(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Content Breakdown Card ("Description")
                 Card(
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.6f)),
@@ -126,7 +123,6 @@ fun TopicDetailModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Target Date Metadata Row (if available)
                 if (!topic.targetDate.isNullOrBlank()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -148,7 +144,6 @@ fun TopicDetailModal(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                // Completion Action Button with XP Reward Indicator
                 Button(
                     onClick = {
                         onCompleteTopic(topic)
@@ -185,7 +180,7 @@ fun TopicDetailModal(
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Star,
-                                contentDescription = "XP",
+                                contentDescription = AppStrings.cdXP,
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier.size(20.dp)
                             )

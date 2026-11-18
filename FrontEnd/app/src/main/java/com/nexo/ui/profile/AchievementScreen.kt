@@ -1,7 +1,9 @@
 package com.nexo.ui.profile
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,10 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.nexo.R
 import com.nexo.dto.UserAchievementDTO
 import com.nexo.dto.UserProfileResponse
 import com.nexo.ui.theme.AppStrings
@@ -99,6 +104,13 @@ fun AchievementsScreen(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mascote_errando),
+                                contentDescription = AppStrings.cdMascotSupport,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(110.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(text = state.message, color = MaterialTheme.colorScheme.error)
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(onClick = { viewModel.loadProfile() }) {
@@ -125,6 +137,7 @@ private fun AchievementsContent(
     selectedFilter: AchievementFilter,
     onSelectFilter: (AchievementFilter) -> Unit
 ) {
+    val unlockedCount = profile.achievements.count { it.unlocked }
     val filteredAchievements = remember(profile.achievements, selectedFilter) {
         val sorted = profile.achievements.sortedByDescending { it.unlocked }
         when (selectedFilter) {
@@ -139,6 +152,59 @@ private fun AchievementsContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
+        item {
+            Card(
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                border = BorderStroke(1.5.dp, Color(0xFFFFB300).copy(alpha = 0.5f)),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = AppStrings.profileAchievementsCardTitle,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = AppStrings.profileAchievementsProgressSummary(
+                                unlocked = unlockedCount,
+                                total = profile.achievements.size
+                            ),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(76.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFFFB300).copy(alpha = 0.16f))
+                            .border(2.dp, Color(0xFFFFB300), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.mascote_campeao),
+                            contentDescription = AppStrings.cdMascotChampion,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp)
+                        )
+                    }
+                }
+            }
+        }
+
         item {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
@@ -221,8 +287,33 @@ private fun AchievementsContent(
             }
         }
 
-        items(filteredAchievements, key = { it.id }) { achievement ->
-            TriumphProgressCard(achievement = achievement)
+        if (filteredAchievements.isEmpty()) {
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.mascote_pensativo),
+                        contentDescription = AppStrings.cdMascotThoughtful,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(100.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = AppStrings.homeEmptyStateTitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        } else {
+            items(filteredAchievements, key = { it.id }) { achievement ->
+                TriumphProgressCard(achievement = achievement)
+            }
         }
     }
 }
