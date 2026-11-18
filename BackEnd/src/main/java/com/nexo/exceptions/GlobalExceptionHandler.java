@@ -134,5 +134,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
+
+    @ExceptionHandler(StudyTestUnavailableException.class)
+    public ResponseEntity<ErrorResponseDTO> handleStudyTestBlockedException(
+            StudyTestUnavailableException e){
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                "Forbidden",
+                e.getMessage(),
+                403
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(error);
+    }
 }
 

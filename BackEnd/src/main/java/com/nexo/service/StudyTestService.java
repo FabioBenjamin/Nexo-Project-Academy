@@ -1,5 +1,10 @@
 package com.nexo.service;
 
+import com.nexo.dto.AlternativeResponse;
+import com.nexo.dto.QuestionResponse;
+import com.nexo.dto.StudyTestResponse;
+import com.nexo.exceptions.EntityNotFoundException;
+import com.nexo.exceptions.StudyTestUnavailableException;
 import com.nexo.integration.dto.GeminiAlternativeResponse;
 import com.nexo.integration.dto.GeminiQuestionResponse;
 import com.nexo.integration.dto.GeminiTestResponse;
@@ -9,17 +14,23 @@ import com.nexo.models.classes.StudyTest;
 import com.nexo.models.classes.StudyTrail;
 import com.nexo.models.enums.StudyTestStatus;
 import com.nexo.repository.StudyTestRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class StudyTestService {
 
     private final StudyTestRepository studyTestRepository;
+    private final StudyTrailService studyTrailService;
 
     public StudyTestService(
-            StudyTestRepository studyTestRepository
+            StudyTestRepository studyTestRepository,
+            StudyTrailService studyTrailService
     ){
         this.studyTestRepository = studyTestRepository;
+        this.studyTrailService = studyTrailService;
     }
 
     public void saveStudyTest(GeminiTestResponse testResponse, StudyTrail studyTrail){
@@ -27,6 +38,9 @@ public class StudyTestService {
         StudyTest studyTest = new StudyTest();
         studyTest.setStatus(StudyTestStatus.BLOCKED);
         studyTest.setStudyTrail(studyTrail);
+        studyTest.setPassingScore(7);
+
+        studyTrail.setStudyTest(studyTest);
 
         for(GeminiQuestionResponse questionResponse : testResponse.questions()){
 
@@ -52,5 +66,76 @@ public class StudyTestService {
         }
 
         studyTestRepository.save(studyTest);
+    }
+
+    public StudyTestResponse getStudyTest(Long studyTestId, Long userId){
+
+        StudyTest studyTest = studyTestRepository.findByIdAndStudyTrailUserId(studyTestId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("StudyTest not found"));
+
+        // Verify if StudyTest is available
+        if(studyTest.getStatus() == StudyTestStatus.BLOCKED){
+            throw new StudyTestUnavailableException("Study Test is not available");
+        }
+
+        if(studyTest.getStatus() == StudyTestStatus.COMPLETED){
+            throw new StudyTestUnavailableException("Study Test has already been completed");
+        }
+
+        return mapToStudyTestResponseDTO(studyTest);
+
+    }
+
+    private StudyTestResponse mapToStudyTestResponseDTO(StudyTest studyTest){
+
+        List<Question> questions = studyTest.getQuestions();
+
+        List<QuestionResponse> questionResponses = questions
+                .stream()
+                .map(this :: mapToQuestionResponseDTO)
+                .toList();
+
+        return new StudyTestResponse(
+                questionResponses
+        );
+    }
+
+    private QuestionResponse mapToQuestionResponseDTO(Question question){
+
+        List<AlternativeResponse> alternativeResponses = question.getAlternatives()
+                .stream()
+                .map(this:: mapToAlternativeResponseDTO)
+                .toList();
+
+        return new QuestionResponse(
+                question.getId(),
+                question.getStatement(),
+                alternativeResponses
+        );
+    }
+
+    private AlternativeResponse mapToAlternativeResponseDTO(Alternative alternative){
+
+        return new AlternativeResponse(
+                alternative.getId(),
+                alternative.getDescription()
+        );
+    }
+
+    @Transactional
+    public boolean completeStudyTest(StudyTest studyTest, int score) {
+        if (score < studyTest.getPassingScore()) {
+            return false;
+        }
+
+        studyTest.setStatus(StudyTestStatus.COMPLETED);
+
+        StudyTrail trail = studyTest.getStudyTrail();
+        if (trail != null) {
+            studyTrailService.completeStudyTrail(trail);
+        }
+
+        studyTestRepository.save(studyTest);
+        return true;
     }
 }

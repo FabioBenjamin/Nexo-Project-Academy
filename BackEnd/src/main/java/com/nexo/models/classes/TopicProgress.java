@@ -33,6 +33,9 @@ public class TopicProgress {
     @Column(name = "completed_at")
     private LocalDate completedAt;
 
+    @Column(name = "xp_awarded", nullable = false)
+    private Boolean xpAwarded = false;
+
     public Long getId() {
         return id;
     }
@@ -53,6 +56,8 @@ public class TopicProgress {
         return completedAt;
     }
 
+    public Boolean isXpAwarded(){ return xpAwarded; }
+
     public void setTopic(Topic topic) { this.topic = topic; }
 
     public void setStatus(TopicProgressStatus status) {
@@ -66,4 +71,6 @@ public class TopicProgress {
     public void setCompletedAt(LocalDate completedAt) {
         this.completedAt = completedAt;
     }
+
+    public void setXpAwarded(Boolean xpAwarded) {this.xpAwarded = xpAwarded; }
 }

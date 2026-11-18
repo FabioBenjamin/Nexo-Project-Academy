@@ -3,6 +3,7 @@ package com.nexo.service;
 import com.nexo.dto.StudyTrailRequestDTO;
 import com.nexo.integration.dto.GeminiResponse;
 import com.nexo.models.classes.StudyTrail;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +14,7 @@ public class StudyTrailCreationService {
     private final StudyTrailPersistenceService studyTrailPersistenceService;
 
     public StudyTrailCreationService(
-            StudyTestService studyTestService,
+            @Lazy StudyTestService studyTestService,
             StudyTrailPersistenceService studyTrailPersistenceService
     ){
         this.studyTestService = studyTestService;

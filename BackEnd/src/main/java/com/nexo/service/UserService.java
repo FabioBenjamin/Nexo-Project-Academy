@@ -1,0 +1,166 @@
+package com.nexo.service;
+
+import com.nexo.dto.*;
+import com.nexo.exceptions.*;
+import com.nexo.models.classes.User;
+import com.nexo.models.enums.StudyTrailStatus;
+import com.nexo.repository.RefreshTokenRepository;
+import com.nexo.repository.StudyTrailRepository;
+import com.nexo.repository.UserRepository;
+import jakarta.transaction.Transactional;
+import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final AchievementService achievementService;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailValidator emailValidator;
+    private final StudyTrailRepository studyTrailRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public UserService(
+            UserRepository userRepository,
+            AchievementService achievementService,
+            PasswordEncoder passwordEncoder,
+            StudyTrailRepository studyTrailRepository,
+            RefreshTokenRepository refreshTokenRepository
+    ){
+        this.userRepository = userRepository;
+        this.achievementService = achievementService;
+        this.passwordEncoder = passwordEncoder;
+        this.emailValidator = EmailValidator.getInstance();
+        this.studyTrailRepository = studyTrailRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+    }
+
+    public UserProfileResponseDTO getUserProfile(Long userId){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        int totalXp = user.getXp() != null ? user.getXp() : 0;
+
+        // Calculate xp level
+        int xpPerLevel = 300;
+        int level = (totalXp / xpPerLevel) + 1; //
+        int currentXpInLevel = totalXp % xpPerLevel; //
+        boolean studiedToday = LocalDate.now().equals(user.getLastActiveDate());
+        List<AchievementDTO> achievements = achievementService.getUserAchievements(userId);
+        int currentStreak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+        int maxStreak = Math.max(user.getMaxStreak() != null ? user.getMaxStreak() : 0, currentStreak);
+        int completedActivities = user.getCompletedActivitiesCount() != null ? user.getCompletedActivitiesCount() : 0;
+        long totalTrails = studyTrailRepository.countByUser_Id(userId);
+        long completedTrails = studyTrailRepository.countByUser_IdAndStatus(userId, StudyTrailStatus.COMPLETED);
+
+        return new UserProfileResponseDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                level,
+                currentXpInLevel,
+                xpPerLevel,
+                totalXp,
+                currentStreak,
+                maxStreak,
+                completedActivities,
+                totalTrails,
+                completedTrails,
+                studiedToday,
+                achievements
+
+        );
+    }
+
+    public void changeUsername(Long userId, ChangeUsernameRequest request){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Valid if new username isn't the same
+        if(user.getUsername().equals(request.username())){
+            throw new IllegalArgumentException("Must type a different username");
+        }
+
+        // Valid blank and null username
+        if(request.username() == null || request.username().isBlank()){
+            throw new IllegalArgumentException("Username must not be null");
+        }
+
+        // Verify if new username is in use
+        if(userRepository.existsByUsername(request.username())){
+            throw new UsernameAlreadyExistsException("Username is taken. Please choose another one");
+        }
+
+        user.setUsername(request.username());
+        userRepository.save(user);
+    }
+
+    public void changeEmail(Long userId, ChangeUserEmailRequest request){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if(user.getEmail().equals(request.email())){
+            throw new IllegalArgumentException("Must provide a different email");
+        }
+
+        // Valid email
+        if(!emailValidator.isValid(request.email())){
+            throw new InvalidEmailException("Invalid Email!");
+        }
+
+        if(userRepository.existsByEmail(request.email())){
+            throw new EmailAlreadyExistsException("Email is already in use");
+        }
+
+        user.setEmail(request.email());
+        userRepository.save(user);
+    }
+
+    public void changePassword(Long userId, ChangePasswordRequest request){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Verify if the passwords match
+        if(!passwordEncoder.matches(request.oldPassword(), user.getPassword())){
+            throw new InvalidCredentialsException("Invalid Credential");
+        }
+
+        if(request.newPassword().isBlank()){
+            throw new IllegalArgumentException("New password must not be null");
+        }
+
+        if(!request.newPassword().equals(request.confirmNewPassword())){
+            throw new IllegalArgumentException("Passwords do not match");
+        }
+
+        String hashPassword = passwordEncoder.encode(request.newPassword());
+
+        user.setPassword(hashPassword);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUserAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Remove trilhas do usuário (StudyTest, Topics e TopicProgress já possuem OnDelete CASCADE)
+        studyTrailRepository.deleteAll(studyTrailRepository.findByUser_Id(userId, Pageable.unpaged()).getContent());
+
+        // Remove refresh tokens e conquistas vinculadas (caso o banco não tenha ON DELETE CASCADE)
+        refreshTokenRepository.deleteByUser_Id(userId);
+        userRepository.deleteUserAchievementsByUserId(userId);
+
+        userRepository.delete(user);
+    }
+}

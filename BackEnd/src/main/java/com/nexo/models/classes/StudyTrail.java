@@ -32,6 +32,10 @@ public class StudyTrail {
     @OnDelete(action = OnDeleteAction.CASCADE) // delegate the delegate responsibility to data bank
     private List<Topic> topics = new ArrayList<>();
 
+    @OneToOne(mappedBy = "studyTrail", cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private StudyTest studyTest;
+
     @Column(nullable = false, length = 80)
     private String title;
 
@@ -45,7 +49,7 @@ public class StudyTrail {
     private LocalDate targetDate;
 
     @Enumerated(EnumType.STRING)
-    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    // tells Hibernate that the field is enum named in databank instead just a simple varchar
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTrailStatus status;
 
@@ -96,4 +100,12 @@ public class StudyTrail {
     public void setUser(User user) { this.user = user; }
 
     public List<Topic> getTopics() { return topics; }
+
+    public StudyTest getStudyTest() {
+        return studyTest;
+    }
+
+    public void setStudyTest(StudyTest studyTest) {
+        this.studyTest = studyTest;
+    }
 }

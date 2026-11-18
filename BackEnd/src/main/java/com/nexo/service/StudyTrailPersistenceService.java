@@ -28,13 +28,14 @@ public class StudyTrailPersistenceService {
         this.studyTrailRepository = studyTrailRepository;
     }
 
+    @Transactional
     public StudyTrail saveStudyTrail(
             GeminiTrailResponse trailResponse,
             StudyTrailRequestDTO dto,
-            Long userId){
+            Long user_id){
 
         // find user
-        User user = userRepository.findById(userId)
+        User user = userRepository.findById(user_id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         // create StudyTrail Object and set attributes
@@ -60,6 +61,7 @@ public class StudyTrailPersistenceService {
             TopicProgress progress = new TopicProgress();
             progress.setTargetDate(topicResponse.targetDate());
             progress.setStatus(TopicProgressStatus.IN_PROGRESS);
+            progress.setXpAwarded(false);
 
             // Save Topic progress
             topic.setProgress(progress);
@@ -85,6 +87,7 @@ public class StudyTrailPersistenceService {
                 TopicProgress subTopicProgress = new TopicProgress();
                 subTopicProgress.setTargetDate(subTopicResponse.targetDate());
                 subTopicProgress.setStatus(TopicProgressStatus.IN_PROGRESS);
+                progress.setXpAwarded(false);
 
                 // Save Topic progress
                 subTopic.setProgress(subTopicProgress);

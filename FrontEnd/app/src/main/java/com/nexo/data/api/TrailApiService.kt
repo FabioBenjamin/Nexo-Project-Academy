@@ -1,0 +1,66 @@
+package com.nexo.data.api
+
+import com.nexo.dto.PageResponse
+import com.nexo.dto.StudyTrailRequestDTO
+import com.nexo.dto.StudyTrailResponse
+import com.nexo.dto.StudyTrailSummaryResponse
+import com.nexo.dto.UpdateStudyTrailRequest
+import com.nexo.dto.UpdateTopicProgressRequest
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.PATCH
+import retrofit2.http.POST
+import retrofit2.http.Path
+import retrofit2.http.Query
+
+interface TrailApiService {
+
+    /**
+     * Fetches paginated study trails for the current user
+     * Endpoint: GET /trails?page=0
+     */
+    @GET("trails")
+    suspend fun getTrails(
+        @Query("page") page: Int = 0
+    ): Response<PageResponse<StudyTrailSummaryResponse>>
+
+    /**
+     * Generates a new study trail via Gemini AI
+     * Endpoint: POST /trails/generate
+     */
+    @POST("trails")
+    suspend fun generateTrail(
+        @Body request: StudyTrailRequestDTO): Response<Long>
+
+    /**
+     * Retrieves full trail details with its complete topic hierarchy
+     * Endpoint: GET /trail/{id}
+     */
+    @GET("trails/{id}")
+    suspend fun getTrailDetails(
+        @Path("id") trailId: Long):
+            Response<StudyTrailResponse>
+
+    @PATCH("trails/{id}")
+    suspend fun updateTrail(
+        @Path("id") trailId: Long,
+        @Body request: UpdateStudyTrailRequest
+    ): Response<Unit>
+
+    @DELETE("trails/{id}")
+    suspend fun deleteTrail(
+        @Path("id") trailId: Long
+    ): Response<Unit>
+
+    /**
+     *  Marks a topic or subtopic as completed/in-progress
+     *  Endpoint: PATCH /topics/{id}/progress
+     */
+    @PATCH("/topics/{id}/progress")
+    suspend fun completeTopic(
+        @Path("id") topicId: Long,
+        @Body request: UpdateTopicProgressRequest = UpdateTopicProgressRequest(completed = true)
+        ): Response<Unit>
+}

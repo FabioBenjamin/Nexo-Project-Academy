@@ -12,6 +12,7 @@ public record StudyTrailResponse(
         LocalDate startDate,
         LocalDate targetDate,
         StudyTrailStatus status,
-        List<TopicResponse> topics
+        List<TopicResponse> topics,
+        StudyTestPreviewResponse studyTestPreviewResponse
 ) {
 }

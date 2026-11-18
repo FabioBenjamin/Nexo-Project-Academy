@@ -23,7 +23,7 @@ public class StudyTrailController {
         this.studyTrailService = studyTrailService;
     }
 
-    @PostMapping("/trail")
+    @PostMapping("/trails")
     public ResponseEntity<Long> createStudyTrail(
             @RequestBody StudyTrailRequestDTO dto,
             // Spring receives access token, JwtDecoder validate, AuthenticationPrincipal receives the
@@ -37,7 +37,7 @@ public class StudyTrailController {
                 .body(studyTrailService.createStudyTrail(dto, userId));
     }
 
-    @GetMapping("/trail/{id}")
+    @GetMapping("/trails/{id}")
     public ResponseEntity<StudyTrailResponse> getStudyTrail(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable("id") Long studyTrailId
@@ -59,7 +59,7 @@ public class StudyTrailController {
                 .ok(studyTrailService.getUserTrails(userId, page, 10));
     }
 
-    @DeleteMapping("/trail/{id}")
+    @DeleteMapping("/trails/{id}")
     public ResponseEntity<Void> deleteStudyTrail(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable("id") Long studyTrailId
@@ -71,7 +71,7 @@ public class StudyTrailController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/trail/{id}")
+    @PatchMapping("/trails/{id}")
     public ResponseEntity<Void> updateStudyTrail(
             @AuthenticationPrincipal Jwt jwt,
             @PathVariable("id") Long studyTrailId,

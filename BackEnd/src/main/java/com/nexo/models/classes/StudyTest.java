@@ -1,6 +1,5 @@
 package com.nexo.models.classes;
 import com.nexo.models.enums.StudyTestStatus;
-import com.nexo.models.enums.StudyTrailStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
@@ -24,15 +23,22 @@ public class StudyTest {
     private StudyTrail studyTrail;
 
     @Enumerated(EnumType.STRING)
-    // tells Hibernate that the field is a enum named in databank instead just a simple varchar
+    // tells Hibernate that the field is an enum named in databank instead just a simple varchar
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private StudyTestStatus status;
 
+    @Column(name = "passing_score", nullable = false)
+    private int passingScore;
+
     // references the attribute name in Question class
     // mappedBy allows bidirectional navigation
-    @OneToMany(mappedBy = "studyTest", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "studyTest", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Question> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "studyTest", cascade = CascadeType.REMOVE)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<TestAttempt> testAttempts = new ArrayList<>();
 
     public Long getId() {
         return id;
@@ -56,5 +62,15 @@ public class StudyTest {
 
     public List<Question> getQuestions() {
         return questions;
+    }
+
+    public List<TestAttempt> getTestAttempts(){ return testAttempts; }
+
+    public int getPassingScore() {
+        return passingScore;
+    }
+
+    public void setPassingScore(int passingScore) {
+        this.passingScore = passingScore;
     }
 }

@@ -1,7 +1,7 @@
 package com.nexo.repository;
 
-import com.nexo.dto.StudyTrailSummaryResponse;
 import com.nexo.models.classes.StudyTrail;
+import com.nexo.models.enums.StudyTrailStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +13,8 @@ public interface StudyTrailRepository extends JpaRepository<StudyTrail, Long> {
     Optional<StudyTrail> findByIdAndUser_Id(Long studyTrailId, Long userId);
 
     Page<StudyTrail> findByUser_Id(Long userId, Pageable pageable);
+
+    long countByUser_Id(Long userId);
+
+    long countByUser_IdAndStatus(Long userId, StudyTrailStatus status);
 }

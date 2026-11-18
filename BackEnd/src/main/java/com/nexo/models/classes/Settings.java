@@ -19,7 +19,7 @@ public class Settings {
     @Column(name="notifications", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean notifications;
 
-    @Column(name = "lang", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
+    @Column(name = "language", columnDefinition = "VARCHAR(10) DEFAULT 'pt-BR'")
     private String language;
 
     @Column(length = 10, columnDefinition = "DEFAULT 'light'", nullable = false)
@@ -27,6 +27,12 @@ public class Settings {
 
     @Column(columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean studyWeekends;
+
+    @Column(columnDefinition = "TEXT")
+    private String learningProfile;
+
+    @Column(nullable = false)
+    private boolean hasSeenOnboardingPrompt = false;
 
     public Long getId() {
         return id;
@@ -67,4 +73,19 @@ public class Settings {
     }
 
     public void setTheme(String theme) { this.theme = theme; }
+
+    public String getLearningProfile() {
+        return learningProfile;
+    }
+    public void setLearningProfile(String learningProfile) {
+        this.learningProfile = learningProfile;
+    }
+
+    public boolean isHasSeenOnboardingPrompt() {
+        return hasSeenOnboardingPrompt;
+    }
+
+    public void setHasSeenOnboardingPrompt(boolean hasSeenOnboardingPrompt) {
+        this.hasSeenOnboardingPrompt = hasSeenOnboardingPrompt;
+    }
 }
