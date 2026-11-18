@@ -244,33 +244,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Google Social Login Outlined Button (from Brandbook)
-                OutlinedButton(
-                    onClick = { /* Handle Google Sign-In */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(54.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onBackground),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.primary))
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "G ",
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 18.sp
-                        )
-                        Text(
-                            text = AppStrings.loginBtnGoogle,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(20.dp))
-
                 // Bottom Registration Redirect
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
