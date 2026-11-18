@@ -242,26 +242,26 @@ fun TrailDetailsScreen(
                         }
                     }
                 }
-
-                selectedTopicForModal?.let { topic ->
-                    TopicDetailModal(
-                        topic = topic,
-                        onDismiss = { selectedTopicForModal = null },
-                        onToggleTopicCompletion = { targetTopic ->
-                            viewModel.toggleTopicCompletion(targetTopic)
-                        }
-                    )
-                }
-
-                rewardEvent?.let { event ->
-                    GamificationRewardDialog(
-                        event = event,
-                        onDismiss = { viewModel.dismissRewardEvent() },
-                        onStartUnlockedTest = onStartTest
-                    )
-                }
             }
         }
+    }
+
+    selectedTopicForModal?.let { topic ->
+        TopicDetailModal(
+            topic = topic,
+            onDismiss = { selectedTopicForModal = null },
+            onToggleTopicCompletion = { targetTopic ->
+                viewModel.toggleTopicCompletion(targetTopic)
+            }
+        )
+    }
+
+    rewardEvent?.let { event ->
+        GamificationRewardDialog(
+            event = event,
+            onDismiss = { viewModel.dismissRewardEvent() },
+            onStartUnlockedTest = onStartTest
+        )
     }
 }
 

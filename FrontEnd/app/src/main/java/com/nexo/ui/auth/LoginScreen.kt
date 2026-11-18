@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
+    onNavigateToSplash: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
@@ -64,7 +65,7 @@ fun LoginScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle optional back action */ }) {
+                    IconButton(onClick = { onNavigateToSplash() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = AppStrings.btnBack,

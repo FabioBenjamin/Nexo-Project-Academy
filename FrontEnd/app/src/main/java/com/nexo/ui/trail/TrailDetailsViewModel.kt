@@ -115,9 +115,22 @@ class TrailDetailsViewModel(
 
         viewModelScope.launch {
             try {
-                val beforeProfileResp = if (targetCompleted) userApiService.getUserProfile() else null
-                val beforeProfile = if (beforeProfileResp?.isSuccessful == true) beforeProfileResp.body() else null
-                val userId = beforeProfile?.id ?: tokenManager.getUserId()
+                val beforeProfileResp = if (targetCompleted) {
+                    try {
+                        userApiService.getUserProfile()
+                    } catch (_: Exception) {
+                        null
+                    }
+                } else null
+
+                val beforeProfile = if (beforeProfileResp?.isSuccessful == true) {
+                    beforeProfileResp.body()
+                } else {
+                    null
+                }
+
+                val effectiveBeforeProfile = beforeProfile ?: tokenManager.getCachedProfile()
+                val userId = effectiveBeforeProfile?.id ?: tokenManager.getUserId()
 
                 if (userId != null) {
                     tokenManager.saveUserId(userId)
@@ -157,39 +170,56 @@ class TrailDetailsViewModel(
                 }
 
                 if (targetCompleted) {
-                    val afterProfileResp = userApiService.getUserProfile()
-                    val afterProfile = if (afterProfileResp.isSuccessful) afterProfileResp.body() else null
+                    val afterProfileResp = try {
+                        userApiService.getUserProfile()
+                    } catch (_: Exception) {
+                        null
+                    }
+                    val afterProfile = if (afterProfileResp?.isSuccessful == true) {
+                        afterProfileResp.body()
+                    } else {
+                        null
+                    }
 
                     if (afterProfile != null) {
                         tokenManager.saveCachedProfile(afterProfile)
                         tokenManager.updateStudiedToday(afterProfile.studiedToday)
                     }
 
-                    if (beforeProfile != null && afterProfile != null) {
-                        val beforeTotalXp = (beforeProfile.level - 1) * beforeProfile.maxXp + beforeProfile.currentXp
-                        val afterTotalXp = (afterProfile.level - 1) * afterProfile.maxXp + afterProfile.currentXp
-                        val xpGained = (afterTotalXp - beforeTotalXp).coerceAtLeast(50)
-
-                        val beforeUnlockedIds = beforeProfile.achievements
-                            .filter { it.unlocked }
-                            .map { it.id }
-                            .toSet()
-
-                        val newlyUnlocked = afterProfile.achievements.filter {
-                            it.unlocked && it.id !in beforeUnlockedIds
-                        }
-
-                        _rewardEvent.value = GamificationRewardEvent(
-                            xpGained = xpGained,
-                            leveledUp = afterProfile.level > beforeProfile.level,
-                            newLevel = afterProfile.level,
-                            trailCompleted = false,
-                            testUnlocked = isTestNowUnlocked,
-                            unlockedTestId = unlockedTestId,
-                            unlockedTestPassingScore = unlockedTestPassingScore,
-                            unlockedAchievements = newlyUnlocked
-                        )
+                    val beforeTotalXp = if (effectiveBeforeProfile != null) {
+                        (effectiveBeforeProfile.level - 1) * effectiveBeforeProfile.maxXp + effectiveBeforeProfile.currentXp
+                    } else {
+                        0
                     }
+
+                    val afterTotalXp = if (afterProfile != null) {
+                        (afterProfile.level - 1) * afterProfile.maxXp + afterProfile.currentXp
+                    } else {
+                        beforeTotalXp + 50
+                    }
+
+                    val xpGained = (afterTotalXp - beforeTotalXp).coerceAtLeast(50)
+
+                    val beforeUnlockedIds = effectiveBeforeProfile?.achievements
+                        ?.filter { it.unlocked }
+                        ?.map { it.id }
+                        ?.toSet()
+                        ?: emptySet()
+
+                    val newlyUnlocked = afterProfile?.achievements?.filter {
+                        it.unlocked && it.id !in beforeUnlockedIds
+                    } ?: emptyList()
+
+                    _rewardEvent.value = GamificationRewardEvent(
+                        xpGained = xpGained,
+                        leveledUp = (afterProfile?.level ?: 1) > (effectiveBeforeProfile?.level ?: 1),
+                        newLevel = afterProfile?.level ?: effectiveBeforeProfile?.level ?: 1,
+                        trailCompleted = false,
+                        testUnlocked = isTestNowUnlocked,
+                        unlockedTestId = unlockedTestId,
+                        unlockedTestPassingScore = unlockedTestPassingScore,
+                        unlockedAchievements = newlyUnlocked
+                    )
                 }
             } catch (e: IOException) {
                 _uiState.value = TrailDetailsUiState.Error(AppStrings.errNetwork)

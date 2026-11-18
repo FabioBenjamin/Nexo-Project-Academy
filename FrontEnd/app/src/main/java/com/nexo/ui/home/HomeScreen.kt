@@ -81,7 +81,7 @@ fun HomeScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.logomarca),
+                                painter = painterResource(id = R.drawable.icone_final),
                                 contentDescription = AppStrings.homeAppTitle,
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier

@@ -111,6 +111,7 @@ fun AppNavigation(
             val loginViewModel = viewModel { LoginViewModel(authApiService, userApiService, tokenManager) }
             LoginScreen(
                 viewModel = loginViewModel,
+                onNavigateToSplash = {navController.navigate(Routes.SPLASH)},
                 onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
                 onLoginSuccess = {
                     coroutineScope.launch {
