@@ -150,10 +150,10 @@ fun LearningProfileQuizScreen(
                             .height(54.dp),
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isLastStep) secondaryAccent else primaryColor,
-                            contentColor = if (isLastStep) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimary
+                            containerColor = primaryColor,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         )
-                    ) {
+                    ){
                         if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.onPrimary,
@@ -274,7 +274,7 @@ fun LearningProfileQuizScreen(
                                         text = option,
                                         isSelected = selectedOptions.contains(option),
                                         isMultiSelect = true,
-                                        accentColor = secondaryAccent,
+                                        accentColor = primaryColor,
                                         onClick = { onToggleMultipleOption(question.id, option) }
                                     )
                                 }

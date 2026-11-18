@@ -1,6 +1,7 @@
 package com.nexo.security
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -23,8 +24,10 @@ class TokenManager(private val context: Context) {
         private val USERNAME_KEY = stringPreferencesKey("username")
         private val AVATAR_ID_KEY = stringPreferencesKey("avatar_id")
         private val LAST_STUDIED_DATE_KEY = stringPreferencesKey("last_studied_date")
-        private val NOTIFICATIONS_ENABLED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("notifications_enabled")
-        private val STUDY_WEEKENDS_ENABLED_KEY = androidx.datastore.preferences.core.booleanPreferencesKey("study_weekends_enabled")
+        private val NOTIFICATIONS_ENABLED_KEY = booleanPreferencesKey("notifications_enabled")
+        private val STUDY_WEEKENDS_ENABLED_KEY = booleanPreferencesKey("study_weekends_enabled")
+        private val THEME_PREF_KEY = stringPreferencesKey("theme_pref")
+        private val LANGUAGE_PREF_KEY = stringPreferencesKey("language_pref")
         private val CACHED_SETTINGS_JSON_KEY = stringPreferencesKey("cached_settings_json")
         private val CACHED_PROFILE_JSON_KEY = stringPreferencesKey("cached_profile_json")
         private val gson = com.google.gson.Gson()
@@ -112,6 +115,20 @@ class TokenManager(private val context: Context) {
         context.dataStore.edit { it[AVATAR_ID_KEY] = avatarId }
     }
 
+    suspend fun getTheme(): String =
+        context.dataStore.data.firstOrNull()?.get(THEME_PREF_KEY) ?: "system"
+
+    suspend fun getLanguage(): String =
+        context.dataStore.data.firstOrNull()?.get(LANGUAGE_PREF_KEY) ?: "system"
+
+    suspend fun saveTheme(theme: String) {
+        context.dataStore.edit { it[THEME_PREF_KEY] = theme }
+    }
+
+    suspend fun saveLanguage(language: String) {
+        context.dataStore.edit { it[LANGUAGE_PREF_KEY] = language }
+    }
+
     suspend fun clearTokens() {
         cachedAccessToken = null
         cachedRefreshToken = null
@@ -120,7 +137,22 @@ class TokenManager(private val context: Context) {
         cachedAvatarId = "default"
 
         context.dataStore.edit { preferences ->
-            preferences.clear()
+            preferences.remove(ACCESS_TOKEN_KEY)
+            preferences.remove(REFRESH_TOKEN_KEY)
+            preferences.remove(USER_ID_KEY)
+            preferences.remove(USERNAME_KEY)
+            preferences.remove(AVATAR_ID_KEY)
+            preferences.remove(LAST_STUDIED_DATE_KEY)
+            preferences.remove(CACHED_PROFILE_JSON_KEY)
+            preferences.remove(CACHED_HOME_TRAILS_JSON_KEY)
+            preferences.remove(CACHED_SETTINGS_JSON_KEY)
+
+            val trailDetailKeys = preferences.asMap().keys.filter {
+                it.name.startsWith("cached_trail_details_")
+            }
+            trailDetailKeys.forEach { key ->
+                preferences.remove(key)
+            }
         }
     }
 
@@ -149,6 +181,7 @@ class TokenManager(private val context: Context) {
     suspend fun isStudyWeekendsEnabled(): Boolean {
         return context.dataStore.data.firstOrNull()?.get(STUDY_WEEKENDS_ENABLED_KEY) ?: true
     }
+
     suspend fun hasStudiedToday(): Boolean {
         val todayStr = java.time.LocalDate.now().toString()
         val saved = context.dataStore.data.firstOrNull()?.get(LAST_STUDIED_DATE_KEY)
@@ -160,6 +193,8 @@ class TokenManager(private val context: Context) {
             prefs[CACHED_SETTINGS_JSON_KEY] = gson.toJson(settings)
             prefs[NOTIFICATIONS_ENABLED_KEY] = settings.notifications
             prefs[STUDY_WEEKENDS_ENABLED_KEY] = settings.studyWeekends
+            prefs[THEME_PREF_KEY] = settings.theme
+            prefs[LANGUAGE_PREF_KEY] = settings.language
         }
     }
 

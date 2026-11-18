@@ -36,6 +36,7 @@ import com.nexo.ui.splash.SplashScreen
 import com.nexo.ui.splash.SplashViewModel
 import com.nexo.ui.test.StudyTestScreen
 import com.nexo.ui.test.StudyTestViewModel
+import com.nexo.ui.theme.AppPreferencesState
 import com.nexo.ui.trail.CreateTrailScreen
 import com.nexo.ui.trail.CreateTrailViewModel
 import com.nexo.ui.trail.TrailDetailsScreen
@@ -111,14 +112,37 @@ fun AppNavigation(
             val loginViewModel = viewModel { LoginViewModel(authApiService, userApiService, tokenManager) }
             LoginScreen(
                 viewModel = loginViewModel,
-                onNavigateToSplash = {navController.navigate(Routes.SPLASH)},
+                onNavigateToSplash = {navController.popBackStack()},
                 onNavigateToRegister = { navController.navigate(Routes.REGISTER) },
                 onLoginSuccess = {
                     coroutineScope.launch {
+                        val localTheme = tokenManager.getTheme() ?: "system"
+                        val localLanguage = tokenManager.getLanguage() ?: "system"
+
                         val settingsResponse = try {
                             settingsApiService.getSettings().body()
                         } catch (_: Exception) {
                             null
+                        }
+                        if (settingsResponse != null) {
+                            val needsSync = (localTheme == "system" && settingsResponse.theme != "system") ||
+                                    (localLanguage == "system" && settingsResponse.language != "system")
+
+                            val finalSettings = if (needsSync) {
+                                val updated = settingsResponse.copy(
+                                    theme = localTheme,
+                                    language = localLanguage
+                                )
+                                try {
+                                    settingsApiService.updateSettings(updated)
+                                } catch (_: Exception) { }
+                                updated
+                            } else {
+                                settingsResponse
+                            }
+
+                            AppPreferencesState.updateFromSettings(finalSettings.theme, finalSettings.language)
+                            tokenManager.saveCachedSettings(finalSettings)
                         }
 
                         val nextRoute = if (settingsResponse != null && !settingsResponse.hasSeenOnboardingPrompt) {

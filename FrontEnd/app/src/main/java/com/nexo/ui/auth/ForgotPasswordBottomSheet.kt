@@ -32,7 +32,11 @@ import com.nexo.dto.ForgotPasswordRequest
 import com.nexo.dto.ResetPasswordRequest
 import com.nexo.ui.theme.AppStrings
 import com.nexo.ui.theme.nexoTextFieldColors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import java.net.SocketTimeoutException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +58,7 @@ fun ForgotPasswordBottomSheet(
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!isLoading) onDismiss() },
         containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
@@ -116,6 +120,7 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.labelEmail) },
                     singleLine = true,
+                    enabled = !isLoading,
                     trailingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
@@ -134,6 +139,7 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.forgotPasswordCodeLabel) },
                     singleLine = true,
+                    enabled = !isLoading,
                     trailingIcon = { Icon(Icons.Default.Key, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.NumberPassword,
@@ -154,6 +160,7 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.labelNewPassword) },
                     singleLine = true,
+                    enabled = !isLoading,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -182,6 +189,7 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.labelConfirmPassword) },
                     singleLine = true,
+                    enabled = !isLoading,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
@@ -217,13 +225,21 @@ fun ForgotPasswordBottomSheet(
                         scope.launch {
                             isLoading = true
                             try {
-                                val resp = authApiService.forgotPassword(ForgotPasswordRequest(trimmed))
-                                if (resp.isSuccessful) {
+                                val resp = withTimeoutOrNull(8_000L) {
+                                    withContext(Dispatchers.IO) {
+                                        authApiService.forgotPassword(ForgotPasswordRequest(trimmed))
+                                    }
+                                }
+                                if (resp == null || resp.isSuccessful) {
+                                    // Avança se respondeu 200 OK ou se o servidor ainda está enviando o SMTP
                                     step = 2
                                 } else {
                                     errorMessage = AppStrings.forgotPasswordErrSendFailed(resp.code())
                                 }
-                            } catch (e: Exception) {
+                            } catch (_: SocketTimeoutException) {
+                                // Mesmo em timeout de socket, o backend costuma concluir o envio
+                                step = 2
+                            } catch (_: Exception) {
                                 errorMessage = AppStrings.errNetwork
                             } finally {
                                 isLoading = false
@@ -245,20 +261,22 @@ fun ForgotPasswordBottomSheet(
                         scope.launch {
                             isLoading = true
                             try {
-                                val resp = authApiService.resetPassword(
-                                    ResetPasswordRequest(
-                                        email = email.trim(),
-                                        code = code,
-                                        newPassword = newPassword,
-                                        confirmNewPassword = confirmPassword
+                                val resp = withContext(Dispatchers.IO) {
+                                    authApiService.resetPassword(
+                                        ResetPasswordRequest(
+                                            email = email.trim(),
+                                            code = code,
+                                            newPassword = newPassword,
+                                            confirmNewPassword = confirmPassword
+                                        )
                                     )
-                                )
+                                }
                                 if (resp.isSuccessful) {
                                     onResetSuccess()
                                 } else {
                                     errorMessage = AppStrings.forgotPasswordErrInvalidCode
                                 }
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 errorMessage = AppStrings.errNetwork
                             } finally {
                                 isLoading = false
@@ -285,9 +303,28 @@ fun ForgotPasswordBottomSheet(
                 }
             }
 
-            if (step == 2) {
+            if (step == 1) {
                 Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { step = 1; errorMessage = null }) {
+                TextButton(
+                    enabled = !isLoading,
+                    onClick = {
+                        val trimmed = email.trim()
+                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmed).matches()) {
+                            errorMessage = AppStrings.errEmailInvalid
+                        } else {
+                            errorMessage = null
+                            step = 2
+                        }
+                    }
+                ) {
+                    Text(AppStrings.forgotPasswordResendLink)
+                }
+            } else {
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    enabled = !isLoading,
+                    onClick = { step = 1; errorMessage = null }
+                ) {
                     Text(AppStrings.forgotPasswordResendLink)
                 }
             }

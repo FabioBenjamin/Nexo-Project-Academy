@@ -27,14 +27,12 @@ class MainActivity : ComponentActivity() {
 
         val tokenManager = TokenManager(this)
 
-        // Hidrata imediatamente o cache local de tema e idioma antes da primeira renderização
         lifecycleScope.launch {
-            tokenManager.getCachedSettings()?.let { cached ->
-                AppPreferencesState.updateFromSettings(cached.theme, cached.language)
-            }
+            val savedTheme = tokenManager.getTheme()
+            val savedLanguage = tokenManager.getLanguage()
+            AppPreferencesState.updateFromSettings(savedTheme, savedLanguage)
         }
 
-        // Agenda os horários progressivos de lembrete de ofensiva (14h, 19h, 22h, 23h30)
         StreakNotificationScheduler.scheduleAll(this)
         askNotificationPermissionIfNeeded()
 
