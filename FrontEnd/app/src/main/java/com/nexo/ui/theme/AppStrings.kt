@@ -133,6 +133,10 @@ object AppStrings {
     val topicComplete get() = modalCompleteTopicBtn
     val topicCompleted get() = modalTopicCompletedBtn
 
+    val topicUncomplete get() = if (isEn) "Unmark as Completed" else "Desmarcar como Concluído"
+    val statusOverdue get() = if (isEn) "Pending (Overdue)" else "Pendente (Prazo Vencido)"
+    val topicDeadlineOverdueLabel get() = if (isEn) "Overdue deadline:" else "Prazo vencido:"
+
     // 7. AVALIAÇÃO FINAL (PROVA) & COMEMORAÇÃO
     val testSectionTitle get() = if (isEn) "Final Assessment" else "Avaliação Final"
     val testSectionBlockedDesc get() = if (isEn) "Complete all topics above to unlock the test." else "Conclua todos os tópicos acima para liberar a prova."

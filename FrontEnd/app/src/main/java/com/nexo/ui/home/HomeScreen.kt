@@ -421,6 +421,11 @@ fun StatusBadge(status: String) {
             MaterialTheme.colorScheme.secondary,
             AppStrings.statusInProgress
         )
+        "PENDING" -> Triple(
+            MaterialTheme.colorScheme.error.copy(alpha = 0.14f),
+            MaterialTheme.colorScheme.error,
+            AppStrings.statusOverdue
+        )
         else -> Triple(
             MaterialTheme.colorScheme.surfaceVariant,
             MaterialTheme.colorScheme.onSurfaceVariant,
