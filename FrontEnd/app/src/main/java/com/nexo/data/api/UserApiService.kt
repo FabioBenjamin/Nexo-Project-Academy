@@ -12,18 +12,18 @@ import retrofit2.http.PATCH
 
 interface UserApiService {
 
-    @GET("users/users/user/profile")
+    @GET("users/profile")
     suspend fun getUserProfile(): Response<UserProfileResponse>
 
-    @PATCH("users/users/users/me/username")
+    @PATCH("users/me/username")
     suspend fun changeUsername(@Body request: ChangeUsernameRequest): Response<Unit>
 
-    @PATCH("users/users/users/me/email")
+    @PATCH("users/me/email")
     suspend fun changeEmail(@Body request: ChangeUserEmailRequest): Response<Unit>
 
-    @PATCH("users/users/users/me/password")
+    @PATCH("users/me/password")
     suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Unit>
 
-    @DELETE("users/users/users/me")
+    @DELETE("users/me")
     suspend fun deleteAccount(): Response<Unit>
 }
