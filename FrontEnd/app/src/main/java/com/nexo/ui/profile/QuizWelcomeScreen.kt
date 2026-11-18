@@ -1,4 +1,4 @@
-package com.nexo.ui.quiz
+package com.nexo.ui.profile
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

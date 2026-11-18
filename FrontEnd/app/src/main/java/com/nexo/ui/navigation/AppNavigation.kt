@@ -154,12 +154,12 @@ fun AppNavigation(
             val learningProfileViewModel = viewModel { LearningProfileViewModel(settingsApiService) }
 
             QuizWelcomeScreen(
-                onStartQuizNow = {
+                onStartQuiz = {
                     navController.navigate(Routes.learningQuizRoute(fromOnboarding = true)) {
                         popUpTo(Routes.QUIZ_WELCOME) { inclusive = true }
                     }
                 },
-                onDoItLater = {
+                onSkipQuiz = {
                     learningProfileViewModel.skipQuiz {
                         navController.navigate(Routes.HOME) {
                             popUpTo(Routes.QUIZ_WELCOME) { inclusive = true }
