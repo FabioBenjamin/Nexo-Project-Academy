@@ -29,86 +29,102 @@ More than just a word, <b>NEXO</b> represents the idea of transforming informati
 
 </div>
 
+----------
+
+## 📥 Download & Installation
+
+The **NEXO** Android application is ready to use and already connected to our live cloud infrastructure (**Render** + **Neon.tech**).
+
+1. Go to the **[Releases](https://github.com/FabioBenjamin/Nexo-Project-Academy/releases)** section of this repository and download the latest `.apk` file on your Android device (**Android 7.0 / API 24+**).
+2. Allow installation from unknown sources when prompted by Android.
+3. Open the app, create your account, and start building your personalized study trails!
+
 ---
 
 ## 📖 NEXO Features
 
 ### 📱 General Features 
-- **Dynamic Agenda**: Centralized management of tasks and schedules, connecting deadlines and priorities.  
-- **Adaptive Learning Paths (Gemini AI)**: Personalized study plans that identify weaknesses and create tailored learning roadmaps.  
-- **Performance Dashboards**: Real-time progress monitoring with clear daily goals.  
-- **Gamification**: Achievement system, XP rewards, streaks, and smart notifications to increase engagement.  
-- **Simulations with Feedback**: Integrated tests with instant AI-generated feedback.  
-- **Responsive Experience**: Interface optimized for smooth mobile user experience.  
+- **Authentication & Account Recovery**: Account registration, secure login via JWT (*Access* & *Refresh Tokens*), and password recovery via e-mail.
+- **Personalized Profiling Quiz**: Interactive onboarding questionnaire that captures the student's learning profile, goals, and pace before generating study paths.
+- **AI-Generated Study Trails (Gemini API)**: Dynamic creation of structured study trails and topics powered by Google Gemini with structured JSON schemas.
+- **Trail Management & Final Exams**: Full trail editing and deletion, step-by-step topic completion tracking, and final assessments unlocked upon completing all trail topics.
+- **Gamification & Progress Metrics**: XP system, unlockable achievements with custom mascot avatars, daily study streaks (*ofensivas*), and a dashboard tracking total XP, completed topics, and finished trails.
+- **Smart Daily Notifications**: Scheduled background reminders (`WorkManager`) to help students maintain consistency and protect their daily streak.
+- **Theme & Multi-Language Customization**: Light/Dark theme and multi-language support, automatically adapting to device settings or persisting custom user preferences.
+- **Full Profile Management**: Custom mascot/profile picture selection, username, e-mail, and password updates, plus complete account deletion from the database.
 
 ---
 
 ## 🖥️ Front-End
-- **Android Studio**: Native Android mobile application development.
-- **Dynamic Dashboards**: Real-time visualization of streaks, XP progression, and pending study topics.
-- **Interactive Roadmaps**: Visual step-by-step rendering of AI-generated study paths.
+- **Kotlin & Jetpack Compose**: Modern, declarative native Android UI built with Material 3 and MVVM architecture (`StateFlow` + `Navigation Compose`).
+- **Dynamic Dashboards**: Real-time visualization of daily streaks, XP progression, unlocked achievements, and completed trails.
+- **Resilient Networking**: Retrofit & OkHttp client featuring automatic JWT injection (`AuthInterceptor`) and seamless token refresh (`TokenAuthenticator`).
 
 ---
 
 ## 🔧 Back-End
-- **Spring Boot 4.x (Java)**: Robust REST API core handling authentication, domain logic, and JPA mappings.
-- **Spring Security & OAuth2 / JWT**: Stateless JWT token authentication with BCrypt password hashing.
+- **Java 21 & Spring Boot 4**: Robust REST API core handling authentication, gamification rules, e-mail dispatch (SMTP), and JPA persistence.
+- **Google GenAI SDK**: Structured integration with Gemini API for deterministic generation of study trails, topics, and assessment questions.
+- **Cloud Deployment**: Containerized via multi-stage **Docker** build and deployed on **Render**.
 
 ---
 
 ## 🗃️ Database
-- 🐘 **PostgreSQL**: Relational database storing users, achievements, settings, and study trails.  
-- 📊 **Structured Relational Schema**: Optimized foreign key constraints (`ON DELETE CASCADE`) and custom ENUM types (`order_status`, `test_status`, `requirement_type`).  
-- ⚡ **Performance Indexes**: Strategic indexes on foreign keys (`user_id`, `achievement_id`) for ultra-fast query execution.  
+- 🐘 **PostgreSQL (Neon.tech)**: Serverless relational database with connection pooling (HikariCP) storing users, trails, topics, test attempts, achievements, and settings.  
+- 📊 **Structured Relational Schema**: Enforced referential integrity (`ON DELETE CASCADE`) and domain ENUM types (`StudyTrailStatus`, `StudyTestStatus`, `TopicProgressStatus`, `AchievementRequirementType`).  
+- ⚡ **Performance Indexes**: Strategic indexing on foreign keys (`user_id`, `achievement_id`, `study_trail_id`) for fast query execution.  
 
 ---
 
 ## 🔒 Security
 - 🔐 BCrypt password hashing  
-- 🛡️ Stateless JWT authentication & Refresh Tokens  
-- 🔑 Role-based authorization  
-- ✅ Strict JPA and Bean Validation (`jakarta.validation`)  
-- 🚫 Protection against unauthorized resource access  
-- 📡 Secure HTTPS/TLS communication  
-
+- 🛡️ Stateless JWT authentication & Refresh Token rotation  
+- 🔑 Endpoint-level authorization via Spring Security OAuth2 Resource Server  
+- ✅ Strict DTO and Bean Validation (`jakarta.validation`)  
+- 🚫 Protection against unauthorized resource access (`Jwt` subject ownership checks)  
+- 📡 Secure HTTPS/TLS communication
 ---
 
 ## 📂 File Structure
 
 ```
 Nexo-Project-Academy/
-├── BackEnd/
-│   ├── .mvn/
-│   │   └── wrapper/
-│   │       └── maven-wrapper.properties
-│   ├── src/
-│   │   └── main/
-│   │       ├── java/
-│   │       │   └── com/
-│   │       │       └── nexo/
-│   │       │           ├── config/
-│   │       │           ├── controller/
-│   │       │           ├── dto/
-│   │       │           ├── exceptions/
-│   │       │           ├── integration/
-│   │       │           │   ├── dto/
-│   │       │           │   ├── gemini/
-│   │       │           │   └── schemas/
-│   │       │           ├── models/
-│   │       │           │   ├── classes/
-│   │       │           │   └── enums/
-│   │       │           ├── repository/
-│   │       │           ├── security/
-│   │       │           ├── service/
-│   │       │           └── NexoApplication.java   # Main application entry point
-│   │       └── resources/
-│   │           └── application.properties
-│   ├── .env                                       # Environment variables (DB, JWT, Gemini API)
-│   ├── .env.example
-│   ├── mvnw
-│   ├── mvnw.cmd
-│   └── pom.xml
-└── README.md
+├── BackEnd/                                      # Spring Boot REST API
+│   ├── src/main/
+│   │   ├── java/com/nexo/
+│   │   │   ├── config/                           # Security (Spring Security) and JWT configurations
+│   │   │   ├── controller/                       # REST endpoints (Auth, Trails, Tests, Achievements, User)
+│   │   │   ├── dto/                              # Data Transfer Objects (Requests/Responses)
+│   │   │   ├── exceptions/                       # Global exception handling and custom errors
+│   │   │   ├── integration/                      # Google Gemini API integration (Prompts and Schemas)
+│   │   │   ├── models/                           # JPA entities and domain Enums
+│   │   │   ├── repository/                       # Database access interfaces (Spring Data JPA)
+│   │   │   ├── security/                         # JWT token generation and validation
+│   │   │   ├── service/                          # Business logic, gamification, and email services
+│   │   │   └── NexoApplication.java              # Main application class
+│   │   └── resources/
+│   │       └── application.properties            # Database, JWT, Gemini, and SMTP configurations
+│   ├── Dockerfile                                # Multi-stage build for Render deployment
+│   ├── pom.xml                                   # Maven dependencies
+│   └── .env.example                              # Environment variables template
+│
+├── FrontEnd/                                     # Native Android application (Kotlin + Compose)
+│   ├── app/src/main/
+│   │   ├── java/com/nexo/
+│   │   │   ├── config/                           # RetrofitClient configuration
+│   │   │   ├── data/api/                         # REST service interfaces (Retrofit)
+│   │   │   ├── dto/                              # Request and response data models
+│   │   │   ├── notifications/                    # Daily notifications scheduler and Worker
+│   │   │   ├── security/                         # Session management, Interceptor, and JWT Authenticator
+│   │   │   ├── ui/                               # Screens, ViewModels, and states (Auth, Home, Trails, Tests, Profile)
+│   │   │   └── MainActivity.kt                   # Main app Activity
+│   │   ├── res/                                  # Drawables (mascots and logos), fonts (Nunito), and themes
+│   │   └── AndroidManifest.xml                   # Android app permissions and configurations
+│   ├── gradle/
+│   │   └── libs.versions.toml                    # Gradle dependencies version catalog
+│   └── build.gradle.kts                          # Android project build configuration
+│
+└── readme.md                                     # Project documentation
 ```
 
 ## 👥 Development Team
@@ -210,4 +226,6 @@ Nexo-Project-Academy/
 
 ## 🎯 Project Status
 
-<div align="center"> 🚧 In Development 🚧 </div>
+<div align="center"> ✅ Completed ✅ </div>
+
+<!-- <div align="center"> 🚧 In Development 🚧 </div> -->
