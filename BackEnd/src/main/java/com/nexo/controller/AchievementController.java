@@ -30,7 +30,7 @@ public class AchievementController {
 
     // Processes an activity completion
     // updates the user's streak and unlocks achievements
-    @PostMapping("api/complete-activity/{userId}")
+    @PostMapping("/complete-activity/{userId}")
     public ResponseEntity<Void> completeActivity(@PathVariable Long userId) {
         achievementService.processActivityCompletion(userId);
         return ResponseEntity.ok().build();

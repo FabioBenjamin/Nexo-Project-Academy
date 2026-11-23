@@ -1,4 +1,4 @@
-package Backend.src.main.java.com.nexo
+package com.nexo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
