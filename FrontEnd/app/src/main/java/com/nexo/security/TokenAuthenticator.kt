@@ -16,10 +16,10 @@ class TokenAuthenticator(
     override fun authenticate(route: Route?, response: Response): Request? {
         val interception = response.request.url.encodedPath
 
-        // Não intercepta rotas de autentificação (login, registro, refresh, resetar senha)
+        // Does not intercept authentication routes (login, registration, refresh, password reset)
 
-        // TODO: Senha incorreta no login
-        // devolução do erro 401 para o usuário
+        // Incorrect password during login
+        // return a 401 error to the user
         if (
             interception.contains("auth/login") ||
             interception.contains("auth/register") ||
@@ -30,8 +30,8 @@ class TokenAuthenticator(
             return null
         }
 
-        // Trava anti-loop
-        // Caso o usuário já tenha tentado e a requisição falhar, limpa a sessão
+        // Anti-loop lock
+        // If the user has already tried and the request fails, clear the session
         if (responseCount(response) >= 2) {
             runBlocking { tokenManager.clearTokens() }
             return null

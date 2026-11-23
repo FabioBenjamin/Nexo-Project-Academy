@@ -231,13 +231,13 @@ fun ForgotPasswordBottomSheet(
                                     }
                                 }
                                 if (resp == null || resp.isSuccessful) {
-                                    // Avança se respondeu 200 OK ou se o servidor ainda está enviando o SMTP
+                                    // Proceed if a 200 OK response was received or if the server is still sending the SMTP [data]
                                     step = 2
                                 } else {
                                     errorMessage = AppStrings.forgotPasswordErrSendFailed(resp.code())
                                 }
                             } catch (_: SocketTimeoutException) {
-                                // Mesmo em timeout de socket, o backend costuma concluir o envio
+                                // Even in the event of a socket timeout, the backend typically completes the transmission.
                                 step = 2
                             } catch (_: Exception) {
                                 errorMessage = AppStrings.errNetwork

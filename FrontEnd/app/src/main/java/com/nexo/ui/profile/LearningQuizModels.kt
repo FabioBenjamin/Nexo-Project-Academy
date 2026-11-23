@@ -32,7 +32,7 @@ data class LearningQuizUiState(
 
     fun isCurrentStepValid(): Boolean {
         val q = currentQuestion
-        if (q.id == "golden_rules") return true // Última pergunta de texto é opcional
+        if (q.id == "golden_rules") return true // The final text question is optional
         return when (q.type) {
             QuestionType.SINGLE_CHOICE -> !singleAnswers[q.id].isNullOrBlank()
             QuestionType.MULTIPLE_CHOICE -> !multipleAnswers[q.id].isNullOrEmpty()

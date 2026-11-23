@@ -4,7 +4,10 @@ object AppStrings {
     private val isEn: Boolean
         get() = AppPreferencesState.language == "en-US"
 
-    // 1. COMUM, NAVEGAÇÃO & STATUS
+
+    // 1. COMMON, NAVIGATION & STATUS
+
+
     val navHome get() = if (isEn) "Home" else "Início"
     val navProfile get() = if (isEn) "Profile" else "Perfil"
     val navSettings get() = if (isEn) "Settings" else "Ajustes"
@@ -25,7 +28,10 @@ object AppStrings {
     val statusInProgress get() = if (isEn) "In Progress" else "Em Andamento"
     val statusPending get() = if (isEn) "Pending" else "Pendente"
 
-    // 2. SPLASH, LOGIN, CADASTRO & RECUPERAÇÃO DE SENHA
+
+    // 2. SPLASH, LOGIN, REGISTRATION & PASSWORD RECOVERY
+
+
     val splashProjectAcademy get() = "PROJECT ACADEMY"
     val splashSlogan get() = if (isEn) "Learning today,\ntransforming tomorrow." else "Aprender hoje,\ntransformar o amanhã."
 
@@ -61,7 +67,10 @@ object AppStrings {
     val registerBtnSubmit get() = if (isEn) "Register" else "Cadastrar"
     val registerAlreadyHaveAccountLink get() = if (isEn) "Already have an account? Log in" else "Já tem uma conta? Faça login"
 
-    // 2.5. ONBOARDING & QUIZ DE PERFIL DE APRENDIZAGEM
+
+    // 2.5. ONBOARDING & LEARNING PROFILE QUIZ
+
+
     val quizWelcomeTitle get() = if (isEn) "Personalize how you learn" else "Personalize o seu jeito de aprender"
     val quizWelcomeSubtitle get() = if (isEn) "Answer a quick 4-question quiz so Nexo can adapt the structure, pace, and topic depth of all your future study trails." else "Responda a um quiz rápido de 4 perguntas para que o Nexo adapte a estrutura, o ritmo e o tamanho dos tópicos de todas as suas futuras trilhas de estudo."
     val quizWelcomeOptionalNote get() = if (isEn) "This quiz is completely optional. If you prefer to start right away, you can take or update it anytime in Settings." else "Este quiz é totalmente opcional. Se preferir começar agora, você poderá realizá-lo ou alterá-lo a qualquer momento nas Configurações."
@@ -75,7 +84,10 @@ object AppStrings {
     val quizContinueBtn get() = if (isEn) "Continue" else "Continuar"
     val quizFinalStepHint get() = if (isEn) "These preferences will be saved to your profile and automatically applied to every trail you create. You can change them anytime in Settings." else "Essas preferências ficarão salvas no seu perfil e serão aplicadas automaticamente em todas as trilhas que você criar. Você pode alterá-las a qualquer momento nas Configurações."
 
+
     // 3. HOME SCREEN
+
+
     val homeAppTitle get() = "Nexo Academy"
     val homeActionProfile get() = if (isEn) "Profile" else "Perfil"
     val homeActionSettings get() = if (isEn) "Settings" else "Ajustes"
@@ -90,7 +102,10 @@ object AppStrings {
     val homeEmptyStateSubtitle get() = if (isEn) "How about starting a new mission?" else "Que tal começar uma nova missão?"
     val homeEmptyStateButton get() = if (isEn) "Explore activities" else "Explorar atividades"
 
-    // 4. CRIAÇÃO DE TRILHA (IA)
+
+    // 4. TRACK CREATION (AI)
+
+
     val createTrailTitle get() = if (isEn) "New AI Trail" else "Nova Trilha com IA"
     val createTrailHeader get() = if (isEn) "What would you like to learn?" else "O que você gostaria de aprender?"
     val createTrailDescription get() = if (isEn) "Describe the topic and your goal. Gemini will generate a complete study plan with steps and deadlines." else "Descreva o assunto e o objetivo. O Gemini irá gerar um plano de estudos completo com etapas e prazos."
@@ -100,7 +115,10 @@ object AppStrings {
     val createTrailBtnSubmit get() = if (isEn) "Generate Trail with AI" else "Gerar Trilha com IA"
     val createTrailLoadingText get() = if (isEn) "Gemini is creating your trail..." else "O Gemini está criando sua trilha..."
 
-    // 5. DETALHES, EDIÇÃO E EXCLUSÃO DA TRILHA
+
+    // 5. TRACK DETAILS, EDITING, AND DELETION
+
+
     val trailDetailsTitle get() = if (isEn) "Trail Details" else "Detalhes da Trilha"
     val trailDetailsDeadlineLabel get() = if (isEn) "Deadline: " else "Data Limite: "
     val trailDetailsOverallProgress get() = if (isEn) "Overall Progress" else "Progresso Geral"
@@ -119,7 +137,10 @@ object AppStrings {
     val deleteTrailMessage get() = if (isEn) "This action cannot be undone. All topics, progress, and assessments for this trail will be permanently removed." else "Esta ação não pode ser desfeita. Todos os tópicos, progresso e avaliações desta trilha serão removidos permanentemente."
     val deleteTrailConfirmBtn get() = if (isEn) "Delete Trail" else "Excluir Trilha"
 
-    // 6. MODAL DE TÓPICO
+
+    // 6. TOPIC MODAL
+
+
     val modalClose get() = if (isEn) "Close Modal" else "Fechar Modal"
     val modalWhatYouWillLearn get() = if (isEn) "What you will learn:" else "O que você vai aprender:"
     val modalDefaultDescription get() = if (isEn) "Explore the core concepts of this topic to advance in your study trail." else "Explore os conceitos fundamentais deste tópico para avançar na sua trilha de estudos."
@@ -137,7 +158,10 @@ object AppStrings {
     val statusOverdue get() = if (isEn) "Pending (Overdue)" else "Pendente (Prazo Vencido)"
     val topicDeadlineOverdueLabel get() = if (isEn) "Overdue deadline:" else "Prazo vencido:"
 
-    // 7. AVALIAÇÃO FINAL (PROVA) & COMEMORAÇÃO
+
+    // 7. FINAL ASSESSMENT (EXAM) & CELEBRATION
+
+
     val testSectionTitle get() = if (isEn) "Final Assessment" else "Avaliação Final"
     val testSectionBlockedDesc get() = if (isEn) "Complete all topics above to unlock the test." else "Conclua todos os tópicos acima para liberar a prova."
     fun testSectionCompletedDesc(score: Int, passingScore: Int) =
@@ -180,7 +204,10 @@ object AppStrings {
     val rewardDoLaterBtn get() = if (isEn) "Do it later" else "Fazer depois"
     val rewardContinueBtn get() = if (isEn) "Keep Learning" else "Continuar Aprendendo"
 
-    // 8. PERFIL & TELA DE CONQUISTAS
+
+    // 8. PROFILE & ACHIEVEMENTS SCREEN
+
+
     val profileTitle get() = if (isEn) "My Profile" else "Meu Perfil"
     val profileLevelLabel get() = if (isEn) "Level " else "Nível "
     val profileAchievementsHeader get() = if (isEn) "Achievements" else "Conquistas"
@@ -214,7 +241,10 @@ object AppStrings {
     fun achievementProgressRatio(current: Int, target: Int) =
         if (isEn) "$current of $target" else "$current de $target"
 
-    // 8.5. EDIÇÃO DE CONTA & ZONA DE PERIGO
+
+    // 8.5. ACCOUNT EDITING & DANGER ZONE
+
+
     val editAvatarTitle get() = if (isEn) "Choose your Avatar" else "Escolha o seu Avatar"
     val editProfileTitle get() = if (isEn) "Edit Profile" else "Editar Perfil"
     val editProfileHeader get() = if (isEn) "Update your account details" else "Atualize os dados da sua conta"
@@ -231,7 +261,10 @@ object AppStrings {
     val confirmDeleteAccountMessage get() = if (isEn) "Warning: this action is irreversible! All your trails, achievements, XP, and study progress will be permanently deleted." else "Atenção: esta ação é irreversível! Todas as suas trilhas, conquistas, pontuação de XP e progresso de estudos serão apagados para sempre."
     val confirmDeleteAccount get() = if (isEn) "Confirm Delete Account" else "Confirmar Exclusão da Conta"
 
-    // 9. CONFIGURAÇÕES & NOTIFICAÇÕES
+
+    // 9. SETTINGS & NOTIFICATIONS
+
+
     val settingsTitle get() = if (isEn) "Settings" else "Configurações"
     val settingsHeaderTitle get() = if (isEn) "Learning Settings" else "Ajustes de Aprendizado"
     val settingsHeaderSubtitle get() = if (isEn) "Customize the pace and reminders of your routine." else "Personalize o ritmo e lembretes da sua rotina."
@@ -275,7 +308,10 @@ object AppStrings {
         else -> if (isEn) "Less than 30 minutes left! The Nexo is begging you to do 1 topic NOW!" else "Faltam menos de 30 minutos! O Nexo está implorando: faça 1 tópico AGORA!"
     }
 
-    // 10. VALIDAÇÕES DE FORMULÁRIO & ERROS DE API
+
+    // 10. FORM VALIDATIONS & API ERRORS
+
+
     val errEmailBlankLogin get() = if (isEn) "Please enter your email." else "Por favor, informe seu e-mail."
     val errPasswordBlankLogin get() = if (isEn) "Please enter your password." else "Por favor, informe sua senha."
     val errUsernameBlank get() = if (isEn) "Please enter a username." else "Por favor, informe um nome de usuário."
@@ -309,7 +345,10 @@ object AppStrings {
     val errEmailChange get() = if (isEn) "Error changing email" else "Erro ao alterar o e-mail"
     val errPasswordChange get() = if (isEn) "Error changing password" else "Erro ao alterar a senha"
 
-    // 11. ACESSIBILIDADE & AVATARES (CONTENT DESCRIPTIONS)
+
+    // 11. ACCESSIBILITY & AVATARS (CONTENT DESCRIPTIONS)
+
+
     val cdMascotDefault get() = if (isEn) "Nexo Mascot" else "Mascote Nexo"
     val cdMascotStudying get() = if (isEn) "Studying" else "Focado"
     val cdMascotSupport get() = if (isEn) "Support" else "Apoio"

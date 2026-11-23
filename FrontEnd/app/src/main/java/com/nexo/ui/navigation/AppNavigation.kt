@@ -173,7 +173,7 @@ fun AppNavigation(
             )
         }
 
-        // Rota: Quiz Welcome Screen (Convite Opcional Pós-Login)
+        // Rota: Quiz Welcome Screen (Optional Post-Login Invitation)
         composable(Routes.QUIZ_WELCOME) {
             val settingsApiService = RetrofitClient.getClient(context).create(SettingsApiService::class.java)
             val learningProfileViewModel = viewModel { LearningProfileViewModel(settingsApiService) }

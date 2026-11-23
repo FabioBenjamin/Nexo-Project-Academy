@@ -342,7 +342,7 @@ fun SettingsContent(
             }
         }
 
-        // Card: Editar Perfil
+        // Card: Edit Profile
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -391,7 +391,7 @@ fun SettingsContent(
             }
         }
 
-        // Card: Perfil de Aprendizagem (Quiz Opcional / Refazer)
+        // Card: Learning Profile (Optional Quiz / Retake)
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -444,7 +444,7 @@ fun SettingsContent(
             }
         }
 
-        // Switch 1: Notificações diárias
+        // Switch 1: Daily notifications
         SettingSwitchItem(
             title = AppStrings.settingsNotificationsTitle,
             subtitle = AppStrings.settingsNotificationsSubtitle,
@@ -454,7 +454,7 @@ fun SettingsContent(
             }
         )
 
-        // Switch 2: Estudar nos fins de semana
+        // Switch 2: Studying on weekends
         SettingSwitchItem(
             title = AppStrings.settingsWeekendsTitle,
             subtitle = AppStrings.settingsWeekendsSubtitle,
@@ -465,7 +465,7 @@ fun SettingsContent(
             }
         )
 
-        // Seletor 3: Tema (Padrão do Sistema / Claro / Escuro)
+        // Selector 3: Theme (System Default / Light / Dark)
         SegmentedPreferenceCard(
             title = AppStrings.settingsThemeSectionTitle,
             subtitle = AppStrings.settingsThemeSubtitle,
@@ -480,7 +480,7 @@ fun SettingsContent(
             }
         )
 
-        // Seletor 4: Idioma (Padrão do Sistema / Português / English)
+        // Seletor 4: Language (System Default / Portuguese / English)
         SegmentedPreferenceCard(
             title = AppStrings.settingsLanguageSectionTitle,
             subtitle = AppStrings.settingsLanguageSubtitle,
