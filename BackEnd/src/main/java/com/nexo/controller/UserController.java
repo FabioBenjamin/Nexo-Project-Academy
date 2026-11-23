@@ -27,7 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/profile")
+    @GetMapping("users/user/profile")
     public ResponseEntity<UserProfileResponseDTO> getUserProfile(
             @AuthenticationPrincipal Jwt jwt)
     {
@@ -37,7 +37,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserProfile(userId));
     }
 
-    @PatchMapping("/me/username")
+    @PatchMapping("users/users/me/username")
     public ResponseEntity<Void> changeUsername(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody ChangeUsernameRequest request
@@ -50,7 +50,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/me/email")
+    @PatchMapping("users/users/me/email")
     public ResponseEntity<Void> changeEmail(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody ChangeUserEmailRequest request
@@ -63,7 +63,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/me/password")
+    @PatchMapping("users/users/me/password")
     public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody ChangePasswordRequest request
@@ -76,7 +76,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/me")
+    @DeleteMapping("users/users/me")
     public ResponseEntity<Void> deleteAccount(@AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.valueOf(jwt.getSubject());
         userService.deleteUserAccount(userId);

@@ -54,6 +54,7 @@ public class EmailService {
         String safeUsername = escapeHtml(username);
         String safeCode = escapeHtml(code);
 
+        // Email created in HTML to be sent to the user
         return """
             <!DOCTYPE html>
             <html lang="pt-BR">

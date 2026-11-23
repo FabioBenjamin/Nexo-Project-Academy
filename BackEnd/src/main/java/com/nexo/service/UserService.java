@@ -154,10 +154,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        // Remove trilhas do usuário (StudyTest, Topics e TopicProgress já possuem OnDelete CASCADE)
+        // Remove user tracks (StudyTest, Topics, and TopicProgress already have OnDelete CASCADE)
         studyTrailRepository.deleteAll(studyTrailRepository.findByUser_Id(userId, Pageable.unpaged()).getContent());
 
-        // Remove refresh tokens e conquistas vinculadas (caso o banco não tenha ON DELETE CASCADE)
+        // Remove refresh tokens and associated achievements (in case the database does not have ON DELETE CASCADE)
         refreshTokenRepository.deleteByUser_Id(userId);
         userRepository.deleteUserAchievementsByUserId(userId);
 

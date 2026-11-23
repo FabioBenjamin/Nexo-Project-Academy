@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/achievements") // Alterar caso for preciso
+@RequestMapping("/api/achievements")
 @CrossOrigin(origins = "*")
 public class AchievementController {
 
@@ -30,7 +30,7 @@ public class AchievementController {
 
     // Processes an activity completion
     // updates the user's streak and unlocks achievements
-    @PostMapping("/complete-activity/{userId}")
+    @PostMapping("api/complete-activity/{userId}")
     public ResponseEntity<Void> completeActivity(@PathVariable Long userId) {
         achievementService.processActivityCompletion(userId);
         return ResponseEntity.ok().build();
