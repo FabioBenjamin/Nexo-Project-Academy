@@ -14,13 +14,12 @@ import retrofit2.http.Query;
 
 interface AchievementApiService {
 
-    // Lista de conquistas do usuário com estado de desbloqueio
-    @GET("api/achievements/user/{userId}")
-    suspend fun getUserAchievement(
-        @Path("userId") userId: Long):
+    // List of user achievements with unlock status
+    @GET("api/achievements")
+    suspend fun getUserAchievement():
             Response<List<UserAchievementDTO>>
 
-    // Registra a conclusão de 1 active/topic
+    // Records the completion of 1 active/topic
     @POST("api/achievements/complete-activity/{userId}")
     suspend fun completeActivity(
         @Path("userId") userId: Long):
