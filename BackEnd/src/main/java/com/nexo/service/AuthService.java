@@ -131,7 +131,7 @@ public class AuthService {
 
             passwordResetTokenRepository.save(resetToken);
 
-            // Printa no console para testes locais
+            // Print to the console for local testing
             System.out.println("[NEXO RECOVERY] Código de recuperação para " + user.getEmail() + ": " + code);
 
             try {

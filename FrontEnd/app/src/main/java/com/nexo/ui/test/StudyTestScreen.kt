@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -58,11 +57,9 @@ fun StudyTestScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             painter = painterResource(id = R.drawable.mascote_default),
-                            contentDescription = "Nexo TopBar Icon",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(CircleShape)
+                            contentDescription = AppStrings.cdMascotDefault,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(36.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
@@ -379,12 +376,22 @@ private fun TestHeaderCard(
                 )
             }
 
-            Image(
-                painter = painterResource(id = R.drawable.mascote_focado),
-                contentDescription = AppStrings.testHeaderTitle,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(86.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(88.dp)
+                    .clip(RoundedCornerShape(22.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.mascote_focado),
+                    contentDescription = AppStrings.testHeaderTitle,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(6.dp)
+                )
+            }
         }
     }
 }
@@ -396,14 +403,15 @@ private fun TestResultBanner(
     passingScore: Int,
     approved: Boolean
 ) {
-    val containerColor = if (approved) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-    val accentColor = if (approved) Color(0xFF2E7D32) else Color(0xFFC62828)
+    val accentColor = if (approved) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+    val containerColor = accentColor.copy(alpha = 0.14f)
     val mascotRes = if (approved) R.drawable.mascote_default else R.drawable.mascote_apoio
 
     Card(
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.35f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -432,18 +440,28 @@ private fun TestResultBanner(
                 Text(
                     text = AppStrings.testResultSummary(score = score, total = total, passingScore = passingScore),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = accentColor
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            Image(
-                painter = painterResource(id = mascotRes),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(84.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(86.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = mascotRes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(6.dp)
+                )
+            }
         }
     }
 }
@@ -457,6 +475,8 @@ private fun QuestionCard(
     onSelectAlternative: (Long) -> Unit
 ) {
     val isReviewMode = explanation != null
+    val successColor = MaterialTheme.colorScheme.tertiary
+    val errorColor = MaterialTheme.colorScheme.error
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -485,18 +505,17 @@ private fun QuestionCard(
                 }
 
                 if (isReviewMode) {
-                    val badgeBg = if (explanation!!.isCorrect) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-                    val badgeText = if (explanation.isCorrect) Color(0xFF2E7D32) else Color(0xFFC62828)
+                    val badgeAccent = if (explanation!!.isCorrect) successColor else errorColor
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(badgeBg)
+                            .background(badgeAccent.copy(alpha = 0.14f))
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = if (explanation.isCorrect) AppStrings.testCorrectBadge else AppStrings.testIncorrectBadge,
                             style = MaterialTheme.typography.labelMedium,
-                            color = badgeText,
+                            color = badgeAccent,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -516,8 +535,8 @@ private fun QuestionCard(
             question.alternatives.forEach { alt ->
                 val isSelected = selectedAlternativeId == alt.id
                 val borderColor = when {
-                    isReviewMode && isSelected && explanation!!.isCorrect -> Color(0xFF2E7D32)
-                    isReviewMode && isSelected && !explanation!!.isCorrect -> Color(0xFFC62828)
+                    isReviewMode && isSelected && explanation!!.isCorrect -> successColor
+                    isReviewMode && isSelected && !explanation!!.isCorrect -> errorColor
                     isSelected -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
                 }
@@ -556,19 +575,18 @@ private fun QuestionCard(
 
             if (explanation != null) {
                 Spacer(modifier = Modifier.height(12.dp))
+                val explanationAccent = if (explanation.isCorrect) successColor else errorColor
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            if (explanation.isCorrect) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-                        )
+                        .background(explanationAccent.copy(alpha = 0.12f))
                         .padding(12.dp)
                 ) {
                     Text(
                         text = explanation.explanation,
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (explanation.isCorrect) Color(0xFF1B5E20) else Color(0xFFB71C1C)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

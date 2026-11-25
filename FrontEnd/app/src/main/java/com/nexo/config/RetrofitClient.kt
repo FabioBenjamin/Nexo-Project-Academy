@@ -35,7 +35,7 @@ object RetrofitClient {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
-        // Instância dedicada apenas para o refresh token (evita loop infinito no 401)
+        // Instance dedicated solely to the refresh token (prevents an infinite loop on 401 errors)
         val refreshAuthService: AuthApiService by lazy {
             val cleanClient = OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)

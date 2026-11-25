@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/achievements") // Alterar caso for preciso
+@RequestMapping("/api/achievements")
 @CrossOrigin(origins = "*")
 public class AchievementController {
 

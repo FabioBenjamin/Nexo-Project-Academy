@@ -19,8 +19,7 @@ data class UserProfileResponse(
     val password: String? = null
 )
 
-
-// DTOs para alteração individual de dados do usuário (alinhados ao Back-End)
+// DTOs for individual user data updates
 data class ChangeUsernameRequest(val username: String)
 data class ChangeUserEmailRequest(val email: String)
 data class ChangePasswordRequest(

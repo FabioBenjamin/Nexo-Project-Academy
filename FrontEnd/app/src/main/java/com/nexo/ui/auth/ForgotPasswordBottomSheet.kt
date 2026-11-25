@@ -1,7 +1,10 @@
 package com.nexo.ui.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -13,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +31,12 @@ import com.nexo.data.api.AuthApiService
 import com.nexo.dto.ForgotPasswordRequest
 import com.nexo.dto.ResetPasswordRequest
 import com.nexo.ui.theme.AppStrings
+import com.nexo.ui.theme.nexoTextFieldColors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import java.net.SocketTimeoutException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +47,7 @@ fun ForgotPasswordBottomSheet(
     onResetSuccess: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    var step by remember { mutableIntStateOf(1) } // 1 = Enviar e-mail, 2 = Validar código + nova senha
+    var step by remember { mutableIntStateOf(1) }
     var email by remember { mutableStateOf(initialEmail) }
     var code by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
@@ -49,7 +58,7 @@ fun ForgotPasswordBottomSheet(
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     ModalBottomSheet(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (!isLoading) onDismiss() },
         containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
     ) {
@@ -60,17 +69,28 @@ fun ForgotPasswordBottomSheet(
                 .padding(bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.mascote_calma),
-                contentDescription = "Mascote Nexo Calmo",
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.size(84.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(92.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
+                    .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.mascote_calma),
+                    contentDescription = AppStrings.cdMascotCalm,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = if (step == 1) "Recuperar Senha" else "Criar Nova Senha",
+                text = if (step == 1) AppStrings.forgotPasswordTitleStep1 else AppStrings.forgotPasswordTitleStep2,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
@@ -80,9 +100,9 @@ fun ForgotPasswordBottomSheet(
 
             Text(
                 text = if (step == 1) {
-                    "Digite o e-mail da sua conta para receber um código de verificação de 6 dígitos."
+                    AppStrings.forgotPasswordDescStep1
                 } else {
-                    "Enviamos um código para $email. Insira-o abaixo junto com sua nova senha."
+                    AppStrings.forgotPasswordDescStep2(email)
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -100,12 +120,14 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.labelEmail) },
                     singleLine = true,
+                    enabled = !isLoading,
                     trailingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Done
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
             } else {
@@ -115,14 +137,16 @@ fun ForgotPasswordBottomSheet(
                         if (it.length <= 6) code = it.filter { ch -> ch.isDigit() }
                         errorMessage = null
                     },
-                    label = { Text("Código de 6 dígitos") },
+                    label = { Text(AppStrings.forgotPasswordCodeLabel) },
                     singleLine = true,
+                    enabled = !isLoading,
                     trailingIcon = { Icon(Icons.Default.Key, contentDescription = null) },
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.NumberPassword,
                         imeAction = ImeAction.Next
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -136,6 +160,7 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.labelNewPassword) },
                     singleLine = true,
+                    enabled = !isLoading,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -150,6 +175,7 @@ fun ForgotPasswordBottomSheet(
                         imeAction = ImeAction.Next
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -163,12 +189,14 @@ fun ForgotPasswordBottomSheet(
                     },
                     label = { Text(AppStrings.labelConfirmPassword) },
                     singleLine = true,
+                    enabled = !isLoading,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
                     shape = RoundedCornerShape(16.dp),
+                    colors = nexoTextFieldColors(),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -197,13 +225,21 @@ fun ForgotPasswordBottomSheet(
                         scope.launch {
                             isLoading = true
                             try {
-                                val resp = authApiService.forgotPassword(ForgotPasswordRequest(trimmed))
-                                if (resp.isSuccessful) {
+                                val resp = withTimeoutOrNull(8_000L) {
+                                    withContext(Dispatchers.IO) {
+                                        authApiService.forgotPassword(ForgotPasswordRequest(trimmed))
+                                    }
+                                }
+                                if (resp == null || resp.isSuccessful) {
+                                    // Proceed if a 200 OK response was received or if the server is still sending the SMTP [data]
                                     step = 2
                                 } else {
-                                    errorMessage = "Não foi possível enviar o código (${resp.code()})"
+                                    errorMessage = AppStrings.forgotPasswordErrSendFailed(resp.code())
                                 }
-                            } catch (e: Exception) {
+                            } catch (_: SocketTimeoutException) {
+                                // Even in the event of a socket timeout, the backend typically completes the transmission.
+                                step = 2
+                            } catch (_: Exception) {
                                 errorMessage = AppStrings.errNetwork
                             } finally {
                                 isLoading = false
@@ -211,7 +247,7 @@ fun ForgotPasswordBottomSheet(
                         }
                     } else {
                         if (code.length != 6) {
-                            errorMessage = "Informe o código de 6 dígitos"
+                            errorMessage = AppStrings.forgotPasswordErrCodeLength
                             return@Button
                         }
                         if (newPassword.length < 6) {
@@ -225,20 +261,22 @@ fun ForgotPasswordBottomSheet(
                         scope.launch {
                             isLoading = true
                             try {
-                                val resp = authApiService.resetPassword(
-                                    ResetPasswordRequest(
-                                        email = email.trim(),
-                                        code = code,
-                                        newPassword = newPassword,
-                                        confirmNewPassword = confirmPassword
+                                val resp = withContext(Dispatchers.IO) {
+                                    authApiService.resetPassword(
+                                        ResetPasswordRequest(
+                                            email = email.trim(),
+                                            code = code,
+                                            newPassword = newPassword,
+                                            confirmNewPassword = confirmPassword
+                                        )
                                     )
-                                )
+                                }
                                 if (resp.isSuccessful) {
                                     onResetSuccess()
                                 } else {
-                                    errorMessage = "Código inválido ou expirado"
+                                    errorMessage = AppStrings.forgotPasswordErrInvalidCode
                                 }
-                            } catch (e: Exception) {
+                            } catch (_: Exception) {
                                 errorMessage = AppStrings.errNetwork
                             } finally {
                                 isLoading = false
@@ -259,16 +297,35 @@ fun ForgotPasswordBottomSheet(
                     )
                 } else {
                     Text(
-                        text = if (step == 1) "Enviar Código" else "Redefinir Senha",
+                        text = if (step == 1) AppStrings.forgotPasswordSendBtn else AppStrings.forgotPasswordResetBtn,
                         style = MaterialTheme.typography.labelLarge
                     )
                 }
             }
 
-            if (step == 2) {
+            if (step == 1) {
                 Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = { step = 1; errorMessage = null }) {
-                    Text("Alterar e-mail ou reenviar código")
+                TextButton(
+                    enabled = !isLoading,
+                    onClick = {
+                        val trimmed = email.trim()
+                        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmed).matches()) {
+                            errorMessage = AppStrings.errEmailInvalid
+                        } else {
+                            errorMessage = null
+                            step = 2
+                        }
+                    }
+                ) {
+                    Text(AppStrings.forgotPasswordResendLink)
+                }
+            } else {
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(
+                    enabled = !isLoading,
+                    onClick = { step = 1; errorMessage = null }
+                ) {
+                    Text(AppStrings.forgotPasswordResendLink)
                 }
             }
         }

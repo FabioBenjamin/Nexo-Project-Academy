@@ -10,11 +10,11 @@ val RoxoAcolhedor = Color(0xFFB69BFF)
 val CremeSuave = Color(0xFFFFF6E1)
 val VerdeEquilibrio = Color(0xFF5DBEA6)
 
-// Cores Fixas de Texto (uso interno dos esquemas de cor)
+// Fixed Text Colors (for internal use by color schemes)
 val TextoEscuroFixo = Color(0xFF1A1F2E)
 val TextoSecundarioEscuroFixo = Color(0xFF6B7280)
 
-// Cores Secundárias e de Apoio
+// Secondary and Supporting Colors
 val BlushApoio = Color(0xFFFFB6A3)
 val AzulNexo = Color(0xFF0B2A6B)
 val BrancoPuro = Color(0xFFFFFFFF)
@@ -28,7 +28,7 @@ val TextoClaroPrincipal = Color(0xFFF3F4F6)
 val TextoClaroSecundario = Color(0xFF9CA3AF)
 val BordaEscura = Color(0xFF2E3446)
 
-// Helper reativo que verifica se o tema escuro está ativo
+// Reactive helper that checks if dark theme is active
 val isNexoDarkTheme: Boolean
     @Composable
     get() = when {
@@ -37,7 +37,7 @@ val isNexoDarkTheme: Boolean
         else -> isSystemInDarkTheme()
     }
 
-// Troca automaticamente entre TextoEscuroFixo (#1A1F2E) e Branco/Claro no Dark Mode
+// Automatically switches between FixedDarkText (#1A1F2E) and White/Light in Dark Mode
 val TextoPrincipal: Color
     @Composable
     get() = if (isNexoDarkTheme) TextoClaroPrincipal else TextoEscuroFixo

@@ -11,10 +11,10 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -308,14 +308,22 @@ fun SettingsContent(
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.mascote_calma),
-                    contentDescription = AppStrings.cdMascotCalm,
-                    contentScale = ContentScale.Crop,
+                Box(
                     modifier = Modifier
-                        .size(65.dp)
-                        .clip(CircleShape)
-                )
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.mascote_calma),
+                        contentDescription = AppStrings.cdMascotCalm,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(6.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(16.dp))
 
@@ -334,7 +342,7 @@ fun SettingsContent(
             }
         }
 
-        // Card: Editar Perfil
+        // Card: Edit Profile
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -383,7 +391,7 @@ fun SettingsContent(
             }
         }
 
-        // Card: Perfil de Aprendizagem (Quiz Opcional / Refazer)
+        // Card: Learning Profile (Optional Quiz / Retake)
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -405,22 +413,22 @@ fun SettingsContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = "Perfil de Aprendizagem",
+                        contentDescription = AppStrings.settingsLearningQuizTitle,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
                         Text(
-                            text = "Perfil de Aprendizagem (Quiz)",
+                            text = AppStrings.settingsLearningQuizTitle,
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = if (hasLearningProfile) {
-                                "Configurado • Toque para refazer ou ajustar suas preferências"
+                                AppStrings.settingsLearningQuizConfigured
                             } else {
-                                "Pendente • Personalize como a IA estrutura suas trilhas"
+                                AppStrings.settingsLearningQuizPending
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -436,7 +444,7 @@ fun SettingsContent(
             }
         }
 
-        // Switch 1: Notificações diárias
+        // Switch 1: Daily notifications
         SettingSwitchItem(
             title = AppStrings.settingsNotificationsTitle,
             subtitle = AppStrings.settingsNotificationsSubtitle,
@@ -446,7 +454,7 @@ fun SettingsContent(
             }
         )
 
-        // Switch 2: Estudar nos fins de semana
+        // Switch 2: Studying on weekends
         SettingSwitchItem(
             title = AppStrings.settingsWeekendsTitle,
             subtitle = AppStrings.settingsWeekendsSubtitle,
@@ -457,7 +465,7 @@ fun SettingsContent(
             }
         )
 
-        // Seletor 3: Tema (Padrão do Sistema / Claro / Escuro)
+        // Selector 3: Theme (System Default / Light / Dark)
         SegmentedPreferenceCard(
             title = AppStrings.settingsThemeSectionTitle,
             subtitle = AppStrings.settingsThemeSubtitle,
@@ -472,7 +480,7 @@ fun SettingsContent(
             }
         )
 
-        // Seletor 4: Idioma (Padrão do Sistema / Português / English)
+        // Seletor 4: Language (System Default / Portuguese / English)
         SegmentedPreferenceCard(
             title = AppStrings.settingsLanguageSectionTitle,
             subtitle = AppStrings.settingsLanguageSubtitle,
@@ -493,7 +501,7 @@ fun SettingsContent(
 private fun SegmentedPreferenceCard(
     title: String,
     subtitle: String,
-    options: List<Pair<String, String>>, // Pair(valorApi, labelExibida)
+    options: List<Pair<String, String>>,
     selectedValue: String,
     onSelect: (String) -> Unit
 ) {

@@ -1,14 +1,14 @@
 package com.nexo.ui.trail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -19,21 +19,35 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.nexo.R
 import com.nexo.dto.TopicResponse
 import com.nexo.ui.home.StatusBadge
-import com.nexo.ui.theme.*
+import com.nexo.ui.theme.AppStrings
+import java.time.LocalDate
+
+fun isDeadlineOverdue(status: String, targetDateStr: String?): Boolean {
+    if (status.equals("COMPLETED", ignoreCase = true) || targetDateStr.isNullOrBlank()) return false
+    return try {
+        val targetDate = LocalDate.parse(targetDateStr.take(10))
+        LocalDate.now().isAfter(targetDate)
+    } catch (_: Exception) {
+        false
+    }
+}
 
 @Composable
 fun TopicDetailModal(
     topic: TopicResponse,
     onDismiss: () -> Unit,
-    onCompleteTopic: (TopicResponse) -> Unit
+    onToggleTopicCompletion: (TopicResponse) -> Unit
 ) {
     val isCompleted = topic.status.equals("COMPLETED", ignoreCase = true)
+    val isOverdue = isDeadlineOverdue(topic.status, topic.targetDate)
+    val effectiveStatus = if (isOverdue) "PENDING" else topic.status
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -50,29 +64,29 @@ fun TopicDetailModal(
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Modal Header: Top Bar with Mascot Icon and Close Button
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Mascot Studying Pose Header Icon
                     Box(
                         modifier = Modifier
-                            .size(54.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.background),
+                            .size(58.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.mascote_focado),
                             contentDescription = AppStrings.cdMascotStudying,
                             contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(44.dp)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp)
                         )
                     }
 
-                    StatusBadge(status = topic.status)
+                    StatusBadge(status = effectiveStatus)
 
                     IconButton(onClick = onDismiss) {
                         Icon(
@@ -85,7 +99,6 @@ fun TopicDetailModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Topic Title
                 Text(
                     text = topic.title,
                     style = MaterialTheme.typography.titleLarge,
@@ -96,10 +109,11 @@ fun TopicDetailModal(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Content Breakdown Card ("Description")
                 Card(
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.6f)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.6f)
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -126,7 +140,6 @@ fun TopicDetailModal(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Target Date Metadata Row (if available)
                 if (!topic.targetDate.isNullOrBlank()) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -135,65 +148,96 @@ fun TopicDetailModal(
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = AppStrings.topicDate,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "${AppStrings.topicDate} ${topic.targetDate}",
+                            text = if (isOverdue) {
+                                "${AppStrings.topicDeadlineOverdueLabel} ${topic.targetDate}"
+                            } else {
+                                "${AppStrings.topicDate} ${topic.targetDate}"
+                            },
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = if (isOverdue) FontWeight.Bold else FontWeight.Normal,
+                            color = if (isOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                // Completion Action Button with XP Reward Indicator
-                Button(
-                    onClick = {
-                        onCompleteTopic(topic)
-                        onDismiss()
-                    },
-                    enabled = !isCompleted,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isCompleted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
-                        contentColor = if (isCompleted) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimary,
-                        disabledContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f),
-                        disabledContentColor = MaterialTheme.colorScheme.onTertiary
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+                if (isCompleted) {
+                    OutlinedButton(
+                        onClick = {
+                            onToggleTopicCompletion(topic)
+                            onDismiss()
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.error),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = 52.dp)
                     ) {
-                        if (isCompleted) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             Icon(
-                                imageVector = Icons.Default.CheckCircle,
-                                contentDescription = AppStrings.topicCompleted,
-                                modifier = Modifier.size(20.dp)
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = AppStrings.topicUncomplete,
+                                modifier = Modifier.size(18.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = AppStrings.topicCompleted,
+                                text = AppStrings.topicUncomplete,
                                 style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis
                             )
-                        } else {
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = {
+                            onToggleTopicCompletion(topic)
+                            onDismiss()
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = 52.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Star,
-                                contentDescription = "XP",
+                                contentDescription = AppStrings.cdXP,
                                 tint = MaterialTheme.colorScheme.secondary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(18.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = AppStrings.topicComplete,
                                 style = MaterialTheme.typography.labelLarge,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
                     }

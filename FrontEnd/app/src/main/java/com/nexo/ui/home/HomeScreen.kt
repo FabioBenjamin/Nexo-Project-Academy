@@ -2,17 +2,18 @@ package com.nexo.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,8 +33,10 @@ import androidx.compose.ui.unit.sp
 import com.nexo.R
 import com.nexo.dto.StudyTrailSummaryResponse
 import com.nexo.dto.UserProfileResponse
+import com.nexo.security.TokenManager
 import com.nexo.ui.navigation.NexoBottomBar
 import com.nexo.ui.navigation.Routes
+import com.nexo.ui.profile.MascotAvatarHelper
 import com.nexo.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,17 +53,15 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
-    val context = androidx.compose.ui.platform.LocalContext.current
-    val tokenManager = remember { com.nexo.security.TokenManager(context) }
+    val context = LocalContext.current
+    val tokenManager = remember { TokenManager(context) }
     val avatarId by tokenManager.avatarIdFlow.collectAsState(initial = tokenManager.cachedAvatarId)
-    val userAvatarResId = com.nexo.ui.profile.MascotAvatarHelper.getResIdById(avatarId)
+    val userAvatarResId = MascotAvatarHelper.getResIdById(avatarId)
 
-    // Recarrega trilhas, nível e XP sempre que voltar para a Home
     LaunchedEffect(Unit) {
         viewModel.loadTrails()
     }
 
-    // Se a sessão expirar (401 no refresh), redireciona automaticamente para o Login
     LaunchedEffect(uiState) {
         if (uiState is HomeUiState.Unauthorized) {
             onLogoutClick()
@@ -73,16 +75,18 @@ fun HomeScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(38.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(MaterialTheme.colorScheme.primary),
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = "Nexo Logo",
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(20.dp)
+                            Image(
+                                painter = painterResource(id = R.drawable.icone_final),
+                                contentDescription = AppStrings.homeAppTitle,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(4.dp)
                             )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -97,18 +101,19 @@ fun HomeScreen(
                     IconButton(onClick = onProfileClick) {
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
+                                .size(36.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f)),
+                                .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
+                                .border(1.5.dp, MaterialTheme.colorScheme.secondary, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Image(
                                 painter = painterResource(id = userAvatarResId),
                                 contentDescription = AppStrings.homeActionProfile,
-                                contentScale = ContentScale.Crop,
+                                contentScale = ContentScale.Fit,
                                 modifier = Modifier
-                                    .size(30.dp)
-                                    .clip(CircleShape)
+                                    .fillMaxSize()
+                                    .padding(3.dp)
                             )
                         }
                     }
@@ -174,6 +179,13 @@ fun HomeScreen(
                             modifier = Modifier.align(Alignment.Center),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.mascote_errando),
+                                contentDescription = AppStrings.cdMascotSupport,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(110.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
                             Text(
                                 text = state.message,
                                 style = MaterialTheme.typography.bodyLarge,
@@ -194,7 +206,7 @@ fun HomeScreen(
                     }
 
                     is HomeUiState.Success -> {
-                        val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+                        val listState = rememberLazyListState()
 
                         val shouldLoadMore by remember(
                             state.trails.size,
@@ -276,6 +288,7 @@ fun HomeScreen(
         }
     }
 }
+
 @Composable
 fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
     Card(
@@ -297,7 +310,7 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Assignment,
-                    contentDescription = "Missão",
+                    contentDescription = AppStrings.cdMission,
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(18.dp)
                 )
@@ -308,10 +321,10 @@ fun EmptyStateCard(onCreateTrailClick: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.mascote_apoio),
-                    contentDescription = "Mascote Sem Atividades",
+                    painter = painterResource(id = R.drawable.mascote_explorador),
+                    contentDescription = AppStrings.cdMascotExplorer,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(110.dp)
+                    modifier = Modifier.size(120.dp)
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -395,19 +408,23 @@ fun TrailCard(
     }
 }
 
-
-    @Composable
+@Composable
 fun StatusBadge(status: String) {
     val (backgroundColor, textColor, textLabel) = when (status.uppercase()) {
         "COMPLETED" -> Triple(
             Color(0xFFE8F5E9),
             Color(0xFF2E7D32),
-            "Concluída"
+            AppStrings.statusCompleted
         )
         "IN_PROGRESS" -> Triple(
             MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f),
             MaterialTheme.colorScheme.secondary,
             AppStrings.statusInProgress
+        )
+        "PENDING" -> Triple(
+            MaterialTheme.colorScheme.error.copy(alpha = 0.14f),
+            MaterialTheme.colorScheme.error,
+            AppStrings.statusOverdue
         )
         else -> Triple(
             MaterialTheme.colorScheme.surfaceVariant,
@@ -482,7 +499,7 @@ fun DashboardWelcomeCard(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "Nível $level",
+                        text = AppStrings.homeLevelLabel(level),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -493,7 +510,9 @@ fun DashboardWelcomeCard(
                         studiedToday = profile?.studiedToday ?: false
                     )
                 }
-                Spacer(modifier = Modifier.width(12.dp))
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = "$currentXp / $maxXp XP",
                     style = MaterialTheme.typography.labelMedium,
@@ -513,11 +532,13 @@ fun DashboardWelcomeCard(
                 )
             }
 
+            Spacer(modifier = Modifier.width(8.dp))
+
             Image(
                 painter = painterResource(id = R.drawable.mascote_focado),
-                contentDescription = "Mascote Estudando",
+                contentDescription = AppStrings.cdMascotStudying,
                 contentScale = ContentScale.Fit,
-                modifier = Modifier.size(90.dp)
+                modifier = Modifier.size(96.dp)
             )
         }
     }

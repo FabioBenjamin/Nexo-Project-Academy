@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-// Spring registra essa classe como parte do mecanismo global de tratamento de exceções.
-// Quando uma exceção escapa de um controller, o Spring procura um @ExceptionHandler compatível.
-// Não é necessario chamar o Handler no controller
+// Spring registers this class as part of the global exception-handling mechanism.
+// When an exception escapes from a controller, Spring looks for a compatible @ExceptionHandler.
+// There is no need to call the handler within the controller.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

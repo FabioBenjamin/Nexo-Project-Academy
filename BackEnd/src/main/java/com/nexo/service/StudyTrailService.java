@@ -55,7 +55,7 @@ public class StudyTrailService {
                 .map(Settings::getLearningProfile)
                 .orElse(null);
 
-        // Gemini response converted into Java Class com as regras permanentes do perfil do usuário
+        // Gemini response converted into a Java class containing the user profile's permanent rules
         GeminiResponse geminiResponse = geminiClient.generateTrail(
                 dto,
                 LocalDate.now(),

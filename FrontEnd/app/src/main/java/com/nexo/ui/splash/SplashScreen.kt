@@ -39,13 +39,13 @@ fun SplashScreen(
 
     val alphaAnim by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing),
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
         label = "splash_alpha"
     )
 
     val scaleAnim by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0.88f,
-        animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing),
+        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
         label = "splash_scale"
     )
 
@@ -67,7 +67,6 @@ fun SplashScreen(
             .background(MaterialTheme.colorScheme.background)
             .padding(horizontal = 32.dp, vertical = 48.dp)
     ) {
-
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -75,10 +74,9 @@ fun SplashScreen(
                 .scale(scaleAnim),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Box(
                 modifier = Modifier
-                    .size(148.dp)
+                    .size(164.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
                     .border(
@@ -92,7 +90,9 @@ fun SplashScreen(
                     painter = painterResource(id = R.drawable.mascote_default),
                     contentDescription = AppStrings.cdMascotDefault,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(124.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
                 )
             }
 

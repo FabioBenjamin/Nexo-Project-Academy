@@ -2,11 +2,14 @@ package com.nexo.ui.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
@@ -38,6 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
+    onNavigateToSplash: () -> Unit,
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit
 ) {
@@ -61,7 +65,7 @@ fun LoginScreen(
             TopAppBar(
                 title = { },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle optional back action */ }) {
+                    IconButton(onClick = { onNavigateToSplash() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = AppStrings.btnBack,
@@ -103,23 +107,25 @@ fun LoginScreen(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
             ) {
-                // Circular Mascot Avatar Header (Brandbook Login Screen)
                 Box(
                     modifier = Modifier
-                        .size(100.dp)
+                        .size(112.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary),
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f))
+                        .border(2.dp, MaterialTheme.colorScheme.secondary, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.mascote_default),
-                        contentDescription = "Mascote Nexo",
-                        contentScale = ContentScale.Crop,
+                        contentDescription = AppStrings.cdMascotDefault,
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
-                            .size(90.dp)
-                            .clip(CircleShape)
+                            .fillMaxSize()
+                            .padding(12.dp)
                     )
                 }
 
@@ -140,17 +146,16 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // Email or Username Input
                 OutlinedTextField(
                     value = email,
                     onValueChange = { viewModel.updateEmail(it) },
-                    label = { Text("Email ou Username") },
-                    placeholder = { Text("Digite seu email ou username") },
+                    label = { Text(AppStrings.loginEmailOrUserLabel) },
+                    placeholder = { Text(AppStrings.loginEmailOrUserPlaceholder) },
                     singleLine = true,
                     trailingIcon = {
                         Icon(
                             imageVector = Icons.Default.Person,
-                            contentDescription = "Email ou Username",
+                            contentDescription = AppStrings.loginEmailOrUserLabel,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
@@ -165,7 +170,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Password Input
                 OutlinedTextField(
                     value = password,
                     onValueChange = { viewModel.updatePassword(it) },
@@ -193,7 +197,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Forgot Password Link
                 Text(
                     text = AppStrings.loginForgotPassword,
                     style = MaterialTheme.typography.bodyMedium,
@@ -216,7 +219,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Primary Filled Button (Entrar)
                 Button(
                     onClick = { viewModel.login() },
                     enabled = viewModel.isFormValid && uiState !is LoginUiState.Loading,
@@ -232,7 +234,10 @@ fun LoginScreen(
                     )
                 ) {
                     if (uiState is LoginUiState.Loading) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(22.dp))
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(22.dp)
+                        )
                     } else {
                         Text(
                             text = AppStrings.loginBtnSubmit,
@@ -244,7 +249,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Bottom Registration Redirect
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = AppStrings.loginNoAccountPrompt,
@@ -275,7 +279,7 @@ fun LoginScreen(
             onResetSuccess = {
                 showForgotPasswordSheet = false
                 scope.launch {
-                    snackbarHostState.showSnackbar("Senha redefinida com sucesso! Faça login com a nova senha.")
+                    snackbarHostState.showSnackbar(AppStrings.loginPasswordResetSuccess)
                 }
             }
         )

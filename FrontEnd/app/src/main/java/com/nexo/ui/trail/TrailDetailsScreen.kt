@@ -2,6 +2,7 @@ package com.nexo.ui.trail
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -171,7 +172,6 @@ fun TrailDetailsScreen(
                             onStartTest = onStartTest
                         )
 
-                        // Modal de Edição da Trilha
                         if (showEditDialog) {
                             EditTrailDialog(
                                 initialTitle = state.trail.title,
@@ -242,26 +242,26 @@ fun TrailDetailsScreen(
                         }
                     }
                 }
-
-                selectedTopicForModal?.let { topic ->
-                    TopicDetailModal(
-                        topic = topic,
-                        onDismiss = { selectedTopicForModal = null },
-                        onCompleteTopic = { targetTopic ->
-                            viewModel.completeTopic(targetTopic.id)
-                        }
-                    )
-                }
-
-                rewardEvent?.let { event ->
-                    GamificationRewardDialog(
-                        event = event,
-                        onDismiss = { viewModel.dismissRewardEvent() },
-                        onStartUnlockedTest = onStartTest
-                    )
-                }
             }
         }
+    }
+
+    selectedTopicForModal?.let { topic ->
+        TopicDetailModal(
+            topic = topic,
+            onDismiss = { selectedTopicForModal = null },
+            onToggleTopicCompletion = { targetTopic ->
+                viewModel.toggleTopicCompletion(targetTopic)
+            }
+        )
+    }
+
+    rewardEvent?.let { event ->
+        GamificationRewardDialog(
+            event = event,
+            onDismiss = { viewModel.dismissRewardEvent() },
+            onStartUnlockedTest = onStartTest
+        )
     }
 }
 
@@ -353,6 +353,8 @@ fun TrailDetailsContent(
     onTopicClick: (TopicResponse) -> Unit,
     onStartTest: (Long, Int) -> Unit
 ) {
+    val isTrailOverdue = isDeadlineOverdue(trail.status, trail.targetDate)
+
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp),
@@ -377,7 +379,8 @@ fun TrailDetailsContent(
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.weight(1f)
                         )
-                        StatusBadge(status = trail.status)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        StatusBadge(status = if (isTrailOverdue) "PENDING" else trail.status)
                     }
 
                     if (!trail.description.isNullOrBlank()) {
@@ -395,15 +398,19 @@ fun TrailDetailsContent(
                         Icon(
                             imageVector = Icons.Default.DateRange,
                             contentDescription = AppStrings.trailDetailsDeadlineLabel,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = if (isTrailOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "${AppStrings.trailDetailsDeadlineLabel}${trail.targetDate}",
+                            text = if (isTrailOverdue) {
+                                "${AppStrings.topicDeadlineOverdueLabel} ${trail.targetDate}"
+                            } else {
+                                "${AppStrings.trailDetailsDeadlineLabel}${trail.targetDate}"
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = if (isTrailOverdue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -513,18 +520,28 @@ fun StudyTestSectionCard(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                Image(
-                    painter = painterResource(
-                        id = when {
-                            isBlocked -> R.drawable.mascote_apoio
-                            isCompleted -> R.drawable.mascote_default
-                            else -> R.drawable.mascote_focado
-                        }
-                    ),
-                    contentDescription = AppStrings.testSectionTitle,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.size(72.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(
+                            id = when {
+                                isBlocked -> R.drawable.mascote_apoio
+                                isCompleted -> R.drawable.mascote_default
+                                else -> R.drawable.mascote_focado
+                            }
+                        ),
+                        contentDescription = AppStrings.testSectionTitle,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(6.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -612,6 +629,7 @@ fun ExpandableTopicCard(
 ) {
     var isExpanded by remember { mutableStateOf(true) }
     val isCompleted = topic.status.equals("COMPLETED", ignoreCase = true)
+    val isOverdue = isDeadlineOverdue(topic.status, topic.targetDate)
 
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -627,7 +645,11 @@ fun ExpandableTopicCard(
                 Icon(
                     imageVector = if (isCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                     contentDescription = topic.title,
-                    tint = if (isCompleted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = when {
+                        isCompleted -> MaterialTheme.colorScheme.tertiary
+                        isOverdue -> MaterialTheme.colorScheme.error
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                     modifier = Modifier
                         .size(24.dp)
                         .clickable { onTopicClick(topic) }
@@ -645,6 +667,19 @@ fun ExpandableTopicCard(
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+                    if (isOverdue && !topic.targetDate.isNullOrBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            StatusBadge(status = "PENDING")
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = topic.targetDate,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
                 }
 
                 IconButton(onClick = { onTopicClick(topic) }) {
@@ -693,6 +728,7 @@ fun SubTopicItem(
     onSubTopicClick: () -> Unit
 ) {
     val isSubCompleted = subTopic.status.equals("COMPLETED", ignoreCase = true)
+    val isSubOverdue = isDeadlineOverdue(subTopic.status, subTopic.targetDate)
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -703,19 +739,32 @@ fun SubTopicItem(
         Icon(
             imageVector = if (isSubCompleted) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
             contentDescription = subTopic.title,
-            tint = if (isSubCompleted) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = when {
+                isSubCompleted -> MaterialTheme.colorScheme.tertiary
+                isSubOverdue -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+            },
             modifier = Modifier.size(18.dp)
         )
 
         Spacer(modifier = Modifier.width(10.dp))
 
-        Text(
-            text = subTopic.title,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = subTopic.title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (isSubOverdue && !subTopic.targetDate.isNullOrBlank()) {
+                Text(
+                    text = "${AppStrings.topicDeadlineOverdueLabel} ${subTopic.targetDate}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
 
         Icon(
             imageVector = Icons.Default.Info,

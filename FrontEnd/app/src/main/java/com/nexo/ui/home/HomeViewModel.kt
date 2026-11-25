@@ -43,7 +43,7 @@ class HomeViewModel(
             isLastPage = false
             isFetchingNextPage = false
 
-            // 1. Cache-First: hidrata trilhas e perfil imediatamente se existirem no DataStore
+            // 1. Cache-First: immediately hydrates tracks and profile if they exist in the DataStore
             val cachedTrails = tokenManager.getCachedHomeTrails()
             val cachedProfile = tokenManager.getCachedProfile()
 
@@ -58,7 +58,8 @@ class HomeViewModel(
                 _uiState.value = HomeUiState.Loading
             }
 
-            // 2. Sincroniza com o BackEnd em segundo plano
+            // 2. Synchronizes with the backend in the background
+
             fetchFirstPage(silentFailure = cachedTrails != null)
         }
     }
@@ -70,7 +71,7 @@ class HomeViewModel(
             isFetchingNextPage = false
             _isRefreshing.value = true
             try {
-                // No pull-to-refresh nunca destrói a tela atual em caso de falha de rede
+                // In a pull-to-refresh scenario, the current screen is never destroyed in the event of a network failure.
                 fetchFirstPage(silentFailure = true)
             } finally {
                 _isRefreshing.value = false
@@ -98,7 +99,7 @@ class HomeViewModel(
                     tokenManager.saveCachedProfile(remoteProfile)
                 }
 
-                // Atualiza o cache local da primeira página
+                // Updates the local cache of the front page
                 tokenManager.saveCachedHomeTrails(pageBody.content)
 
                 currentPage = pageBody.number

@@ -6,7 +6,9 @@ import com.nexo.data.api.AchievementApiService
 import com.nexo.data.api.TrailApiService
 import com.nexo.data.api.UserApiService
 import com.nexo.dto.StudyTrailResponse
+import com.nexo.dto.TopicResponse
 import com.nexo.dto.UpdateStudyTrailRequest
+import com.nexo.dto.UpdateTopicProgressRequest
 import com.nexo.security.TokenManager
 import com.nexo.ui.theme.AppStrings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,7 +58,6 @@ class TrailDetailsViewModel(
 
     fun loadTrailDetails() {
         viewModelScope.launch {
-            // 1. Cache-First: exibe os detalhes salvos localmente de imediato
             val cached = tokenManager.getCachedTrailDetails(trailId)
             if (cached != null) {
                 _uiState.value = TrailDetailsUiState.Success(
@@ -67,7 +68,6 @@ class TrailDetailsViewModel(
                 _uiState.value = TrailDetailsUiState.Loading
             }
 
-            // 2. Busca os dados mais recentes da API
             try {
                 val response = trailApiService.getTrailDetails(trailId)
                 if (response.isSuccessful && response.body() != null) {
@@ -110,18 +110,36 @@ class TrailDetailsViewModel(
         }
     }
 
-    fun completeTopic(topicId: Long) {
+    fun toggleTopicCompletion(topic: TopicResponse) {
+        val targetCompleted = !topic.status.equals("COMPLETED", ignoreCase = true)
+
         viewModelScope.launch {
             try {
-                val beforeProfileResp = userApiService.getUserProfile()
-                val beforeProfile = if (beforeProfileResp.isSuccessful) beforeProfileResp.body() else null
-                val userId = beforeProfile?.id ?: tokenManager.getUserId()
+                val beforeProfileResp = if (targetCompleted) {
+                    try {
+                        userApiService.getUserProfile()
+                    } catch (_: Exception) {
+                        null
+                    }
+                } else null
+
+                val beforeProfile = if (beforeProfileResp?.isSuccessful == true) {
+                    beforeProfileResp.body()
+                } else {
+                    null
+                }
+
+                val effectiveBeforeProfile = beforeProfile ?: tokenManager.getCachedProfile()
+                val userId = effectiveBeforeProfile?.id ?: tokenManager.getUserId()
 
                 if (userId != null) {
                     tokenManager.saveUserId(userId)
                 }
 
-                val response = trailApiService.completeTopic(topicId)
+                val response = trailApiService.completeTopic(
+                    topicId = topic.id,
+                    request = UpdateTopicProgressRequest(completed = targetCompleted)
+                )
                 if (!response.isSuccessful) {
                     _uiState.value = TrailDetailsUiState.Error("${AppStrings.errConcludeTopic} (${response.code()})")
                     return@launch
@@ -136,42 +154,66 @@ class TrailDetailsViewModel(
                     val updatedTrail = updatedTrailResp.body()!!
                     tokenManager.saveCachedTrailDetails(updatedTrail)
                     val newProgress = calculateProgress(updatedTrail)
-                    _uiState.value = TrailDetailsUiState.Success(trail = updatedTrail, progressFraction = newProgress)
+                    _uiState.value = TrailDetailsUiState.Success(
+                        trail = updatedTrail,
+                        progressFraction = newProgress
+                    )
 
                     val testPreview = updatedTrail.studyTestPreviewResponse
-                    if (newProgress >= 1.0f && testPreview != null && testPreview.studyTestStatus.equals("OPEN", ignoreCase = true)) {
+                    if (targetCompleted && newProgress >= 1.0f && testPreview != null &&
+                        testPreview.studyTestStatus.equals("OPEN", ignoreCase = true)
+                    ) {
                         isTestNowUnlocked = true
                         unlockedTestId = testPreview.id
                         unlockedTestPassingScore = testPreview.passingScore
                     }
                 }
 
-                val afterProfileResp = userApiService.getUserProfile()
-                val afterProfile = if (afterProfileResp.isSuccessful) afterProfileResp.body() else null
+                if (targetCompleted) {
+                    val afterProfileResp = try {
+                        userApiService.getUserProfile()
+                    } catch (_: Exception) {
+                        null
+                    }
+                    val afterProfile = if (afterProfileResp?.isSuccessful == true) {
+                        afterProfileResp.body()
+                    } else {
+                        null
+                    }
 
-                if (afterProfile != null) {
-                    tokenManager.saveCachedProfile(afterProfile)
-                    tokenManager.updateStudiedToday(afterProfile.studiedToday)
-                }
+                    if (afterProfile != null) {
+                        tokenManager.saveCachedProfile(afterProfile)
+                        tokenManager.updateStudiedToday(afterProfile.studiedToday)
+                    }
 
-                if (beforeProfile != null && afterProfile != null) {
-                    val beforeTotalXp = (beforeProfile.level - 1) * beforeProfile.maxXp + beforeProfile.currentXp
-                    val afterTotalXp = (afterProfile.level - 1) * afterProfile.maxXp + afterProfile.currentXp
+                    val beforeTotalXp = if (effectiveBeforeProfile != null) {
+                        (effectiveBeforeProfile.level - 1) * effectiveBeforeProfile.maxXp + effectiveBeforeProfile.currentXp
+                    } else {
+                        0
+                    }
+
+                    val afterTotalXp = if (afterProfile != null) {
+                        (afterProfile.level - 1) * afterProfile.maxXp + afterProfile.currentXp
+                    } else {
+                        beforeTotalXp + 50
+                    }
+
                     val xpGained = (afterTotalXp - beforeTotalXp).coerceAtLeast(50)
 
-                    val beforeUnlockedIds = beforeProfile.achievements
-                        .filter { it.unlocked }
-                        .map { it.id }
-                        .toSet()
+                    val beforeUnlockedIds = effectiveBeforeProfile?.achievements
+                        ?.filter { it.unlocked }
+                        ?.map { it.id }
+                        ?.toSet()
+                        ?: emptySet()
 
-                    val newlyUnlocked = afterProfile.achievements.filter {
+                    val newlyUnlocked = afterProfile?.achievements?.filter {
                         it.unlocked && it.id !in beforeUnlockedIds
-                    }
+                    } ?: emptyList()
 
                     _rewardEvent.value = GamificationRewardEvent(
                         xpGained = xpGained,
-                        leveledUp = afterProfile.level > beforeProfile.level,
-                        newLevel = afterProfile.level,
+                        leveledUp = (afterProfile?.level ?: 1) > (effectiveBeforeProfile?.level ?: 1),
+                        newLevel = afterProfile?.level ?: effectiveBeforeProfile?.level ?: 1,
                         trailCompleted = false,
                         testUnlocked = isTestNowUnlocked,
                         unlockedTestId = unlockedTestId,
@@ -252,7 +294,6 @@ class TrailDetailsViewModel(
                 val response = trailApiService.deleteTrail(trailId)
                 if (response.isSuccessful) {
                     tokenManager.removeCachedTrailDetails(trailId)
-                    // Remove também do cache da lista da Home para não piscar antes do reload
                     tokenManager.getCachedHomeTrails()?.let { cachedList ->
                         tokenManager.saveCachedHomeTrails(cachedList.filterNot { it.id == trailId })
                     }

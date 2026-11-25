@@ -19,6 +19,7 @@ class SettingsViewModel(
 
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
     private val _isSaving = MutableStateFlow(false)
     val isSaving: StateFlow<Boolean> = _isSaving.asStateFlow()
 
@@ -29,39 +30,59 @@ class SettingsViewModel(
         loadSettings()
     }
 
+    private suspend fun reconcileSettingsWithDevice(remote: UserSettingsDTO) {
+        val localTheme = tokenManager.getTheme()
+        val localLanguage = tokenManager.getLanguage()
+
+        val shouldPushSystemToRemote =
+            (localTheme.equals("system", ignoreCase = true) && !remote.theme.equals("system", ignoreCase = true)) ||
+                    (localLanguage.equals("system", ignoreCase = true) && !remote.language.equals("system", ignoreCase = true))
+
+        if (shouldPushSystemToRemote) {
+            val syncedSettings = remote.copy(
+                theme = if (localTheme.equals("system", ignoreCase = true)) "system" else remote.theme,
+                language = if (localLanguage.equals("system", ignoreCase = true)) "system" else remote.language
+            )
+            AppPreferencesState.updateFromSettings(syncedSettings.theme, syncedSettings.language)
+            tokenManager.saveCachedSettings(syncedSettings)
+            _uiState.value = SettingsUiState.Success(syncedSettings)
+
+            try {
+                settingsApiService.updateSettings(syncedSettings)
+            } catch (_: Exception) {
+            }
+        } else {
+            AppPreferencesState.updateFromSettings(remote.theme, remote.language)
+            tokenManager.saveCachedSettings(remote)
+            _uiState.value = SettingsUiState.Success(remote)
+        }
+    }
+
     fun loadSettings() {
         viewModelScope.launch {
-            // 1. Cache-First: exibe instantaneamente o que está no DataStore
-            val cached = tokenManager.getCachedSettings()
-            if (cached != null) {
+            tokenManager.getCachedSettings()?.let { cached ->
                 AppPreferencesState.updateFromSettings(cached.theme, cached.language)
                 _uiState.value = SettingsUiState.Success(cached)
-            } else {
-                _uiState.value = SettingsUiState.Loading
             }
 
-            // 2. Busca o estado mais recente no BackEnd (GET /settings)
             try {
                 val response = settingsApiService.getSettings()
                 if (response.isSuccessful && response.body() != null) {
-                    val remote = response.body()!!
-                    AppPreferencesState.updateFromSettings(remote.theme, remote.language)
-                    tokenManager.saveCachedSettings(remote)
-                    _uiState.value = SettingsUiState.Success(remote)
-                } else if (cached == null) {
+                    reconcileSettingsWithDevice(response.body()!!)
+                } else if (_uiState.value !is SettingsUiState.Success) {
                     _uiState.value = SettingsUiState.Error("${AppStrings.errServer} (${response.code()})")
                 }
-            } catch (_: Exception) {
-                if (cached == null) {
-                    _uiState.value = SettingsUiState.Error(AppStrings.errNetwork)
+            } catch (e: Exception) {
+                if (_uiState.value !is SettingsUiState.Success) {
+                    _uiState.value = SettingsUiState.Error(AppStrings.errUnexpected)
                 }
             }
         }
     }
+
     fun updateSettings(newSettings: UserSettingsDTO) {
         val previousSettings = (_uiState.value as? SettingsUiState.Success)?.settings
 
-        // Atualização otimista imediata (UI + Tema/Idioma + Cache Local)
         AppPreferencesState.updateFromSettings(newSettings.theme, newSettings.language)
         _uiState.value = SettingsUiState.Success(newSettings)
 
@@ -76,17 +97,14 @@ class SettingsViewModel(
                     tokenManager.saveCachedSettings(saved)
                     _uiState.value = SettingsUiState.Success(saved)
                 } else if (previousSettings != null) {
-                    // Mantém o estado local caso o servidor rejeite
                     _uiState.value = SettingsUiState.Success(newSettings)
                 }
             } catch (_: Exception) {
-                // Mantém salvo no cache local mesmo offline
             } finally {
                 _isSaving.value = false
             }
         }
     }
-
 
     fun refresh() {
         viewModelScope.launch {
@@ -94,10 +112,7 @@ class SettingsViewModel(
             try {
                 val response = settingsApiService.getSettings()
                 if (response.isSuccessful && response.body() != null) {
-                    val saved = response.body()!!
-                    AppPreferencesState.updateFromSettings(saved.theme, saved.language)
-                    tokenManager.saveCachedSettings(saved)
-                    _uiState.value = SettingsUiState.Success(saved)
+                    reconcileSettingsWithDevice(response.body()!!)
                 }
             } catch (_: Exception) {
             } finally {

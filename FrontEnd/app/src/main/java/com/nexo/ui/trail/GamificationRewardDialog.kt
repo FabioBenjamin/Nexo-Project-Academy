@@ -63,19 +63,21 @@ fun GamificationRewardDialog(
             ) {
                 Box(
                     modifier = Modifier
-                        .size(110.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.25f))
-                        .border(2.dp, MaterialTheme.colorScheme.secondary, CircleShape),
+                        .size(124.dp)
+                        .clip(RoundedCornerShape(26.dp))
+                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f))
+                        .border(2.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(26.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
                         painter = painterResource(
                             id = if (event.testUnlocked && !event.trailCompleted) R.drawable.mascote_focado else R.drawable.mascote_campeao
                         ),
-                        contentDescription = "Mascote Nexo",
+                        contentDescription = AppStrings.cdMascotChampion,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.size(96.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp)
                     )
                 }
 
@@ -111,7 +113,7 @@ fun GamificationRewardDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "XP",
+                            contentDescription = AppStrings.cdXP,
                             tint = Color(0xFFFFB300),
                             modifier = Modifier.size(22.dp)
                         )
@@ -130,8 +132,10 @@ fun GamificationRewardDialog(
                     event.unlockedAchievements.forEach { achievement ->
                         Card(
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF8E1)),
-                            border = BorderStroke(1.5.dp, Color(0xFFFFB300)),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f)
+                            ),
+                            border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.secondary),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 4.dp)
@@ -160,13 +164,13 @@ fun GamificationRewardDialog(
                                         text = achievement.title,
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF5D4037)
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
                                         text = "+${achievement.xpReward} XP",
                                         style = MaterialTheme.typography.labelMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF2E7D32)
+                                        color = MaterialTheme.colorScheme.tertiary
                                     )
                                 }
                             }

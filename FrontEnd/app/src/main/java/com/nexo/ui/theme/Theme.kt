@@ -58,8 +58,6 @@ fun NexoAcademyTheme(
         content = content
     )
 }
-
-// Não precisar substituir em todos os arquivos Screen o tema
 @Composable
 fun nexoTextFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedTextColor = MaterialTheme.colorScheme.onSurface,
